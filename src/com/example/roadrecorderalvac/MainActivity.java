@@ -3,17 +3,58 @@ package com.example.roadrecorderalvac;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
+
+	private final String TAG = "RoadRecorder";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		// Comprobar si es la primera ejecución
+		checkFirstExecution();
+		
 	}
-
+	private void checkFirstExecution() {
+		if(isFirstExecution()) {
+			Log.d(TAG, "First execution");
+			if(!createAppDirectory()) {
+				Log.e(TAG, "Can't create application directory");
+				showMessage("Error Creating Application Directory");
+				finish();
+				return;
+			}
+			Log.d(TAG, "Created application directory");
+			if(!createSettingsFile()) {
+				Log.e(TAG, "Error Creating settings file");
+				showMessage("Error Creating File");
+				finish();
+				return;
+			}
+			Log.d(TAG, "Created settings file");
+		}
+	}
+	private boolean isFirstExecution() {
+		// Se comprueba si es la primera ejecución del programa
+		// por la existencia o no del directorio de la aplicación
+		// TODO Complete method
+		return true;
+	}
+	private boolean createAppDirectory() {
+		return true;
+	}
+	private boolean createSettingsFile() {
+		return true;
+	}
+	private void showMessage(String msg) {
+		Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
