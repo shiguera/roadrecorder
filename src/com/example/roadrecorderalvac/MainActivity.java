@@ -110,6 +110,9 @@ public class MainActivity extends Activity {
 		case R.id.menuitem_about:
 			startActivityAbout();
 			break;
+		case R.id.menuitem_back:
+			finish();
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
