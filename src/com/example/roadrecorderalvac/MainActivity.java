@@ -14,6 +14,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.i(TAG,"MainActivity.onCreate()");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
@@ -22,6 +23,40 @@ public class MainActivity extends Activity {
 		
 		
 	}
+	@Override
+	protected void onRestart() {
+		Log.i(TAG,"MainActivity.onRestart()");
+		super.onRestart();
+	}
+	@Override
+	protected void onStart() {
+		Log.i(TAG,"MainActivity.onStart()");
+		super.onStart();
+	}
+
+	@Override
+	protected void onResume() {
+		Log.i(TAG,"MainActivity.onResume()");
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		Log.i(TAG,"MainActivity.onPause()");
+		super.onPause();
+	}
+	@Override
+	protected void onStop() {
+		Log.i(TAG,"MainActivity.onStop()");
+		super.onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		Log.i(TAG,"MainActivity.onDestroy()");
+		super.onDestroy();
+	}
+
 	private void checkFirstExecution() {
 		if(isFirstExecution()) {
 			Log.d(TAG, "First execution");

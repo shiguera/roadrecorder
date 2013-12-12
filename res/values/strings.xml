@@ -12,4 +12,6 @@
     <string name="menuitem_config">Configuración</string>
     <string name="menuitem_help">Ayuda</string>
     <string name="menuitem_about">Acerca de RoadRecorder</string>
+    <string name="menuitem_back">Volver atrás</string>
+    
 </resources>
