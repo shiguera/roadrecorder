@@ -7,10 +7,35 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".HelpActivity" >
-
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+	<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent">    
     <TextView
+        android:id="@+id/help_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/title_activity_help" />
-
+        android:layout_centerHorizontal="true"      
+        style="@android:style/TextAppearance.Large"    
+        android:text="@string/help_title" />
+    <TextView
+        android:id="@+id/help_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/help_title"
+        style="@android:style/TextAppearance.Medium"          
+        android:text="@string/help_content" />    
+    <ImageView
+        android:id="@+id/help_image1"
+        android:src="@drawable/roadrecorder3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"  
+        android:layout_marginBottom="20sp"
+        android:layout_centerHorizontal="true"      
+        android:layout_below="@id/help_content">
+    </ImageView>
+</RelativeLayout>
+</ScrollView>
 </RelativeLayout>

@@ -14,4 +14,11 @@
     <string name="menuitem_about">Acerca de RoadRecorder</string>
     <string name="menuitem_back">Volver atrás</string>
     
+    <string name="about_title">RoadRecorder</string>
+    <string name="about_content">Software desarrollado por Mercatorlab S.L.</string>
+    <string name="about_link">http://mercatorlab.com</string>
+
+    <string name="help_title">Ayuda de RoadRecorder</string>
+    <string name="help_content">Fijación del smartphone al retrovisor del automóvil</string>
+    
 </resources>
