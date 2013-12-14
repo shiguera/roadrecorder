@@ -19,6 +19,14 @@
     <string name="about_link">http://mercatorlab.com</string>
 
     <string name="help_title">Ayuda de RoadRecorder</string>
-    <string name="help_content">Fijación del smartphone al retrovisor del automóvil</string>
+    <string name="help_content1"> La utilización de este programa origina un alto consumo
+        de batería, por lo que se recomienda su utilización conectado a la toma de corriente
+        del automóvil.</string>
+    <string name="help_content2"> Los ficheros de las grabaciones se almacenan en el directorio RoadRecorder
+        del dispositivo o de la tarjeta de expansión de memoria si existe.\n
+        Los vídeos quedan grabados en formato mp4.\n
+        Los tracks se almacenan por duplicado: en formato csv y en formato gpx.\n
+        A efectos de sincronización posterior, es importante no cambiar de nombre los ficheros.</string>
+    <string name="help_content3">Fijación del smartphone al retrovisor del automóvil</string>
     
 </resources>
