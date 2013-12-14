@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
 		// Comprobar si es la primera ejecución
 		checkFirstExecution();
 		
-		startActivityHelp();
+		//startActivityHelp();
 	}
 	@Override
 	protected void onRestart() {

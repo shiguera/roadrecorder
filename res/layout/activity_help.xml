@@ -26,7 +26,15 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/help_title"
         style="@android:style/TextAppearance.Medium"          
-        android:text="@string/help_content" />    
+        android:text="@string/help_content" />
+    <TextView
+        android:id="@+id/help_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/help_title"
+        style="@android:style/TextAppearance.Medium"          
+        android:text="@string/help_content2" />    
     <ImageView
         android:id="@+id/help_image1"
         android:src="@drawable/roadrecorder3"
