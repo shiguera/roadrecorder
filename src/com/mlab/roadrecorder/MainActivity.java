@@ -1,4 +1,4 @@
-package com.example.roadrecorderalvac;
+package com.mlab.roadrecorder;
 
 import java.io.File;
 import java.util.Arrays;
@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.roadrecorderalvac.R;
 import com.mlab.android.gpsmanager.GpsListener;
 import com.mlab.android.gpsmanager.GpsManager;
 import com.mlab.gpx.api.GpxDocument;
@@ -68,7 +69,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 	Date startDate;
 	
 	// Components: VideoManager
-	VideoManager videoManager;
+	VideoModel videoManager;
 	
 	// Components: GpsManager
 	GpsManager gpsManager=null;
@@ -136,7 +137,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		sensorTrack = new Track();
 		        	        
         // Inicializar GpsManager
-        gpsManager = initGpsManager();
+		gpsManager = initGpsManager();
         if(!gpsManager.isGpsEnabled()) {
         	cad = "Error : Inicialización incorrecta del GpsManager";
         	Toast.makeText(getApplicationContext(), cad, 
@@ -334,10 +335,10 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
         blinkLabelTimer.scheduleAtFixedRate(new BlinkLabelTimerTask(), 0, BLINK_LABEL_LAPSE);
 	}
 	
-	private VideoManager initVideoManager(File outputDirectory) {
-       	videoManager = new VideoManager(this, frameLayout);
+	private VideoModel initVideoManager(File outputDirectory) {
+       	//videoManager = new VideoModel(this, frameLayout);
        	// Asignar el outputDirectory al videoManager
-     	videoManager.setOutputDirectory(outputDirectory);
+     	//videoManager.setOutputDirectory(outputDirectory);
        	return videoManager;
 	}
 	private GpsManager initGpsManager() {
@@ -471,20 +472,20 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
     
     private void startRecording() {
 		startDate = new Date();
-		trackLabel = VideoManager.getTimeStamp(startDate, true);
-		videoManager.setOutputFile(trackLabel);
+		//trackLabel = VideoModel.getTimeStamp(startDate, true);
+		//videoManager.setOutputFile(trackLabel);
 		
 		//sensorTrack = new SensorTrack();
 		sensorTrack = new Track();
 		
 		updateLocation(lastLocReceived);
         
-		boolean result = videoManager.startRecording();
-        if(!result){
-        	MainActivity.this.notify("MainActivity: Fail in startRecording!\n - Ended -",LogLevel.ERROR,true);
-        	finish();
-        	return;
-        }
+		//boolean result = videoManager.startRecording();
+//        if(!result){
+//        	MainActivity.this.notify("MainActivity: Fail in startRecording!\n - Ended -",LogLevel.ERROR,true);
+//        	finish();
+//        	return;
+//        }
 
         timer=new Timer();
         
@@ -725,8 +726,8 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 	private boolean saveGpxFile() {
 		boolean result=false;
 		// FIXME Hacerlo en segundo plano
-        String filename=appDirectory.getPath()+"/"+
-        		VideoManager.getTimeStamp(startDate, true);
+        String filename=appDirectory.getPath()+"/";
+        	//+VideoModel.getTimeStamp(startDate, true);
         String gpxFilename = filename +".gpx";
         String csvFilename = filename +".csv";
         try {

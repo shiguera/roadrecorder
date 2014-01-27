@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="/home/shiguera/.m2/repository/com/mlab/gpx/GpxParser/3.3-SNAPSHOT/GpxParser-3.3-SNAPSHOT.jar"/>
-	<classpathentry exported="true" kind="lib" path="/home/shiguera/workspace/android/RoadRecorder/GpsManager/bin/gpsmanager.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/RoadRecorderAlvac"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>

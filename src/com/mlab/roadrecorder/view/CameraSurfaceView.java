@@ -1,4 +1,4 @@
-package com.example.roadrecorderalvac;
+package com.mlab.roadrecorder.view;
 
 import java.io.IOException;
 

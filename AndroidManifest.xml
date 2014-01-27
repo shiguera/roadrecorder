@@ -6,6 +6,7 @@
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
     <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
@@ -23,32 +24,31 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name="com.example.roadrecorderalvac.SplashActivity"
+            android:name="com.mlab.roadrecorder.SplashActivity"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.mlab.roadrecorder.NewActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.roadrecorderalvac.MainActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="landscape" >
-        </activity>
-        <activity
-            android:name="com.example.roadrecorderalvac.ConfigActivity"
+            android:name="com.mlab.roadrecorder.ConfigActivity"
 	        android:screenOrientation="landscape"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.example.roadrecorderalvac.HelpActivity"
+            android:name="com.mlab.roadrecorder.HelpActivity"
             android:screenOrientation="landscape"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.example.roadrecorderalvac.AboutActivity"
+            android:name="com.mlab.roadrecorder.AboutActivity"
 	        android:screenOrientation="landscape"
             android:label="@string/app_name" >
         </activity>
