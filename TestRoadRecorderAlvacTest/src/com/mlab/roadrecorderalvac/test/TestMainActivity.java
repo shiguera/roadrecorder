@@ -48,7 +48,6 @@ public class TestMainActivity extends ActivityInstrumentationTestCase2<NewActivi
         assertTrue(controller.initMediaRecorder());
         assertNotNull(controller.getFrameLayout());
         assertEquals(1,controller.getFrameLayout().getChildCount());
-        assertTrue(controller.isCameraEnabled());
 
         //controller.startRecording();
         

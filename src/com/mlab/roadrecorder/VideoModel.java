@@ -50,7 +50,7 @@ public class VideoModel extends AbstractObservable implements
 	private boolean isRecording;
 	private boolean isEnabled;
 	
-	SurfaceHolder holder;
+	//SurfaceHolder holder;
 
 	// Constructor
 	/**
@@ -81,7 +81,7 @@ public class VideoModel extends AbstractObservable implements
 	 */
 	public boolean initMediaRecorder(SurfaceHolder holder) {
 		String cad = "VideoModel.initMediaRecorder() ";
-		this.holder = holder;
+		//this.holder = holder;
 		mediaRecorder = new MediaRecorder();
 		//camera.unlock();
 		mediaRecorder.setCamera(camera);
@@ -153,14 +153,13 @@ public class VideoModel extends AbstractObservable implements
 		try {
 			Log.d(TAG, "VideoModel.stopRecording() stopping VideoModel... ");
 			mediaRecorder.stop();
-			releaseMediaRecorder();
+			//releaseMediaRecorder();
 			result = true;
 		} catch (Exception e) {
 			Log.e(TAG, "VideoModel.stopRecording() ERROR stopping mediaRecording. ");
 		}
 		releaseMediaRecorder();
 		isRecording = false;
-		isEnabled = false;
 		return result;
 	}
 

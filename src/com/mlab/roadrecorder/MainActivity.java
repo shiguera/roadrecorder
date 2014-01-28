@@ -96,7 +96,8 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 	// Status
 	private enum Status {FIXING_GPS, GPS_FIXED, RECORDING, SAVING};
 	private Status status;
-
+	
+	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG,"MainActivity.onCreate()");
@@ -220,6 +221,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		super.onDestroy();
 	}
 
+	// First execution
 	private void checkFirstExecution() {
 		if(isFirstExecution()) {
 			Log.d(TAG, "First execution");
@@ -255,13 +257,13 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 	}
 
+	// Menu
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
@@ -296,7 +298,43 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 //		startActivity(i);
 	}
 	
-
+	private VideoModel initVideoManager(File outputDirectory) {
+       	//videoManager = new VideoModel(this, frameLayout);
+       	// Asignar el outputDirectory al videoManager
+     	//videoManager.setOutputDirectory(outputDirectory);
+       	return videoManager;
+	}
+	private GpsManager initGpsManager() {
+		Log.d(TAG,"MainActivity.initGpsManager()");
+		gpsManager = new GpsManager(this.getApplicationContext());
+		return gpsManager;
+	}
+	private File initAppDirectory() {
+		// Probamos a ver si está montada la tarjeta externa
+		File device = new File(EXTSDCARD_PATH);
+		notify("File "+device.getPath()+" exists: "+String.format("%b", device.exists()),LogLevel.DEBUG,false);
+		notify("File "+device.getPath()+" can write: "+String.format("%b", device.canWrite()),LogLevel.DEBUG,false);
+		if(!device.exists() || !device.canWrite()) {
+			device = new File(Environment.getExternalStorageDirectory().getPath());
+		}
+		File appdirectory = new File(device, APP_FILENAME);
+		if(appdirectory.exists()==false) {
+			if(appdirectory.mkdir()==false) {
+				return null;
+			}
+			notify("appDirectory created at "+appdirectory.getPath(),LogLevel.DEBUG, false);
+		}
+        return appdirectory;
+        
+	}
+	private void initSensors() {
+		sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
+		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		linearAccSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+		pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+	}
+	
 	private void adjustLayout() {
 		// Calcular el tamaño de la pantalla
 		Display display = getWindowManager().getDefaultDisplay();
@@ -327,53 +365,6 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 
 	}
 
-	private void initBlinkLabelTimer() {
-		if(blinkLabelTimer != null) {
-			blinkLabelTimer.cancel();
-		}
-        blinkLabelTimer = new Timer();
-        blinkLabelTimer.scheduleAtFixedRate(new BlinkLabelTimerTask(), 0, BLINK_LABEL_LAPSE);
-	}
-	
-	private VideoModel initVideoManager(File outputDirectory) {
-       	//videoManager = new VideoModel(this, frameLayout);
-       	// Asignar el outputDirectory al videoManager
-     	//videoManager.setOutputDirectory(outputDirectory);
-       	return videoManager;
-	}
-	private GpsManager initGpsManager() {
-		Log.d(TAG,"MainActivity.initGpsManager()");
-		gpsManager = new GpsManager(this.getApplicationContext());
-		return gpsManager;
-	}
-
-	private File initAppDirectory() {
-		// Probamos a ver si está montada la tarjeta externa
-		File device = new File(EXTSDCARD_PATH);
-		notify("File "+device.getPath()+" exists: "+String.format("%b", device.exists()),LogLevel.DEBUG,false);
-		notify("File "+device.getPath()+" can write: "+String.format("%b", device.canWrite()),LogLevel.DEBUG,false);
-		if(!device.exists() || !device.canWrite()) {
-			device = new File(Environment.getExternalStorageDirectory().getPath());
-		}
-		File appdirectory = new File(device, APP_FILENAME);
-		if(appdirectory.exists()==false) {
-			if(appdirectory.mkdir()==false) {
-				return null;
-			}
-			notify("appDirectory created at "+appdirectory.getPath(),LogLevel.DEBUG, false);
-		}
-        return appdirectory;
-        
-	}
-
-	private void initSensors() {
-		sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
-		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-		linearAccSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-		pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-	}
-	
 	// Button StartStop
 	Button.OnClickListener myButtonOnClickListener
     = new Button.OnClickListener(){
@@ -393,22 +384,14 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		}	
 	};
 
-		
-	private boolean geotagVideoFile() {
-		// FIXME Hacer en segundo plano
-		boolean result = false;
-		WayPoint startp = track.getStartWayPoint();
-		if(startp != null) {
-			double longitude = startp.getLongitude();
-			double latitude = startp.getLatitude();
-			double altitude = startp.getAltitude();
-			result = videoManager.geotagVideoFile(startDate, longitude, latitude, altitude);
-		} else {
-			notify("MainActivity().geotagVideoFile() ERROR: Can't geotag video",
-					LogLevel.ERROR, false);
+	private void initBlinkLabelTimer() {
+		if(blinkLabelTimer != null) {
+			blinkLabelTimer.cancel();
 		}
-		return result;
+        blinkLabelTimer = new Timer();
+        blinkLabelTimer.scheduleAtFixedRate(new BlinkLabelTimerTask(), 0, BLINK_LABEL_LAPSE);
 	}
+		
 		
 	public void notify(String message, LogLevel level, boolean withToast) {
 		switch(level) {
@@ -515,7 +498,26 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
         //geotagVideoFile();		
 	}
 
-    private void saveAndResume() {
+	private boolean saveGpxFile() {
+		boolean result=false;
+		// FIXME Hacerlo en segundo plano
+        String filename=appDirectory.getPath()+"/";
+        	//+VideoModel.getTimeStamp(startDate, true);
+        String gpxFilename = filename +".gpx";
+        String csvFilename = filename +".csv";
+        try {
+        	GpxFactory factory = GpxFactory.getFactory(Type.ExtendedGpxFactory);
+        	GpxDocument doc = factory.createGpxDocument();
+        	doc.addTrack(sensorTrack);
+        	Util.write(gpxFilename, doc.asGpx());
+        	Util.write(csvFilename, sensorTrack.asCsv(true));
+        	result = true;
+        } catch (Exception e) {
+        	notify("Error can't save GpxDocument",LogLevel.ERROR,true);
+        }
+		return result;
+	}
+	private void saveAndResume() {
 		notify("saveAndResume()",LogLevel.DEBUG,true);
 		this.btnStartStop.setEnabled(false);
 		status = Status.SAVING;
@@ -526,6 +528,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		
 	}
 
+	// UpdateUI
 	private void updateUI() {
 		updateLabelPointsCount(this.sensorTrack.wayPointCount());
 		if(status == Status.RECORDING) {
@@ -547,8 +550,8 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		String cad = String.format("lat=%7.3f  lon=%7.3f" , loc.getLatitude(),loc.getLongitude());
 		lblposition.setText(cad);			
 	}
-	// Timer
 
+	// Timers
 	class MainTimerTask extends TimerTask {
 		@Override
 		public void run() {
@@ -564,14 +567,12 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 			}
 		}
 	}
-	
 	class MainTimerTaskOnUIThread implements Runnable {
 		@Override
 		public void run() {
 			updateUI();
 		}		
 	}
-	
 	class BlinkLabelTimerTask extends TimerTask {
 		@Override
 		public void run() {
@@ -629,7 +630,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		return db;
 	}
 
-	// Interface SensorEventListener
+	// Sensores
 	float[] localGravity = new float[3];
 	float[] geomagneticVector = new float[3];
 	float[] localAcceleration = new float[3];
@@ -642,7 +643,6 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		// TODO Auto-generated method stub
 		
 	}
-
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		switch(event.sensor.getType()) {
@@ -666,14 +666,11 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
         }		
 		
 	}
-	
-	
 	private float[] calculateGlobalAcceleration() {
 		float[] rtrasp = traspose(rotationMatrix);
 		float[] globalAcceleration = this.vectorByMatrixMultiplication(localAcceleration, rtrasp);
 		return globalAcceleration;
 	}
-	
 	/**
 	 * Multiplica un vector de dimensión 3 por una matriz 3x3 y devuelve el vector resultado
 	 * @param vector vector fila de tres dimensiones [v0 v1 v2]
@@ -723,25 +720,22 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		return result;
 	}
 
-	private boolean saveGpxFile() {
-		boolean result=false;
-		// FIXME Hacerlo en segundo plano
-        String filename=appDirectory.getPath()+"/";
-        	//+VideoModel.getTimeStamp(startDate, true);
-        String gpxFilename = filename +".gpx";
-        String csvFilename = filename +".csv";
-        try {
-        	GpxFactory factory = GpxFactory.getFactory(Type.ExtendedGpxFactory);
-        	GpxDocument doc = factory.createGpxDocument();
-        	doc.addTrack(sensorTrack);
-        	Util.write(gpxFilename, doc.asGpx());
-        	Util.write(csvFilename, sensorTrack.asCsv(true));
-        	result = true;
-        } catch (Exception e) {
-        	notify("Error can't save GpxDocument",LogLevel.ERROR,true);
-        }
+	// Geotagging
+	private boolean geotagVideoFile() {
+		// FIXME Hacer en segundo plano
+		boolean result = false;
+		WayPoint startp = track.getStartWayPoint();
+		if(startp != null) {
+			double longitude = startp.getLongitude();
+			double latitude = startp.getLatitude();
+			double altitude = startp.getAltitude();
+			result = videoManager.geotagVideoFile(startDate, longitude, latitude, altitude);
+		} else {
+			notify("MainActivity().geotagVideoFile() ERROR: Can't geotag video",
+					LogLevel.ERROR, false);
+		}
 		return result;
 	}
-	
+
 
 }

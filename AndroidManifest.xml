@@ -38,6 +38,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.mlab.roadrecorder.TestGpsModelActivity"
+	        android:screenOrientation="landscape"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
             android:name="com.mlab.roadrecorder.ConfigActivity"
 	        android:screenOrientation="landscape"
             android:label="@string/app_name" >
