@@ -1,7 +1,8 @@
 package com.mlab.roadrecorder;
 
 import android.app.Activity;
-import android.graphics.Color;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,9 +19,14 @@ public class NewActivity extends Activity implements Observer {
     private enum LogLevel {INFO,DEBUG,WARNING,ERROR};
 
 
-	protected VideoModel model;
-	protected VideoController controller;
-    // Layout
+    // Video
+	protected VideoModel videoModel;
+	protected VideoController videoController;
+	// Gps
+	protected GpsModel gpsModel;
+	//protected GpsController gpsController;
+	
+	// Layout
 	protected Button btnStartStop;
 	protected TextView lblInfo,lblrecordtime,lblposition, lblpointscount;
 	protected FrameLayout frameLayout;
@@ -34,8 +40,8 @@ public class NewActivity extends Activity implements Observer {
 		
 		initLayout();
 		
-		model = new VideoModel();
-		controller = new VideoController(this, frameLayout, model);
+		videoModel = new VideoModel();
+		videoController = new VideoController(this, frameLayout, videoModel);
 
 	}
 	private void initLayout() {
@@ -56,19 +62,22 @@ public class NewActivity extends Activity implements Observer {
         btnStartStop.setOnClickListener(new Button.OnClickListener(){
     		@Override
     		public void onClick(View v) {
-    			if(model.isRecording()) {
+    			if(videoModel.isRecording()) {
     				showNotification("Stoping",LogLevel.INFO, false);
-    				controller.stopRecording();
-    		        btnStartStop.setText("Grabar"); 
-    		        btnStartStop.setBackgroundColor(Color.GREEN);
+    				videoController.stopRecording();
+    				btnStartStop.setBackgroundResource(R.drawable.button_start);
+    				//btnStartStop.setPressed(false);
+    		        //btnStartStop.setText("Grabar"); 
+    		        //btnStartStop.setBackgroundColor(Color.GREEN);
     				//Exit after saved
                     //finish();
                     return;
     			} else {
     				showNotification("Starting",LogLevel.INFO, false);
-    				controller.startRecording();
-    		        btnStartStop.setText("Parar");
-    		        btnStartStop.setBackgroundColor(Color.RED);
+    				videoController.startRecording();
+    				btnStartStop.setBackgroundResource(R.drawable.button_stop);
+    		        //btnStartStop.setText("Parar");
+    		        //btnStartStop.setBackgroundColor(Color.RED);
     			}
     		}});
         btnStartStop.setEnabled(true);
@@ -77,13 +86,13 @@ public class NewActivity extends Activity implements Observer {
 	protected void onPause() {
 		Log.i(TAG,"MainActivity.onPause()");
 		frameLayout.removeAllViews();
-		controller.release();
+		videoController.release();
 		super.onPause();
 	}
 	@Override
 	protected void onStart() {
 		Log.i(TAG,"MainActivity.onStart()");
-		boolean result = controller.initMediaRecorder();
+		boolean result = videoController.initMediaRecorder();
 		if(!result) {
 			this.showNotification("Can't init MediaRecorder", LogLevel.ERROR, true);
 			super.onStart();
@@ -95,11 +104,11 @@ public class NewActivity extends Activity implements Observer {
 	
 	// Getters
 	public VideoModel getModel() {
-		return model;
+		return videoModel;
 	}
 
 	public VideoController getController() {
-		return controller;
+		return videoController;
 	}
 	
 	// Interface Observer

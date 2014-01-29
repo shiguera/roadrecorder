@@ -1,76 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   	android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="10dp"
-    >
-	<FrameLayout
-		android:id="@+id/videoview" 
-		android:layout_width="520px"
-		android:layout_height="340px"
-		android:layout_gravity="center"/>
-	<LinearLayout 
-	    android:orientation="vertical"
-   		android:layout_width="fill_parent"
-   		android:layout_height="fill_parent"
-		android:padding="10dp">    
-		<TextView 
-		    android:id="@+id/lblInfo" 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/lblInfo"
-			android:textSize="15sp"
-			android:textColor="#008000"
-			android:layout_gravity="center_horizontal"/>	    		 
-	    <Button
-			android:id="@+id/mybutton" 
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/btnStartStop"
-			android:textSize="18sp"/>		
-		<TextView 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/lbl_tit_currentposition"
-			android:textSize="18sp"
-			android:textStyle="bold"
-			android:layout_gravity="center_horizontal"/>	    	
-		<TextView 
-			android:id="@+id/lblposition"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="-"
-			android:textSize="18sp"
-			android:layout_gravity="center_horizontal"/>	    	
-		<TextView 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/lbl_tit_recordtime"
-			android:textSize="18sp"
-			android:textStyle="bold"
-			android:layout_gravity="center_horizontal"/>	    	
-		<TextView 
-			android:id="@+id/lblrecordtime"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="-"
-			android:textSize="18sp"
-			android:layout_gravity="center_horizontal"/>	    	
-		<TextView 
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/lbl_tit_pointscount"
-			android:textSize="18sp"
-			android:textStyle="bold"
-			android:layout_gravity="center_horizontal"/>	    	
-		<TextView 
-			android:id="@+id/lblpointscount"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="-"
-			android:textSize="18sp"
-			android:layout_gravity="center_horizontal"/>	    	
-				
-	</LinearLayout>
+    android:orientation="horizontal"
+    android:padding="5dp" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:id="@+id/videoview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.8" />
+
+        <Button
+            android:id="@+id/mybutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dip"
+            android:layout_weight="1"
+            android:background="@drawable/btnstart_selector"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/lblInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/lblInfo"
+            android:textColor="#008000"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/lbl_tit_currentposition"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/lblposition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="-"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/lbl_tit_recordtime"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/lblrecordtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="-"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/lbl_tit_pointscount"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/lblpointscount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="-"
+            android:textSize="18sp" />
+    </LinearLayout>
+
 </LinearLayout>

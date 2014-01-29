@@ -36,10 +36,10 @@ public class VideoModel extends AbstractObservable implements
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
 	// private static final CamcorderProfile CAMCORDER_PROFILE =
 	// CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-	// private static final CamcorderProfile CAMCORDER_PROFILE =
-	// CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-	private static final CamcorderProfile CAMCORDER_PROFILE = CamcorderProfile
-			.get(CamcorderProfile.QUALITY_LOW);
+	 private static final CamcorderProfile CAMCORDER_PROFILE =
+			 CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+//	private static final CamcorderProfile CAMCORDER_PROFILE = CamcorderProfile
+//			.get(CamcorderProfile.QUALITY_LOW);
 
 	private MediaRecorder mediaRecorder;
 	private Camera camera;
@@ -95,7 +95,8 @@ public class VideoModel extends AbstractObservable implements
 		try {
 			mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 			mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-			mediaRecorder.setProfile(CamcorderProfile.get(0,CamcorderProfile.QUALITY_HIGH));
+			mediaRecorder.setProfile(CAMCORDER_PROFILE);
+			//mediaRecorder.setProfile(CamcorderProfile.get(0,CamcorderProfile.QUALITY_HIGH));
 			mediaRecorder.setOutputFile(createOutputFile().getPath());
 			//mediaRecorder.setPreviewDisplay(holder.getSurface());
 			mediaRecorder.prepare();
