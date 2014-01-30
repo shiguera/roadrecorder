@@ -56,7 +56,7 @@ public class TestGpsModel
 			Log.e(TAG, e.getMessage());
 		}
 		
-		this.getSecondaryStorage();
+		//this.getSecondaryStorage();
 		
 	}
 	

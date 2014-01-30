@@ -7,39 +7,32 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
+
 import android.annotation.SuppressLint;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
 import android.os.Environment;
-import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.mlab.roadrecorder.api.AbstractObservable;
 
 public class VideoModel extends AbstractObservable implements
 		SurfaceHolder.Callback {
-
-	public static final String TAG = "ROADRECORDER";
+	
+	private final Logger LOG = Logger.getLogger(VideoModel.class);
 
 	public static final int LEVEL_INFO = 0;
 	public static final int LEVEL_DEBUG = 1;
 	public static final int LEVEL_WARNING = 2;
 	public static final int LEVEL_ERROR = 3;
 
-	public static final int MEDIA_TYPE_IMAGE = 1;
-	public static final int MEDIA_TYPE_VIDEO = 2;
 	public static final int VIDEO_MAX_DURATION = 6000000; // 6000 sg
 	public static final int VIDEO_MAX_FILE_SIZE = 500000000; // 500 Mb
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
-	// private static final CamcorderProfile CAMCORDER_PROFILE =
-	// CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-	 private static final CamcorderProfile CAMCORDER_PROFILE =
-			 CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-//	private static final CamcorderProfile CAMCORDER_PROFILE = CamcorderProfile
-//			.get(CamcorderProfile.QUALITY_LOW);
+	private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_1080P;
 
 	private MediaRecorder mediaRecorder;
 	private Camera camera;
@@ -54,20 +47,25 @@ public class VideoModel extends AbstractObservable implements
 
 	// Constructor
 	/**
-	 * Crea una instancia de Model. <br/>
+	 * Crea una instancia de VideoModel. <br/>
 	 * Tras crear la instancia hay que comprobar la disponibilidad con el método
 	 * isEnabled(); <br/>
-	 * El directorio y el nombre del fichero de salida se pueden asignar con los
-	 * métodos setOutputDirectory() y setOutputFile(). Si no el programa
-	 * asignará valores por defecto. <br/>
+	 * El proceso de inicialización que hay que seguir es :<br/>
+	 *  - 1.- setDefaultDirectory();<br/>
+	 *  - 2.- initCamera();<br/>
+	 *  - 3.- initMediaRecorder(SurfaceHolder);<br/>
+	 *  El SurfaceHolder no lo crea el VideoModel, hay que pasárselo como argumento 
+	 *  en el método initMediaRecorder(). Además, la clase que crea el SurfaceHolder, 
+	 *  tendrá que indicarle que VideoModel es quién tiene el SurfaceHolder.Callback:<br/>
+	 *  surfaceHolder.addCallback(model)<br/>
 	 * 
 	 * @param context
-	 *            Context
+	 *            Context donde se ejecuta la app.
 	 * @param frameLayout
 	 *            FrameLayout donde se insertara el SurfaceView de la cámara
 	 */
 	public VideoModel() {
-		Log.i(TAG, "VideoModel.VideoModel()");
+		LOG.info("VideoModel.VideoModel()");
 
 		isRecording = false;
 		isEnabled = false;
@@ -95,7 +93,12 @@ public class VideoModel extends AbstractObservable implements
 		try {
 			mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 			mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-			mediaRecorder.setProfile(CAMCORDER_PROFILE);
+			int profile = getCamcorderProfile();
+			if(profile == -1) {
+				releaseMediaRecorder();
+				return false;
+			}
+			mediaRecorder.setProfile(CamcorderProfile.get(profile));
 			//mediaRecorder.setProfile(CamcorderProfile.get(0,CamcorderProfile.QUALITY_HIGH));
 			mediaRecorder.setOutputFile(createOutputFile().getPath());
 			//mediaRecorder.setPreviewDisplay(holder.getSurface());
@@ -105,7 +108,7 @@ public class VideoModel extends AbstractObservable implements
 			if (mediaRecorder != null) {
 				mediaRecorder.release();
 			}
-			Log.d("HAL", "VideoModel.initMediaRecorder() :" + e.getMessage());
+			LOG.debug("VideoModel.initMediaRecorder() :" + e.getMessage());
 			isEnabled = false;
 		}
 		return isEnabled;
@@ -122,7 +125,7 @@ public class VideoModel extends AbstractObservable implements
 			cad += "camera =" + camera.toString();
 			result = true;
 		}
-		Log.d(TAG, cad);
+		LOG.debug(cad);
 		return result;
 	}
 	private Camera getCameraInstance() {
@@ -130,21 +133,32 @@ public class VideoModel extends AbstractObservable implements
 		try {
 			c = Camera.open(); // attempt to get a Camera instance
 		} catch (Exception e) {
-			Log.e(TAG,
-					"VideoModel.getCameraInstance(): Camera is not available (in use or does not exist)");
+			LOG.error("VideoModel.getCameraInstance(): Camera is not available (in use or does not exist)");
 		}
 		return c; // returns null if camera is unavailable
 	}
-
+	private int getCamcorderProfile() {
+		int profile = DEFAULT_CAMCORDER_PROFILE;
+		if (!CamcorderProfile.hasProfile(profile)) {
+			if(CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
+				profile = CamcorderProfile.QUALITY_HIGH;
+			} else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW)) {
+				profile = CamcorderProfile.QUALITY_LOW;
+			} else {
+				return -1; 
+			}
+		}
+		return profile;
+	}
 	// MediaRecorder management
 	public boolean startRecording() {
-		// Log.d(TAG, "VideoModel.startRecording() "+outputfile.getPath());
+		// LOG.debug(TAG, "VideoModel.startRecording() "+outputfile.getPath());
 		boolean result = prepare();
 		if(result) {
 			mediaRecorder.start();
 			isRecording = true;
 		} else {
-			Log.e(TAG, "VideoModel.startRecording() : Can't start recording");
+			LOG.error("VideoModel.startRecording() : Can't start recording");
 			isRecording = false;
 		}
 		return result;
@@ -152,12 +166,12 @@ public class VideoModel extends AbstractObservable implements
 	public boolean stopRecording() {
 		boolean result = false;
 		try {
-			Log.d(TAG, "VideoModel.stopRecording() stopping VideoModel... ");
+			LOG.debug("VideoModel.stopRecording() stopping VideoModel... ");
 			mediaRecorder.stop();
 			//releaseMediaRecorder();
 			result = true;
 		} catch (Exception e) {
-			Log.e(TAG, "VideoModel.stopRecording() ERROR stopping mediaRecording. ");
+			LOG.error("VideoModel.stopRecording() ERROR stopping mediaRecording. ");
 		}
 		releaseMediaRecorder();
 		isRecording = false;
@@ -184,26 +198,24 @@ public class VideoModel extends AbstractObservable implements
 	 */
 	public boolean setDefaultDirectory() {
 		String method = "VideoModel.setDefaultDirectory() ";
-		// Log.d(TAG,method);
+		// LOG.debug(TAG,method);
 		if (!this.isExternalStorageEnabled()) {
-			Log.e(TAG, method + "Error, sdcard isn't mounted");
+			LOG.error(method + "Error, sdcard isn't mounted");
 			return false;
 		}
 		outputDirectory = new File(getExternalStorageDirectory(),
 				DEFAULT_DIRECTORY_NAME);
-		// Log.d(TAG, method + "outputDirectory path: "+
+		// LOG.debug(TAG, method + "outputDirectory path: "+
 		// outputDirectory.getPath());
 		if (!outputDirectory.exists()) {
-			Log.d(method + TAG, method + outputDirectory.getPath()
-					+ " doesnt exist, creating...");
+			LOG.debug(method + outputDirectory.getPath() + " doesnt exist, creating...");
 			if (!outputDirectory.mkdir()) {
-				Log.e(TAG, method + "Error, can't create default directory "
-						+ outputDirectory.getPath());
+				LOG.error(method + "Error, can't create default directory " + 
+						outputDirectory.getPath());
 				return false;
 			}
 		}
-		Log.d(method + TAG,
-				method + "outputDirectory: " + outputDirectory.getPath());
+		LOG.debug(method + "outputDirectory: " + outputDirectory.getPath());
 		return true;
 	}
 	public File getOutputFile() {
@@ -238,9 +250,9 @@ public class VideoModel extends AbstractObservable implements
 		return Environment.getExternalStorageDirectory();
 	}
 	public boolean isExternalStorageEnabled() {
-		// Log.d(TAG,
+		// LOG.debug(TAG,
 		// "VideoModel.isExternalStorageEnabled() ExternalStorage.MEDIA_MOUNTED: "+Environment.MEDIA_MOUNTED);
-		// Log.d(TAG,
+		// LOG.debug(TAG,
 		// "VideoModel.isExternalStorageEnabled() ExternalStorage state: "+Environment.getExternalStorageState());
 		return (Environment.getExternalStorageState()
 				.equalsIgnoreCase(Environment.MEDIA_MOUNTED));
@@ -340,12 +352,12 @@ public class VideoModel extends AbstractObservable implements
 			// String cadalt = String.format("%4.0f", altitude);
 			// exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, cadalt);
 			// FIXME Falta geoetiquetar las geo
-			Log.d(TAG, "VideoModel.geotagVideoFile() saving attributes...");
+			LOG.debug("VideoModel.geotagVideoFile() saving attributes...");
 			exif.saveAttributes();
 			result = true;
 		} catch (Exception e) {
 			String cad = "VideoModel.geotagVideoFile(): Error, can't create ExifInterface";
-			Log.d(TAG, cad);
+			LOG.debug(cad);
 			// FIXME Toast.makeText(context, cad, Toast.LENGTH_LONG).show();
 		}
 

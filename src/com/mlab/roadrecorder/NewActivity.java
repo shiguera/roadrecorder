@@ -1,10 +1,12 @@
 package com.mlab.roadrecorder;
 
+import java.io.File;
+
+import org.apache.log4j.Logger;
+
 import android.app.Activity;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -14,7 +16,11 @@ import android.widget.Toast;
 import com.example.roadrecorderalvac.R;
 import com.mlab.roadrecorder.api.Observer;
 
+import de.mindpipe.android.logging.log4j.LogConfigurator;
+
 public class NewActivity extends Activity implements Observer {
+	private final Logger LOG = Logger.getLogger(NewActivity.class);
+	
 	public static final String TAG = "ROADRECORDER";
     private enum LogLevel {INFO,DEBUG,WARNING,ERROR};
 
@@ -34,28 +40,46 @@ public class NewActivity extends Activity implements Observer {
 	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG,"MainActivity.onCreate()");
+		configureLogger();
+		LOG.info("MainActivity.onCreate()");
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		
 		
 		initLayout();
 		
 		videoModel = new VideoModel();
-		videoController = new VideoController(this, frameLayout, videoModel);
+		//videoController = new VideoController(this, frameLayout, videoModel);
 
 	}
+	
+	private void configureLogger() {
+		final LogConfigurator logConfigurator = new LogConfigurator();
+         
+        logConfigurator.setFileName(
+        		Environment.getExternalStorageDirectory() + File.separator + "myapp.log");
+        logConfigurator.setRootLevel(org.apache.log4j.Level.DEBUG);
+        // Set log level of a specific logger
+        logConfigurator.setLevel("org.apache", org.apache.log4j.Level.ERROR);
+        logConfigurator.setUseLogCatAppender(true);
+        logConfigurator.configure(); 
+        
+	}
+	
 	private void initLayout() {
+		setContentView(R.layout.activity_main);
 		frameLayout = (FrameLayout)this.findViewById(R.id.videoview);
 		
-        // Inicializar UI
-        // Button Start-Stop
         configureBtnStartStop();
+        
+        configureLabelInfo();
+
+	}
+	private void configureLabelInfo() {
 		// lblInfo
         lblInfo=(TextView)this.findViewById(R.id.lblInfo);
         lblrecordtime=(TextView)this.findViewById(R.id.lblrecordtime);
         lblposition=(TextView)this.findViewById(R.id.lblposition);  
         lblpointscount=(TextView)this.findViewById(R.id.lblpointscount);          
-
 	}
 	private void configureBtnStartStop() {
 		btnStartStop = (Button)findViewById(R.id.mybutton);
@@ -84,20 +108,26 @@ public class NewActivity extends Activity implements Observer {
 	}
 	@Override
 	protected void onPause() {
-		Log.i(TAG,"MainActivity.onPause()");
-		frameLayout.removeAllViews();
-		videoController.release();
+		//Log.i(TAG,"MainActivity.onPause()");
+		if(frameLayout != null) {
+			frameLayout.removeAllViews();
+		}
+		if (videoController != null) {
+			videoController.release();
+		}
 		super.onPause();
 	}
 	@Override
 	protected void onStart() {
-		Log.i(TAG,"MainActivity.onStart()");
-		boolean result = videoController.initMediaRecorder();
-		if(!result) {
-			this.showNotification("Can't init MediaRecorder", LogLevel.ERROR, true);
-			super.onStart();
-			finish();
-			return;
+		//Log.i(TAG,"MainActivity.onStart()");
+		if(videoController != null) {
+			boolean result = videoController.initMediaRecorder();
+			if(!result) {
+				this.showNotification("Can't init MediaRecorder", LogLevel.ERROR, true);
+				super.onStart();
+				finish();
+				return;
+			}
 		}
 		super.onStart();
 	}
@@ -122,16 +152,16 @@ public class NewActivity extends Activity implements Observer {
 	public void showNotification(String message, LogLevel level, boolean withToast) {
 		switch(level) {
 		case INFO:
-			Log.i(TAG, message);
+			//Log.i(TAG, message);
 			break;
 		case DEBUG:
-			Log.d(TAG, message);			
+			//Log.d(TAG, message);			
 			break;
 		case WARNING:
-			Log.w(TAG, message);						
+			//Log.w(TAG, message);						
 			break;
 		case ERROR:
-			Log.e(TAG, message);						
+			//Log.e(TAG, message);						
 			break;
 		}
 		if(withToast) {
