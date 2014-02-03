@@ -349,13 +349,13 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		int fheight = (int) (0.65*(float)size.y);
 		int fwidth = (int) ((float)fheight*1.5);
 		Log.i(TAG, String.format("FrameLayout size: %d x %d", fwidth, fheight));
-        frameLayout = (FrameLayout)this.findViewById(R.id.videoview);
+        //frameLayout = (FrameLayout)this.findViewById(R.id.videoview);
         LinearLayout.LayoutParams pars = new LinearLayout.LayoutParams(fwidth, fheight);
         frameLayout.setLayoutParams(pars);		
 
         // Inicializar UI
         // Button Start-Stop
-        btnStartStop = (Button)findViewById(R.id.mybutton);
+        btnStartStop = (Button)findViewById(R.id.btn_rec);
         btnStartStop.setOnClickListener(myButtonOnClickListener);
         btnStartStop.setEnabled(false); // Se activa en firstFixEvent() 
         // lblInfo

@@ -3,11 +3,12 @@ package com.mlab.roadrecorder;
 import java.io.File;
 
 import org.apache.log4j.Logger;
-import de.mindpipe.android.logging.log4j.LogConfigurator;
 
+import de.mindpipe.android.logging.log4j.LogConfigurator;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,18 +65,21 @@ public class NewActivity extends Activity implements Observer {
 	}
 	@Override
 	protected void onPause() {
-		//Log.i(TAG,"MainActivity.onPause()");
+		LOG.info("MainActivity.onPause()");
 		if(videoFrame != null) {
 			videoFrame.removeAllViews();
 		}
 		if (controller != null && controller.getVideoController()!=null) {
 			controller.getVideoController().release();
 		}
+		if(model != null && model.getGpsModel() != null) {
+			// TODO ¿Grabar el track¿ ¿Detener el recording del GPS?
+		}
 		super.onPause();
 	}
 	@Override
 	protected void onStart() {
-		//Log.i(TAG,"MainActivity.onStart()");
+		LOG.info("MainActivity.onStart()");
 		if(getVideoController() != null) {
 			boolean result = getVideoController().initMediaRecorder();
 			if(!result) {
@@ -87,6 +91,21 @@ public class NewActivity extends Activity implements Observer {
 		}
 		super.onStart();
 	}
+	@Override
+	protected void onRestart() {
+		LOG.info("MainActivity.onRestart()");
+		super.onRestart();
+	}
+	@Override
+	protected void onStop() {
+		LOG.info("MainActivity.onStop()");
+		super.onStop();
+	}
+	@Override
+	protected void onDestroy() {
+		LOG.info("MainActivity.onDestroy()");
+		super.onDestroy();
+	}
 
 	// Private methods
 	/**
@@ -97,7 +116,7 @@ public class NewActivity extends Activity implements Observer {
          
 		String filename = Environment.getExternalStorageDirectory() + 
 				File.separator + "myapp.log";
-		System.out.println(filename);
+		//System.out.println(filename);
         logConfigurator.setFileName(filename);
         		
         logConfigurator.setRootLevel(org.apache.log4j.Level.ALL);
@@ -111,7 +130,7 @@ public class NewActivity extends Activity implements Observer {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		setContentView(R.layout.activity_main);
-		videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
+		//videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
 		
         configureBtnStartStop();
         
@@ -126,7 +145,7 @@ public class NewActivity extends Activity implements Observer {
         lblpointscount=(TextView)this.findViewById(R.id.lblpointscount);          
 	}
 	private void configureBtnStartStop() {
-		btnStartStop = (Button)findViewById(R.id.mybutton);
+		btnStartStop = (Button)findViewById(R.id.btn_rec);
         btnStartStop.setOnClickListener(new Button.OnClickListener(){
     		@Override
     		public void onClick(View v) {
