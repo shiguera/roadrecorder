@@ -1,4 +1,4 @@
-package com.mlab.roadrecorder;
+package com.mlab.roadrecorder.experimental;
 
 import android.app.Activity;
 

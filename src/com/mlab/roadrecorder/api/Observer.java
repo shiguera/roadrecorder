@@ -1,5 +1,7 @@
 package com.mlab.roadrecorder.api;
 
+import android.os.Bundle;
+
 /**
  * Las clases se pueden registrar como observadores de las 
  * clases {@link Observable}. Disponen de un método
@@ -10,6 +12,6 @@ package com.mlab.roadrecorder.api;
  *
  */
 public interface Observer {
-	Observable getModel();
-	public void update();
+	Observable getObservable();
+	public void update(Object sender, Bundle parameters);
 }

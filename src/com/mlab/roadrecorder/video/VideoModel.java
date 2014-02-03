@@ -1,4 +1,4 @@
-package com.mlab.roadrecorder;
+package com.mlab.roadrecorder.video;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.view.SurfaceHolder;
 
+import com.mlab.android.utils.AndroidUtils;
 import com.mlab.roadrecorder.api.AbstractObservable;
 
 public class VideoModel extends AbstractObservable implements
@@ -199,11 +199,11 @@ public class VideoModel extends AbstractObservable implements
 	public boolean setDefaultDirectory() {
 		String method = "VideoModel.setDefaultDirectory() ";
 		// LOG.debug(TAG,method);
-		if (!this.isExternalStorageEnabled()) {
+		if (!AndroidUtils.isExternalStorageEnabled()) {
 			LOG.error(method + "Error, sdcard isn't mounted");
 			return false;
 		}
-		outputDirectory = new File(getExternalStorageDirectory(),
+		outputDirectory = new File(AndroidUtils.getExternalStorageDirectory(),
 				DEFAULT_DIRECTORY_NAME);
 		// LOG.debug(TAG, method + "outputDirectory path: "+
 		// outputDirectory.getPath());
@@ -229,7 +229,7 @@ public class VideoModel extends AbstractObservable implements
 	}
 	private File createOutputFile() {
 		if(outputDirectory != null) {
-			String filename = this.getTimeStamp(new Date(), true) +".mp4";
+			String filename = AndroidUtils.getTimeStamp(new Date(), true) +".mp4";
 			outputFile = new File(outputDirectory, filename);
 			return outputFile;
 		}
@@ -237,42 +237,7 @@ public class VideoModel extends AbstractObservable implements
 	}
 	
 	// Utilities
-	/**
-	 * Devuelve el directorio público de Android para vídeos
-	 * 
-	 * @return
-	 */
-	public File getMoviesDirectory() {
-		return Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-	}
-	public File getExternalStorageDirectory() {
-		return Environment.getExternalStorageDirectory();
-	}
-	public boolean isExternalStorageEnabled() {
-		// LOG.debug(TAG,
-		// "VideoModel.isExternalStorageEnabled() ExternalStorage.MEDIA_MOUNTED: "+Environment.MEDIA_MOUNTED);
-		// LOG.debug(TAG,
-		// "VideoModel.isExternalStorageEnabled() ExternalStorage state: "+Environment.getExternalStorageState());
-		return (Environment.getExternalStorageState()
-				.equalsIgnoreCase(Environment.MEDIA_MOUNTED));
-	}
-	/**
-     * Devuelve una cadena de la forma "yyyyMMdd_HHmmss" con
-     * la fecha y hora GMT correspondiente a la fecha pasada
-     * como argumento.
-     * @param date Date 
-     * @return Cadena "yyyyMMdd_HHmmss" con la fecha GMT
-     */
-    @SuppressLint("SimpleDateFormat")
-    public String getTimeStamp(Date date, boolean gmt) {
-    	DateFormat timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss");
-    	if(gmt) {
-    		timeStamp.setTimeZone(TimeZone.getTimeZone("GMT"));
-    	}
-    	return timeStamp.format(date);
-    }
-
+	
 	// Camera
 	public Camera getCamera() {
 		return camera;

@@ -1,9 +1,11 @@
-package com.mlab.roadrecorder;
+package com.mlab.roadrecorder.video;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import com.mlab.roadrecorder.NewActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -26,7 +28,7 @@ public class VideoController {
 	protected SurfaceHolder holder;
 	
 	
-	public VideoController(NewActivity activity, FrameLayout frameLayout, VideoModel model) {
+	public VideoController( VideoModel model, NewActivity activity, FrameLayout frameLayout) {
 		String method = "VidoController.VideoController() "; 
 		Log.i(TAG, method);
 		this.activity = activity;

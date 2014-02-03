@@ -1,4 +1,4 @@
-package com.mlab.roadrecorder;
+package com.mlab.roadrecorder.activities;
 
 import com.example.roadrecorderalvac.R;
 

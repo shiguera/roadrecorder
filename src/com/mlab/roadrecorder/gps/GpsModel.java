@@ -1,12 +1,14 @@
-package com.mlab.roadrecorder;
+package com.mlab.roadrecorder.gps;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
+//import android.util.Log;
 import android.widget.Toast;
 
 import com.mlab.android.gpsmanager.GpsListener;
@@ -21,14 +23,16 @@ import com.mlab.roadrecorder.api.AbstractObservable;
 
 public class GpsModel extends AbstractObservable implements GpsListener {
 
-	private final String TAG = "ROADRECORDER";
+	//private final String TAG = "ROADRECORDER";
 
+	private final Logger LOG = Logger.getLogger(GpsModel.class);
+	
 	private Context context;
 
 	protected GpsManager gpsManager;
 	protected GpxFactory gpxFactory;
 	protected Track track;
-	protected AndroidWayPoint lastWayPoint;
+	//protected AndroidWayPoint lastWayPoint;
 
 	protected boolean isRecording;
 	
@@ -39,7 +43,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		gpsManager = new GpsManager(context);
 		gpxFactory = GpxFactory.getFactory(GpxFactory.Type.AndroidGpxFactory);
 		track = new Track();
-		lastWayPoint = new AndroidWayPoint();
+		//lastWayPoint = new AndroidWayPoint();
 	}
 	
 	// GpsManager management
@@ -52,7 +56,16 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	}
 	
 	// Recording management (Recording = add points to track)
+	
 	// TODO Aquí se puede gestionar un nuevo segmento
+	/**
+	 * Comienza a añadir puntos al track en memoria.
+	 * 
+	 * @param newtrack Si newtrack=true se inicializa un nuevo track,
+	 * si newtrack=false los puntos se añaden al track ya existente
+	 * 
+	 * @return true si todo va bien, false si el GPS no está habilitado
+	 */
 	public boolean startRecording(boolean newtrack) {
 		if(this.gpsManager.isGpsEnabled()) {
 			if(newtrack) {
@@ -63,20 +76,24 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return false;
 	}
+	/**
+	 * Deja de añadir puntos al track en memoria
+	 */
 	public void stopRecording() {
 		isRecording = false;
 	}
+	
 	// Interface GpsListener
 	@Override
 	public void firstFixEvent() {
-		Log.d(TAG, "GpsModel.firstFixEvent()");
+		LOG.debug("GpsModel.firstFixEvent()");
 	}
 	@Override
 	public void updateLocation(Location loc) {
-		Log.d(TAG, "GpsModel.updateLocation(): "+loc.toString());
-		lastWayPoint = locToWayPoint(loc);
+		LOG.debug("GpsModel.updateLocation(): "+loc.toString());
+		
 		if(isRecording) {
-			addPointToTrack(lastWayPoint);
+			addPointToTrack(locToWayPoint(loc));
 		}
 		this.notifyObservers();
 	}
@@ -100,7 +117,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
         	result = true;
         } catch (Exception e) {
         	String msg = "Error can't save Gpx Document";
-        	Log.e(TAG, msg);
+        	LOG.error("GpsModel.saveTrackAsGpx(): " + msg);
         	this.showNotification(msg);
         }
 		return result;
@@ -115,7 +132,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
         	result = true;
         } catch (Exception e) {
         	String msg = "Error can't save CSV Document";
-        	Log.e(TAG, msg);
+        	LOG.error("GpsModel.saveTrackAsCsv(): " + msg);
         	this.showNotification(msg);
         }
 		return result;
@@ -132,7 +149,10 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		return this.track;
 	}
 	public AndroidWayPoint getLastWayPoint() {
-		return lastWayPoint;
+		if(getLastLocReceived() != null) {
+			return locToWayPoint(getLastLocReceived());
+		}
+		return null;
 	}
 
 	// Status

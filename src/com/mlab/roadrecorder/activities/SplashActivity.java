@@ -1,9 +1,10 @@
-package com.mlab.roadrecorder;
+package com.mlab.roadrecorder.activities;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.example.roadrecorderalvac.R;
+import com.mlab.roadrecorder.MainActivity;
 
 import android.app.Activity;
 import android.content.Intent;

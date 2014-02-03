@@ -37,7 +37,7 @@ public class AbstractObservable implements Observable {
 	public void notifyObservers() {
 		if(this.isNotificationEnabled) {
 			for(Observer o: this.observers) {
-				o.update();
+				o.update(this, null);
 			}
 		}
 	}

@@ -41,6 +41,7 @@ import com.mlab.gpx.api.GpxFactory.Type;
 import com.mlab.gpx.api.WayPoint;
 import com.mlab.gpx.impl.Track;
 import com.mlab.gpx.impl.util.Util;
+import com.mlab.roadrecorder.video.VideoModel;
 
 public class MainActivity extends Activity implements GpsListener, SensorEventListener {
 
