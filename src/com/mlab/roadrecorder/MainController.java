@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.widget.FrameLayout;
 
 import com.mlab.android.utils.AndroidUtils;
+import com.mlab.roadrecorder.NewActivity.NotificationLevel;
 import com.mlab.roadrecorder.api.Observable;
 import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.video.VideoController;
@@ -32,6 +33,10 @@ public class MainController implements Observer {
 		
 		initApplicationDirectory();
 		
+		boolean result = model.getGpsModel().startGpsUpdates();
+		if(!result) {
+			activity.showNotification("GPS Desactivado", NotificationLevel.ERROR, true);
+		}
 	}
 	// Private methods
 	private void initApplicationDirectory() {

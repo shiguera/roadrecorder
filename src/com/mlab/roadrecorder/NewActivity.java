@@ -4,17 +4,16 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
-import de.mindpipe.android.logging.log4j.LogConfigurator;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,13 +22,16 @@ import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.video.VideoController;
 import com.mlab.roadrecorder.video.VideoModel;
+import com.mlab.roadrecorder.view.TitleValueLabel;
+
+import de.mindpipe.android.logging.log4j.LogConfigurator;
 
 
 public class NewActivity extends Activity implements Observer {
 	private final Logger LOG = Logger.getLogger(NewActivity.class);
 	
 	public static final String TAG = "ROADRECORDER";
-    private enum LogLevel {INFO,DEBUG,WARNING,ERROR};
+    public enum NotificationLevel {INFO,DEBUG,WARNING,ERROR};
 
 
     // 
@@ -39,8 +41,10 @@ public class NewActivity extends Activity implements Observer {
     
 	// Layout
 	protected Button btnStartStop;
-	protected TextView lblInfo,lblrecordtime,lblposition, lblpointscount;
+	protected TextView lblInfo, lblposition;
 	protected FrameLayout videoFrame;
+	protected LinearLayout rightPanel;
+	TitleValueLabel lblRecordTime, lblPointsCount;
 	
 	// Live cycle
 	@Override
@@ -83,7 +87,7 @@ public class NewActivity extends Activity implements Observer {
 		if(getVideoController() != null) {
 			boolean result = getVideoController().initMediaRecorder();
 			if(!result) {
-				this.showNotification("Can't init MediaRecorder", LogLevel.ERROR, true);
+				this.showNotification("Can't init MediaRecorder", NotificationLevel.ERROR, true);
 				super.onStart();
 				finish();
 				return;
@@ -130,9 +134,12 @@ public class NewActivity extends Activity implements Observer {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		setContentView(R.layout.activity_main);
-		//videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
 		
-        configureBtnStartStop();
+		videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
+		
+		configureBtnStartStop();
+        
+        rightPanel = (LinearLayout)this.findViewById(R.id.rightPanel);
         
         configureLabels();
 
@@ -140,9 +147,19 @@ public class NewActivity extends Activity implements Observer {
 	private void configureLabels() {
 		// lblInfo
         lblInfo=(TextView)this.findViewById(R.id.lblInfo);
-        lblrecordtime=(TextView)this.findViewById(R.id.lblrecordtime);
-        lblposition=(TextView)this.findViewById(R.id.lblposition);  
-        lblpointscount=(TextView)this.findViewById(R.id.lblpointscount);          
+
+        lblRecordTime = new TitleValueLabel(this, model);
+        lblRecordTime.setTitle("SG");
+        lblRecordTime.setValue("-");
+        rightPanel.addView(lblRecordTime.getView());
+        
+        lblPointsCount = new TitleValueLabel(this, model);
+        lblPointsCount.setTitle("PT");
+        lblPointsCount.setValue("-");
+        rightPanel.addView(lblPointsCount.getView());
+        
+                
+        lblposition=(TextView)this.findViewById(R.id.lblposition);            
 	}
 	private void configureBtnStartStop() {
 		btnStartStop = (Button)findViewById(R.id.btn_rec);
@@ -150,7 +167,7 @@ public class NewActivity extends Activity implements Observer {
     		@Override
     		public void onClick(View v) {
     			if(getVideoModel().isRecording()) {
-    				showNotification("Stoping",LogLevel.INFO, false);
+    				showNotification("Stoping",NotificationLevel.INFO, false);
     				getVideoController().stopRecording();
     				btnStartStop.setBackgroundResource(R.drawable.button_start);
     				//btnStartStop.setPressed(false);
@@ -160,7 +177,7 @@ public class NewActivity extends Activity implements Observer {
                     //finish();
                     return;
     			} else {
-    				showNotification("Starting",LogLevel.INFO, false);
+    				showNotification("Starting",NotificationLevel.INFO, false);
     				getVideoController().startRecording();
     				btnStartStop.setBackgroundResource(R.drawable.button_stop);
     		        //btnStartStop.setText("Parar");
@@ -196,17 +213,17 @@ public class NewActivity extends Activity implements Observer {
 		return super.onOptionsItemSelected(item);
 	}
 	private void startActivityConfig() {
-		this.showNotification("Opción en desarrollo", LogLevel.INFO, true);
+		this.showNotification("Opción en desarrollo", NotificationLevel.INFO, true);
 //		Intent i = new Intent(this, ConfigActivity.class);
 //		startActivity(i);
 	}
 	private void startActivityHelp() {
-		this.showNotification("Opción en desarrollo", LogLevel.INFO, true);
+		this.showNotification("Opción en desarrollo", NotificationLevel.INFO, true);
 //		Intent i = new Intent(this, HelpActivity.class);
 //		startActivity(i);	
 	}
 	private void startActivityAbout() {
-		this.showNotification("Opción en desarrollo", LogLevel.INFO, true);
+		this.showNotification("Opción en desarrollo", NotificationLevel.INFO, true);
 //		Intent i = new Intent(this, AboutActivity.class);
 //		startActivity(i);
 	}
@@ -228,7 +245,7 @@ public class NewActivity extends Activity implements Observer {
 		return model;
 	}	
 	// Utilities
-	public void showNotification(String message, LogLevel level, boolean withToast) {
+	public void showNotification(String message, NotificationLevel level, boolean withToast) {
 		switch(level) {
 		case INFO:
 			//Log.i(TAG, message);
@@ -278,17 +295,15 @@ public class NewActivity extends Activity implements Observer {
 	public TextView getLblInfo() {
 		return lblInfo;
 	}
-	public TextView getLblrecordtime() {
-		return lblrecordtime;
-	}
 	public TextView getLblposition() {
 		return lblposition;
 	}
-	public TextView getLblpointscount() {
-		return lblpointscount;
-	}
+	
 	public FrameLayout getVideoFrame() {
 		return videoFrame;
+	}
+	public LinearLayout getRightPanel() {
+		return rightPanel;
 	}
 
 }

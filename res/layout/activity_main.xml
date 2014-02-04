@@ -17,20 +17,22 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="0.8" 
-            android:background="#000000"/>
+            android:layout_weight="0.8"
+            android:background="#000000" />
 
-		<include layout="@layout/btnrec_panel"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"/>
-		
-        </LinearLayout>
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/btnrec_panel" />
+    </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/rightPanel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:padding="5dip" >
 
         <TextView
             android:id="@+id/lblInfo"
@@ -51,38 +53,6 @@
 
         <TextView
             android:id="@+id/lblposition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="-"
-            android:textSize="18sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/lbl_tit_recordtime"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/lblrecordtime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="-"
-            android:textSize="18sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/lbl_tit_pointscount"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/lblpointscount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

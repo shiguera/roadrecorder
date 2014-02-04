@@ -48,10 +48,15 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	
 	// GpsManager management
 	public boolean startGpsUpdates() {
-		return this.gpsManager.startGpsUpdates();
+		boolean result = gpsManager.startGpsUpdates();
+		if (result) { 
+			notifyObservers();
+		}
+		return result;
 	}
 	public void stopGpsUpdates() {
-		this.gpsManager.stopGpsUpdates();
+		gpsManager.stopGpsUpdates();
+		notifyObservers();
 		return;
 	}
 	
