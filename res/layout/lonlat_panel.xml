@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:padding="6dip"
+    android:background="#a0b0c000"
+    android:orientation="horizontal" >
+
+    <!-- lblLat -->
+    <LinearLayout
+        android:orientation="vertical" 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="6dip"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textStyle="bold"
+            android:text="LAT" />
+        <TextView
+            android:id="@+id/lbl_lat"
+            android:layout_width="84dip"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="#a0a0a000"
+            android:text="-69.373" />
+    </LinearLayout>
+    
+    <!-- lblLon -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" 
+        android:layout_marginRight="6dip"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:text="LON" />
+        <TextView
+            android:id="@+id/lbl_lon"
+            android:layout_width="84dip"
+            android:layout_height="wrap_content"
+            android:background="#a0a0a000"
+            android:gravity="center"
+            android:text="-178.567" />
+    </LinearLayout>
+  
+    <!-- lblAcc -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:text="ACC" />
+        <TextView
+            android:id="@+id/lbl_acc"
+            android:layout_width="72dip"
+            android:layout_height="wrap_content"
+            android:background="#a0a0a000"
+            android:gravity="center"
+            android:text="8.5" />
+    </LinearLayout>
+</LinearLayout>

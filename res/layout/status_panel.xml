@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_marginTop="12dip"
+	android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:padding="5dip"
+    android:background="#a0b0c000"
+    android:orientation="horizontal" >
+
+    <!-- lblTime -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:text="T" />
+        <TextView
+            android:id="@+id/lbl_time"
+            android:layout_width="96dip"
+            android:layout_height="wrap_content"
+            android:background="#a0a0a000"
+            android:gravity="center"
+            android:layout_marginRight="12dip"
+            android:text="1h 27m 32sg" />
+    </LinearLayout>
+    
+    <!-- lblPtos -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" 
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textStyle="bold"
+            android:text="PTS" />
+        <TextView
+            android:id="@+id/lbl_pts"
+            android:layout_width="60dip"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="#a0a0a000"
+            android:layout_marginRight="12dip"
+            android:text="2375" />
+    </LinearLayout>
+    
+
+    <!-- lblDTO -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:text="DTO" />
+        <TextView
+            android:id="@+id/lbl_time"
+            android:layout_width="84dip"
+            android:layout_height="wrap_content"
+            android:background="#a0a0a000"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="23742" />
+    </LinearLayout>
+    
+</LinearLayout>

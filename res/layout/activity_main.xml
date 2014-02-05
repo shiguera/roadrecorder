@@ -34,6 +34,7 @@
         android:orientation="vertical"
         android:padding="5dip" >
 
+        <!-- lblInfo -->
         <TextView
             android:id="@+id/lblInfo"
             android:layout_width="wrap_content"
@@ -41,23 +42,28 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/lblInfo"
             android:textColor="#008000"
-            android:textSize="15sp" />
+            android:textSize="15sp" 
+            android:layout_marginBottom="12dip"/>
 
-        <TextView
+        <include layout="@layout/lonlat_panel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/lbl_tit_currentposition"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="6dip"
+            />
 
-        <TextView
-            android:id="@+id/lblposition"
+        <include layout="@layout/speed_panel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="-"
-            android:textSize="18sp" />
+            android:layout_gravity="center_horizontal" 
+            android:layout_marginBottom="6dip"
+            />
+
+        <include layout="@layout/status_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+        
     </LinearLayout>
 
 </LinearLayout>

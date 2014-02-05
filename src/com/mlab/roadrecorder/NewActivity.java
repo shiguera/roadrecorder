@@ -20,12 +20,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.roadrecorderalvac.R;
-import com.mlab.roadrecorder.api.CompositeObserver;
 import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.video.VideoController;
 import com.mlab.roadrecorder.video.VideoModel;
 import com.mlab.roadrecorder.view.TitleValueLabel;
+import com.mlab.roadrecorder.view.command.GetLatCommand;
+import com.mlab.roadrecorder.view.command.GetLonCommand;
 import com.mlab.roadrecorder.view.command.GetPointsCountCommand;
 import com.mlab.roadrecorder.view.command.GetRecordingTimeCommand;
 
@@ -50,7 +51,7 @@ public class NewActivity extends Activity  {
 	protected TextView lblInfo, lblposition;
 	protected FrameLayout videoFrame;
 	protected LinearLayout rightPanel;
-	TitleValueLabel lblRecordTime, lblPointsCount;
+	TitleValueLabel lblRecordTime, lblPointsCount, lblLon, lblLat;
 	
 	// Live cycle
 	@Override
@@ -156,21 +157,8 @@ public class NewActivity extends Activity  {
 	private void configureLabels() {
 		// lblInfo
         lblInfo=(TextView)this.findViewById(R.id.lblInfo);
-
         
-        lblRecordTime = new TitleValueLabel(this, new GetRecordingTimeCommand(model));
-        lblRecordTime.setTitle("SG");
-        lblRecordTime.setValue("-");
-        rightPanel.addView(lblRecordTime.getView());
-        lblRecordTime.update(model, null);
         
-        lblPointsCount = new TitleValueLabel(this, new GetPointsCountCommand(model));
-        lblPointsCount.setTitle("PT");
-        lblPointsCount.setValue("-");
-        rightPanel.addView(lblPointsCount.getView());
-        lblPointsCount.update(model, null);
-                
-        lblposition=(TextView)this.findViewById(R.id.lblposition);            
 	}
 	private void configureBtnStartStop() {
 		btnStartStop = (Button)findViewById(R.id.btn_rec);

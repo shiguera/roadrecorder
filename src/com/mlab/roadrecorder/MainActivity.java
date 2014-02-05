@@ -361,7 +361,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
         // lblInfo
         lblInfo=(TextView)this.findViewById(R.id.lblInfo);
       //  lblrecordtime=(TextView)this.findViewById(R.id.lblrecordtime);
-        lblposition=(TextView)this.findViewById(R.id.lblposition);  
+        //lblposition=(TextView)this.findViewById(R.id.lblposition);  
        // lblpointscount=(TextView)this.findViewById(R.id.lblpointscount);          
 
 	}

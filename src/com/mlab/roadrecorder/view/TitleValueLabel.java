@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.roadrecorderalvac.R;
 import com.mlab.roadrecorder.api.ModelView;
 import com.mlab.roadrecorder.api.Observable;
 import com.mlab.roadrecorder.api.UpdateCommand;
@@ -22,21 +23,28 @@ public class TitleValueLabel implements ModelView {
 	protected String title, value;
 	protected TextView valueLabel;
 	protected TextView titleLabel;
-	protected LinearLayout mainView;
+	protected ViewGroup parentView;
+	protected View mainView;
 
 	// Constructor
-	public TitleValueLabel(Context context, UpdateCommand command) {
+	public TitleValueLabel(Context context, ViewGroup parentView, UpdateCommand command) {
 		this.context = context;
+		this.parentView = parentView;
 		this.updateCommand = command;
 		this.model = command.getObservable();
 		
-		buildLayout();
+		buildLayout2();
 	
 		this.model.registerObserver(this);	
 	}
+	private void buildLayout2() {
+		mainView = (LinearLayout)View.inflate(context, R.layout.titlevalue, parentView);
+		titleLabel = (TextView)mainView.findViewById(R.id.titlevalue_title);
+		valueLabel = (TextView)mainView.findViewById(R.id.titlevalue_value);
+	}
 	private void buildLayout() {
 		mainView = new LinearLayout(this.context);
-		mainView.setOrientation(android.widget.LinearLayout.VERTICAL);
+		//mainView.setOrientation(android.widget.LinearLayout.VERTICAL);
 		mainView.setLayoutParams(new ViewGroup.LayoutParams(-2, -2));
 		// ARGB: Opaque Red
 		//mainView.setBackgroundColor(0x88ff0000);
@@ -52,7 +60,7 @@ public class TitleValueLabel implements ModelView {
 		titleLabel.setTextColor(Color.DKGRAY);	
 		titleLabel.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
 		titleLabel.setText("TIT");
-		mainView.addView(titleLabel);
+		//mainView.addView(titleLabel);
 
 		valueLabel = new TextView(context);
 		valueLabel.setLayoutParams(pars);
@@ -62,7 +70,7 @@ public class TitleValueLabel implements ModelView {
 		valueLabel.setTextColor(Color.GRAY);		
 		valueLabel.setTypeface(Typeface.MONOSPACE, Typeface.NORMAL);
 		valueLabel.setText("-");
-		mainView.addView(valueLabel);
+		//mainView.addView(valueLabel);
 	}
 
 	// Interface Observer
