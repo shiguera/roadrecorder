@@ -159,7 +159,12 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return null;
 	}
-
+	public int getPointsCount() {
+		if(this.track != null) {
+			return this.track.wayPointCount();
+		}
+		return 0;
+	}
 	// Status
 	public boolean isGpsEnabled() {
 		return this.gpsManager.isGpsEnabled();

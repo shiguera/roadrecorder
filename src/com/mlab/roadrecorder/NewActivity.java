@@ -1,6 +1,8 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -18,16 +20,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.roadrecorderalvac.R;
+import com.mlab.roadrecorder.api.CompositeObserver;
 import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.video.VideoController;
 import com.mlab.roadrecorder.video.VideoModel;
 import com.mlab.roadrecorder.view.TitleValueLabel;
+import com.mlab.roadrecorder.view.command.GetPointsCountCommand;
+import com.mlab.roadrecorder.view.command.GetRecordingTimeCommand;
 
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
 
-public class NewActivity extends Activity implements Observer {
+public class NewActivity extends Activity  {
 	private final Logger LOG = Logger.getLogger(NewActivity.class);
 	
 	public static final String TAG = "ROADRECORDER";
@@ -38,8 +43,9 @@ public class NewActivity extends Activity implements Observer {
     MainModel model;
     MainController controller;
     
-    
-	// Layout
+    List<Observer> observerComponents;
+
+    // Layout
 	protected Button btnStartStop;
 	protected TextView lblInfo, lblposition;
 	protected FrameLayout videoFrame;
@@ -55,8 +61,8 @@ public class NewActivity extends Activity implements Observer {
 		LOG.info("\n-----------------------");
 		
 		super.onCreate(savedInstanceState);
-		
-		initLayout();
+	
+		this.observerComponents = new ArrayList<Observer>();
 		
 		model = new MainModel(getApplicationContext());
 		App.setMainModel(model);
@@ -65,6 +71,9 @@ public class NewActivity extends Activity implements Observer {
 		//App.setMainController(controller);
 
 		//videoController = new VideoController(this, frameLayout, videoModel);
+
+		initLayout();
+		
 
 	}
 	@Override
@@ -148,16 +157,18 @@ public class NewActivity extends Activity implements Observer {
 		// lblInfo
         lblInfo=(TextView)this.findViewById(R.id.lblInfo);
 
-        lblRecordTime = new TitleValueLabel(this, model);
+        
+        lblRecordTime = new TitleValueLabel(this, new GetRecordingTimeCommand(model));
         lblRecordTime.setTitle("SG");
         lblRecordTime.setValue("-");
         rightPanel.addView(lblRecordTime.getView());
+        lblRecordTime.update(model, null);
         
-        lblPointsCount = new TitleValueLabel(this, model);
+        lblPointsCount = new TitleValueLabel(this, new GetPointsCountCommand(model));
         lblPointsCount.setTitle("PT");
         lblPointsCount.setValue("-");
         rightPanel.addView(lblPointsCount.getView());
-        
+        lblPointsCount.update(model, null);
                 
         lblposition=(TextView)this.findViewById(R.id.lblposition);            
 	}
@@ -235,15 +246,6 @@ public class NewActivity extends Activity implements Observer {
        	return null;//videoManager;
 	}
 	
-	// Interface Observer
-	@Override
-	public void update(Object sender, Bundle parameters) {
-		// TODO Auto-generated method stub
-		
-	}
-	public MainModel getObservable() {
-		return model;
-	}	
 	// Utilities
 	public void showNotification(String message, NotificationLevel level, boolean withToast) {
 		switch(level) {

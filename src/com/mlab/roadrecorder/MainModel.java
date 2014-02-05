@@ -48,14 +48,18 @@ public class MainModel extends AbstractObservable implements Observer {
 	public void update(Object sender, Bundle parameters) {
 		if(sender.getClass().isAssignableFrom(GpsModel.class)) {
 			this.notifyGpsObservers((GpsModel)sender, parameters);
-		}
-		if(sender.getClass().isAssignableFrom(VideoModel.class)) {
+		} else if(sender.getClass().isAssignableFrom(VideoModel.class)) {
 			this.notifyVideoObservers((VideoModel)sender, parameters);
+		} else if(sender.getClass().isAssignableFrom(MainModel.class)){
+			this.notifyAllObservers(sender, parameters);
 		}
 	}
 
 	// Gestión de observers
-
+	private void notifyAllObservers(Object sender, Bundle parameters) {
+		this.notifyGpsObservers((GpsModel)sender, parameters);
+		this.notifyVideoObservers((VideoModel)sender, parameters);					
+	}
 	public void registerVideoObserver(Observer o) {
 		videoObservers.add(o);
 	}
@@ -72,6 +76,7 @@ public class MainModel extends AbstractObservable implements Observer {
 			o.update(gpsmodel, parameters);
 		}
 	}
+	
 	// Getters
 	public File getOutputDirectory() {
 		return outputDirectory;

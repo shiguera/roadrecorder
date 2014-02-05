@@ -7,26 +7,34 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.roadrecorderalvac.R;
+import com.mlab.roadrecorder.api.ModelView;
 import com.mlab.roadrecorder.api.Observable;
+import com.mlab.roadrecorder.api.UpdateCommand;
 
 public class TitleValueLabel implements ModelView {
 
 	protected Context context;
+	protected UpdateCommand updateCommand;
 	protected Observable model;
 	protected String title, value;
 	protected TextView valueLabel;
 	protected TextView titleLabel;
 	protected LinearLayout mainView;
 
-	public TitleValueLabel(Context context, Observable model) {
+	// Constructor
+	public TitleValueLabel(Context context, UpdateCommand command) {
 		this.context = context;
-		this.model = model;
-
+		this.updateCommand = command;
+		this.model = command.getObservable();
+		
+		buildLayout();
+	
+		this.model.registerObserver(this);	
+	}
+	private void buildLayout() {
 		mainView = new LinearLayout(this.context);
 		mainView.setOrientation(android.widget.LinearLayout.VERTICAL);
 		mainView.setLayoutParams(new ViewGroup.LayoutParams(-2, -2));
@@ -57,35 +65,32 @@ public class TitleValueLabel implements ModelView {
 		mainView.addView(valueLabel);
 	}
 
+	// Interface Observer
 	@Override
 	public Observable getObservable() {
 		return model;
 	}
-
 	@Override
 	public void update(Object sender, Bundle parameters) {
-		// TODO Auto-generated method stub
-
+		this.setValue(updateCommand.getValue());
 	}
-
+	// Interface ModelView
 	@Override
 	public View getView() {
 		return mainView;
 	}
 
+	// Getters
 	public String getTitle() {
 		return title;
 	}
-
 	public void setTitle(String text) {
 		this.title = text;
 		this.titleLabel.setText(text);
 	}
-
 	public String getValue() {
 		return value;
 	}
-
 	public void setValue(String value) {
 		this.value = value;
 		this.valueLabel.setText(value);

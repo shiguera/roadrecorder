@@ -43,6 +43,7 @@ public class VideoModel extends AbstractObservable implements
 	private boolean isRecording;
 	private boolean isEnabled;
 	
+	private long startRecordingTime;
 	//SurfaceHolder holder;
 
 	// Constructor
@@ -155,11 +156,13 @@ public class VideoModel extends AbstractObservable implements
 		// LOG.debug(TAG, "VideoModel.startRecording() "+outputfile.getPath());
 		boolean result = prepare();
 		if(result) {
+			startRecordingTime = new Date().getTime();
 			mediaRecorder.start();
 			isRecording = true;
 		} else {
 			LOG.error("VideoModel.startRecording() : Can't start recording");
 			isRecording = false;
+			startRecordingTime = -1l;
 		}
 		return result;
 	}
@@ -175,6 +178,7 @@ public class VideoModel extends AbstractObservable implements
 		}
 		releaseMediaRecorder();
 		isRecording = false;
+		startRecordingTime = -1l;
 		return result;
 	}
 
@@ -237,7 +241,13 @@ public class VideoModel extends AbstractObservable implements
 	}
 	
 	// Utilities
-	
+	public long getRecordingTime() {
+		if(isRecording) {
+			long recordingtime = new Date().getTime() - this.startRecordingTime;
+			return recordingtime;
+		}
+		return 0;
+	}
 	// Camera
 	public Camera getCamera() {
 		return camera;
