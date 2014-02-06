@@ -13,11 +13,13 @@ public class TextViewUpdater implements Observer {
 	protected TextView textView;
 	protected UpdateCommand command;
 	
-	public TextViewUpdater(TextView tv, Observable model, UpdateCommand command) {
-		this.model = model;
+	public TextViewUpdater(TextView tv, UpdateCommand command) {
+		this.model = command.getObservable();
 		this.command = command;
 		this.textView = tv;
 		
+		this.model.registerObserver(this);
+		this.update(model, null);
 	}
 
 	@Override

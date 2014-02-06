@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import android.os.Bundle;
+
 /**
  * Implementación básica para derivar las clases de Observables.<br/>
  * Implementa los métodos <em>registerObserver(), removeObserver(), 
@@ -34,10 +36,10 @@ public class AbstractObservable implements Observable {
 	}
 
 	@Override
-	public void notifyObservers() {
+	public void notifyObservers(Bundle parameters) {
 		if(this.isNotificationEnabled) {
 			for(Observer o: this.observers) {
-				o.update(this, null);
+				o.update(this, parameters);
 			}
 		}
 	}

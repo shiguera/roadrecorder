@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:padding="5dip"
-    android:background="#a0b0c000"
+    android:background="#000000"
     android:orientation="horizontal" >
 
     <!-- lblBearing -->
@@ -19,13 +19,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:textStyle="bold"
+            android:textColor="#ffffff"
             android:text="KM/H" />
         <TextView
             android:id="@+id/lbl_speed"
             android:layout_width="60dip"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:background="#a0a0a000"
+            android:background="#dcdcdc"
             android:layout_marginRight="12dip"
             android:text="120.8" />
     </LinearLayout>
@@ -40,12 +41,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textStyle="bold"
+            android:textColor="#ffffff"
             android:text="RUMBO" />
         <TextView
             android:id="@+id/lbl_bearing"
             android:layout_width="60dip"
             android:layout_height="wrap_content"
-            android:background="#a0a0a000"
+            android:background="#dcdcdc"
             android:gravity="center"
             android:text="278.5" />
     </LinearLayout>

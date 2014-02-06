@@ -14,7 +14,8 @@ public class GetLatCommand extends AbstractGetValueCommand {
 	public String getValue() {
 		
 		WayPoint wp = ((MainModel)model).getGpsModel().getLastWayPoint();
-		String value = String.format("%11.6f", wp.getLatitude());
+		
+		String value =(wp != null && wp.getLatitude() != 0.0)?String.format("%11.6f", wp.getLatitude()):"  -  ";
 		return value;
 	}
 	

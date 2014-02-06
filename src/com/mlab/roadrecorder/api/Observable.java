@@ -1,5 +1,7 @@
 package com.mlab.roadrecorder.api;
 
+import android.os.Bundle;
+
 /**
  * Los elementos<em>Observable</em> mantienen un lista de 
  * {@link com.mlab.roadplayer.api.Observer} que son notificados 
@@ -28,7 +30,7 @@ public interface Observable {
 	
 	boolean registerObserver(Observer o);
 	boolean removeObserver(Observer o);
-	void notifyObservers();
+	void notifyObservers(Bundle parameters);
 	void stopNotifications();
 	void startNotifications();
 

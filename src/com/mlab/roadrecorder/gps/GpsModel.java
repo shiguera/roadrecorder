@@ -32,7 +32,10 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	protected GpsManager gpsManager;
 	protected GpxFactory gpxFactory;
 	protected Track track;
-	//protected AndroidWayPoint lastWayPoint;
+	protected AndroidWayPoint lastWayPoint;
+	protected double speed;
+	protected double bearing;
+	protected double distance;
 
 	protected boolean isRecording;
 	
@@ -43,20 +46,24 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		gpsManager = new GpsManager(context);
 		gpxFactory = GpxFactory.getFactory(GpxFactory.Type.AndroidGpxFactory);
 		track = new Track();
-		//lastWayPoint = new AndroidWayPoint();
+		
+		lastWayPoint = null;
+		speed = -1.0;
+		bearing = -1.0;
+		distance = 0.0;
 	}
 	
 	// GpsManager management
 	public boolean startGpsUpdates() {
 		boolean result = gpsManager.startGpsUpdates();
 		if (result) { 
-			notifyObservers();
+			notifyObservers(null);
 		}
 		return result;
 	}
 	public void stopGpsUpdates() {
 		gpsManager.stopGpsUpdates();
-		notifyObservers();
+		notifyObservers(null);
 		return;
 	}
 	
@@ -74,9 +81,14 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	public boolean startRecording(boolean newtrack) {
 		if(this.gpsManager.isGpsEnabled()) {
 			if(newtrack) {
+				lastWayPoint = null;
+				speed = 0.0;
+				bearing = -1.0;
+				distance = 0.0;
 				track = new Track();
 			}
 			isRecording = true;
+			notifyObservers(null);
 			return true;
 		}
 		return false;
@@ -86,32 +98,40 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 */
 	public void stopRecording() {
 		isRecording = false;
+		notifyObservers(null);
 	}
 	
 	// Interface GpsListener
 	@Override
 	public void firstFixEvent() {
 		LOG.debug("GpsModel.firstFixEvent()");
+		notifyObservers(null);
 	}
 	@Override
 	public void updateLocation(Location loc) {
-		LOG.debug("GpsModel.updateLocation(): "+loc.toString());
-		
+		LOG.debug("GpsModel.updateLocation(): "+loc.toString());		
 		if(isRecording) {
 			addPointToTrack(locToWayPoint(loc));
 		}
-		this.notifyObservers();
+		this.notifyObservers(null);
 	}
-
 	// Track management
 	public int wayPointCount() {
 		return track.wayPointCount();
 	}
 	private void addPointToTrack(WayPoint wp) {
 		if(wp != null) {
+			if(lastWayPoint !=  null) {
+				double d = Util.dist3D(lastWayPoint, wp);
+				double t = (double)((wp.getTime()-lastWayPoint.getTime())/1000l);
+				distance = distance + d;
+				bearing = Util.bearing(lastWayPoint, wp);
+				speed = d / t;
+			}			
 			track.addWayPoint(wp, false);						
 		}
 	}
+
 	public boolean saveTrackAsGpx(File outputfile) {
 		// FIXME Hacerlo en segundo plano? -> Mejor en la librería
 		boolean result=false;
@@ -165,6 +185,17 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return 0;
 	}
+	public double getSpeed() {
+		return speed;
+	}
+	public double getBearing() {
+		return bearing;
+	}
+	public double getDistance() {
+		return distance;
+	}
+	
+
 	// Status
 	public boolean isGpsEnabled() {
 		return this.gpsManager.isGpsEnabled();
@@ -185,5 +216,6 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	private void showNotification(String msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
+
 	
 }

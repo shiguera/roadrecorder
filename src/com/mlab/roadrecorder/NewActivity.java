@@ -24,11 +24,15 @@ import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.video.VideoController;
 import com.mlab.roadrecorder.video.VideoModel;
-import com.mlab.roadrecorder.view.TitleValueLabel;
+import com.mlab.roadrecorder.view.TextViewUpdater;
+import com.mlab.roadrecorder.view.command.GetAccuracyCommand;
+import com.mlab.roadrecorder.view.command.GetBearingCommand;
+import com.mlab.roadrecorder.view.command.GetDistanceCommand;
 import com.mlab.roadrecorder.view.command.GetLatCommand;
 import com.mlab.roadrecorder.view.command.GetLonCommand;
 import com.mlab.roadrecorder.view.command.GetPointsCountCommand;
 import com.mlab.roadrecorder.view.command.GetRecordingTimeCommand;
+import com.mlab.roadrecorder.view.command.GetSpeedCommand;
 
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
@@ -38,7 +42,6 @@ public class NewActivity extends Activity  {
 	
 	public static final String TAG = "ROADRECORDER";
     public enum NotificationLevel {INFO,DEBUG,WARNING,ERROR};
-
 
     // 
     MainModel model;
@@ -51,8 +54,8 @@ public class NewActivity extends Activity  {
 	protected TextView lblInfo, lblposition;
 	protected FrameLayout videoFrame;
 	protected LinearLayout rightPanel;
-	TitleValueLabel lblRecordTime, lblPointsCount, lblLon, lblLat;
-	
+	TextView lblLon, lblLat, lblAcc, lblSpeed, lblBearing, lblTime, lblPts, lblDistance;
+	TextViewUpdater latUpdater, lonUpdater, accUpdater, speedUpdater, bearingUpdater, timeUpdater, ptsUpdater, distanceUpdater;
 	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -156,7 +159,36 @@ public class NewActivity extends Activity  {
 	}
 	private void configureLabels() {
 		// lblInfo
-        lblInfo=(TextView)this.findViewById(R.id.lblInfo);
+        lblInfo = (TextView)this.findViewById(R.id.lblInfo);
+        
+        // lonlat_panel
+        lblLat = (TextView)this.findViewById(R.id.lbl_lat);
+        latUpdater = new TextViewUpdater(lblLat, new GetLatCommand(model));
+
+        lblLon = (TextView)this.findViewById(R.id.lbl_lon);
+        lonUpdater = new TextViewUpdater(lblLon, new GetLonCommand(model));
+        
+        lblAcc = (TextView)this.findViewById(R.id.lbl_acc);
+        accUpdater = new TextViewUpdater(lblAcc, new GetAccuracyCommand(model));
+
+        // speed_panel
+        lblSpeed = (TextView)this.findViewById(R.id.lbl_speed);
+        speedUpdater = new TextViewUpdater(lblSpeed, new GetSpeedCommand(model));
+
+        lblBearing = (TextView)this.findViewById(R.id.lbl_bearing);
+        bearingUpdater = new TextViewUpdater(lblBearing, new GetBearingCommand(model));
+
+        // status_panel        
+        lblTime = (TextView)this.findViewById(R.id.lbl_time);
+        timeUpdater = new TextViewUpdater(lblTime, new GetRecordingTimeCommand(model));
+
+        lblPts = (TextView)this.findViewById(R.id.lbl_pts);
+        ptsUpdater = new TextViewUpdater(lblPts, new GetPointsCountCommand(model));
+
+        lblDistance = (TextView)this.findViewById(R.id.lbl_dto);
+        distanceUpdater = new TextViewUpdater(lblDistance, new GetDistanceCommand(model));
+
+        
         
         
 	}
