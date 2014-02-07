@@ -47,7 +47,6 @@ public class NewActivity extends Activity  {
     MainModel model;
     MainController controller;
     
-    List<Observer> observerComponents;
 
     // Layout
 	protected Button btnStartStop;
@@ -65,19 +64,24 @@ public class NewActivity extends Activity  {
 		LOG.info("\n-----------------------");
 		
 		super.onCreate(savedInstanceState);
-	
-		this.observerComponents = new ArrayList<Observer>();
 		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+		setContentView(R.layout.activity_main);
+		
+		videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
+
+			
 		model = new MainModel(getApplicationContext());
 		App.setMainModel(model);
 		
-		//controller = new MainController(model, this, videoFrame);
-		//App.setMainController(controller);
+		controller = new MainController(model, this, videoFrame);
+		App.setMainController(controller);
 
 		//videoController = new VideoController(this, frameLayout, videoModel);
 
-		initLayout();
 		
+		initLayout();
 
 	}
 	@Override
@@ -144,11 +148,6 @@ public class NewActivity extends Activity  {
         
 	}
 	private void initLayout() {
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-		setContentView(R.layout.activity_main);
-		
-		videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
 		
 		configureBtnStartStop();
         

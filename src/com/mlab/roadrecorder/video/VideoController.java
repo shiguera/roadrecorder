@@ -50,10 +50,12 @@ public class VideoController {
 		initDefaultDirectory();
 		initCamera();
 		//System.out.println(model.getCamera().toString());		
-		view = new SurfaceView(getContext());
+		view = new SurfaceView(getContext());		
 		holder = view.getHolder();
 		holder.addCallback(model);
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);		
+		System.out.println("frameLayout==null"+String.format("%b", frameLayout==null));
+		System.out.println("view==null"+String.format("%b", view==null));
 		frameLayout.addView(view);
 		//initMediaRecorder();
 		if(!model.initMediaRecorder(holder)) {

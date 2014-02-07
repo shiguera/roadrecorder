@@ -13,7 +13,7 @@ import android.app.Application;
 public class App extends Application {
 
 	private static Logger LOG = Logger.getLogger(App.class);
-	
+	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
 	private static MainModel mainModel;
 	private static MainController mainController;
 	
@@ -36,6 +36,10 @@ public class App extends Application {
 	public static void setMainController(MainController mainController) {
 		LOG.info("App.setMainController()");
 		App.mainController = mainController;
+	}
+
+	public static String getAPP_DIRECTORY_NAME() {
+		return APP_DIRECTORY_NAME;
 	}
 	
 }

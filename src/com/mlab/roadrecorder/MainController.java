@@ -29,27 +29,59 @@ public class MainController implements Observer {
 		this.model = model;
 		this.videoFrame = videoframe;
 
+		// Init VideoController
 		videoController = new VideoController(model.getVideoModel(), activity, videoFrame);
 		
-		initApplicationDirectory();
+		// Init application directory
+		boolean result = initApplicationDirectory();
+		if(!result) {
+			activity.showNotification("Can't init application directory", 
+				NotificationLevel.ERROR, true);
+			activity.finish();
+			return;
+		}
 		
-		boolean result = model.getGpsModel().startGpsUpdates();
+		// startGpsUpdates
+		result = model.getGpsModel().startGpsUpdates();
 		if(!result) {
 			activity.showNotification("GPS Desactivado", NotificationLevel.ERROR, true);
 		}
+		
 	}
 	// Private methods
-	private void initApplicationDirectory() {
-		
+	private boolean initApplicationDirectory() {		
+		// Try secondary card
 		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
+		File outdir = null;
 		if(secdirs.size()>0) {
 			LOG.info("MainController.initApplicationDirectory() appdir: " + 
 					secdirs.get(0).getPath());
-			model.setOutputDirectory(secdirs.get(0));
-		}		
-		LOG.error("MainController.initApplicationDirectory() Can't init appdir ");
-		activity.finish();
-		return;
+			outdir = new File(secdirs.get(0), App.getAPP_DIRECTORY_NAME());
+			return setApplicationDirectory(outdir);
+		}	
+		// Try normal external storage
+		if(!AndroidUtils.isExternalStorageEnabled()) {
+			LOG.info("MainController.initApplicationDirectory() "+ 
+					"ERROR, can't init external storage"); 
+			return false;
+		}
+		outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAPP_DIRECTORY_NAME());
+		return setApplicationDirectory(outdir);
+	}
+	private boolean setApplicationDirectory(File outdir) {
+		if(!outdir.exists()) {
+			if(!outdir.mkdir()) {
+				LOG.info("MainController.setApplicationDirectory() "+ 
+						"ERROR, can't create application directory"); 
+				activity.finish();
+				return false;				
+			}
+		}
+		LOG.info("MainController.setApplicationDirectory() "+ 
+				"appicationDirectory = "+outdir.getPath()); 
+		model.setOutputDirectory(outdir);	
+		return true;
+		
 	}
 	// Interface Observer
 	@Override
