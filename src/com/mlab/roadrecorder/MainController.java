@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
 import com.mlab.android.utils.AndroidUtils;
+import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.NewActivity.NotificationLevel;
 import com.mlab.roadrecorder.api.Observable;
 import com.mlab.roadrecorder.api.Observer;
@@ -30,7 +32,8 @@ public class MainController implements Observer {
 		this.videoFrame = videoframe;
 
 		// Init VideoController
-		videoController = new VideoController(model.getVideoModel(), activity, videoFrame);
+		videoController = new VideoController(model.getVideoModel(), 
+				activity, videoFrame);
 		
 		// Init application directory
 		boolean result = initApplicationDirectory();
@@ -122,8 +125,52 @@ public class MainController implements Observer {
 		if(!result) {
 			activity.showNotification("MainController.stopRecording(): Error,  can't stop recording", 
 					NotificationLevel.ERROR, true);
+			return;
+		}
+		// Get filename
+		File outputVideoFile = model.getVideoModel().getOutputFile();
+		String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
+		
+		this.saveGpxFile(namewithoutext);
+		
+		if(App.isSaveAsCsv()) {
+			this.saveCsvFile(namewithoutext);	
 		}
 		return;
 	}
-
+	private void saveCsvFile(String namewithoutext) {
+		String csvfilename = namewithoutext + ".csv";
+		boolean result = model.getGpsModel().saveTrackAsCsv(
+				new File(model.getOutputDirectory(), csvfilename), true);
+		if(!result) {
+			activity.showNotification("Error saving CSV file", 
+				NotificationLevel.ERROR, true);
+		} else {
+			LOG.debug("MainController.saveCsvFile(): file" + csvfilename + " saved");
+		}
+		
+	}
+	private void saveGpxFile(String namewithoutext) {
+		String gpxfilename = namewithoutext+".gpx";
+		boolean result = model.getGpsModel().saveTrackAsGpx(new File(
+				model.getOutputDirectory(), gpxfilename));
+		if(!result) {
+			activity.showNotification("Error saving GPX file", 
+				NotificationLevel.ERROR, true);
+		} else {
+			LOG.debug("MainController.saveGpxFile(): file" + gpxfilename + " saved");
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+

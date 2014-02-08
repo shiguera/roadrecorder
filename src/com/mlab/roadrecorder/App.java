@@ -17,6 +17,7 @@ public class App extends Application {
 	private static MainModel mainModel;
 	private static MainController mainController;
 	
+	private static boolean saveAsCsv = true;
 	
 
 	// Getters
@@ -40,6 +41,14 @@ public class App extends Application {
 
 	public static String getAPP_DIRECTORY_NAME() {
 		return APP_DIRECTORY_NAME;
+	}
+
+	public static boolean isSaveAsCsv() {
+		return saveAsCsv;
+	}
+
+	public static void setSaveAsCsv(boolean saveAsCsv) {
+		App.saveAsCsv = saveAsCsv;
 	}
 	
 }

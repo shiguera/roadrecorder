@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.view.SurfaceHolder;
 
 import com.mlab.android.utils.AndroidUtils;
+import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.api.AbstractObservable;
 
 public class VideoModel extends AbstractObservable implements
@@ -102,9 +103,14 @@ public class VideoModel extends AbstractObservable implements
 				return false;
 			}
 			mediaRecorder.setProfile(CamcorderProfile.get(profile));
-			//mediaRecorder.setProfile(CamcorderProfile.get(0,CamcorderProfile.QUALITY_HIGH));
-			mediaRecorder.setOutputFile(createOutputFile().getPath());
-			//mediaRecorder.setPreviewDisplay(holder.getSurface());
+			
+			outputFile = createOutputFile();
+			if(outputFile == null) {
+				releaseMediaRecorder();
+				return false;
+			}
+			mediaRecorder.setOutputFile(outputFile.getPath());
+			
 			mediaRecorder.prepare();
 			isEnabled = true;
 		} catch (Exception e) {
@@ -160,7 +166,6 @@ public class VideoModel extends AbstractObservable implements
 		starter.execute();
 		try {
 			return starter.get();
-
 		} catch (Exception e) {
 			LOG.error("VideoModel.startRecording() : Can't start recording");	
 			return false;
@@ -170,12 +175,14 @@ public class VideoModel extends AbstractObservable implements
 		@Override
 		protected Boolean doInBackground(Void... voids) {
 			boolean result = prepare();
-			return new Boolean(result);
+			return result;
 		}
 		@Override
 		protected void onPostExecute(Boolean result) {
 			if(result) {
 				startRecordingTime = new Date().getTime();
+				LOG.info("VideoModel.RecordingStatarter startRecordingTime = "+
+						Util.dateToString(startRecordingTime, true));
 				mediaRecorder.start();
 				isRecording = true;
 			} else {
@@ -264,14 +271,9 @@ public class VideoModel extends AbstractObservable implements
 	public File getOutputFile() {
 		return this.outputFile;
 	}
-	public void setOutputFile(File file) {
-		outputFile = file;
-		if(mediaRecorder != null) {
-			mediaRecorder.setOutputFile(outputFile.getPath());
-		}
-	}
+	
 	private File createOutputFile() {
-		if(outputDirectory != null) {
+		if(outputDirectory != null) {		 
 			String filename = AndroidUtils.getTimeStamp(new Date(), true) +".mp4";
 			outputFile = new File(outputDirectory, filename);
 			return outputFile;

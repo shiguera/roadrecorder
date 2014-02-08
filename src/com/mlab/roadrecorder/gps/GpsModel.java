@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import android.content.Context;
 import android.location.Location;
+import android.os.AsyncTask;
 //import android.util.Log;
 import android.widget.Toast;
 
@@ -133,36 +134,88 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	}
 
 	public boolean saveTrackAsGpx(File outputfile) {
-		// FIXME Hacerlo en segundo plano? -> Mejor en la librería
-		boolean result=false;
-        try {
-        	GpxDocument doc = gpxFactory.createGpxDocument();
-        	doc.addTrack(track);
-        	Util.write(outputfile.getPath(), doc.asGpx());
-        	result = true;
-        } catch (Exception e) {
-        	String msg = "Error can't save Gpx Document";
-        	LOG.error("GpsModel.saveTrackAsGpx(): " + msg);
-        	this.showNotification(msg);
-        }
+		GpxSaver saver = new GpxSaver(outputfile);
+		saver.execute();
+		boolean result = false;
+		try { 
+			saver.get();
+			result = true;
+		} catch (Exception e) {
+			LOG.error("GpsModel.saveTrackAsGpx(); ERROR : can't save gpx track");
+			result = false;
+		}
 		return result;
+	}
+	class GpxSaver extends AsyncTask<Void, Void, Boolean> {
+		File outFile;
+		GpxSaver(File outfile) {
+			this.outFile = outfile;
+		}
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			boolean result=false;
+	        try {
+	        	GpxDocument doc = gpxFactory.createGpxDocument();
+	        	doc.addTrack(track);
+	        	Util.write(outFile.getPath(), doc.asGpx());
+	        	result = true;
+	        } catch (Exception e) {
+	        	result = false;
+	        }	
+			return result;
+		}
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if(!result) {
+				String msg = "Error can't save Gpx Document";
+	        	LOG.error("GpsModel.saveTrackAsGpx(): " + msg);
+	        	GpsModel.this.showNotification(msg);
+			}
+			super.onPostExecute(result);
+		}
 	}
 	public boolean saveTrackAsCsv(File outputfile, boolean withutmcoords) {
-		// FIXME Hacerlo en segundo plano? -> Mejor en la librería
-		boolean result=false;
-        try {
-        	GpxDocument doc = gpxFactory.createGpxDocument();
-        	doc.addTrack(track);
-        	Util.write(outputfile.getPath(), track.asCsv(withutmcoords));
-        	result = true;
-        } catch (Exception e) {
-        	String msg = "Error can't save CSV Document";
-        	LOG.error("GpsModel.saveTrackAsCsv(): " + msg);
-        	this.showNotification(msg);
-        }
+		CsvSaver saver = new CsvSaver(outputfile, withutmcoords);
+		saver.execute();
+		boolean result = false;
+		try {
+			result = saver.get();
+		} catch (Exception e ) {
+			LOG.error("GpsModel.saveTrackAsCsv() ERROR: Can't save csv track");
+			result = false;
+		}
 		return result;
 	}
-	
+	public class CsvSaver extends AsyncTask<Void, Void, Boolean> {
+		File outFile;
+		boolean withUtmCoords;
+		CsvSaver(File outfile, boolean withUtmCoords) {
+			this.outFile = outfile;
+			this.withUtmCoords = withUtmCoords;
+		}
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			boolean result=false;
+	        try {
+	        	GpxDocument doc = gpxFactory.createGpxDocument();
+	        	doc.addTrack(track);
+	        	Util.write(outFile.getPath(), track.asCsv(withUtmCoords));
+	        	result = true;
+	        } catch (Exception e) {
+	        	result = false;
+	        }
+			return result;
+		}
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if(!result) {
+				String msg = "Error can't save CSV Document";
+	        	LOG.error("GpsModel.saveTrackAsCsv(): " + msg);
+	        	GpsModel.this.showNotification(msg);
+			}
+        	super.onPostExecute(result);
+		}
+	}
 	// Getters
 	public Location getLastLocReceived() {
 		return gpsManager.getLastLocation();

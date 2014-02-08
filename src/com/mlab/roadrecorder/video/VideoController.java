@@ -27,18 +27,13 @@ public class VideoController {
 	protected SurfaceView view;
 	protected SurfaceHolder holder;
 	
-	
+	// Constructor
 	public VideoController( VideoModel model, NewActivity activity, FrameLayout frameLayout) {
 		String method = "VidoController.VideoController() "; 
 		Log.i(TAG, method);
 		this.activity = activity;
 		this.model = model;
-		this.frameLayout = frameLayout;
-		
-
-		//initDefaultDirectory();
-		//initMediaRecorder();
-		
+		this.frameLayout = frameLayout;		
 	}
 	private Context getContext() {
 		return this.activity;
