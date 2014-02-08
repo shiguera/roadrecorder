@@ -101,19 +101,21 @@ public class VideoController {
 	}
 	
 	// MediaRecorder management
-	public void startRecording() {
+	public boolean startRecording() {
 		Log.i(TAG,"VideoController.startRecording()");
 		boolean result = model.startRecording();
 		if(!result) {
 			Log.e(TAG, "VideoController.startRecording() : Can't start recording");
 		}
+		return result;
 	}
-	public void stopRecording() {
+	public boolean stopRecording() {
 		Log.i(TAG,"VideoController.stopRecording()");	
 		boolean result = model.stopRecording();
 		if(!result) {
 			Log.e(TAG, "VideoController.stopRecording() : Can't stop recording");
 		}
+		return result;
 	}
 
 	// Releasing resources

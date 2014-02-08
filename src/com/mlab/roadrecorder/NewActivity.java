@@ -198,20 +198,13 @@ public class NewActivity extends Activity  {
     		public void onClick(View v) {
     			if(getVideoModel().isRecording()) {
     				showNotification("Stoping",NotificationLevel.INFO, false);
-    				getVideoController().stopRecording();
     				btnStartStop.setBackgroundResource(R.drawable.button_start);
-    				//btnStartStop.setPressed(false);
-    		        //btnStartStop.setText("Grabar"); 
-    		        //btnStartStop.setBackgroundColor(Color.GREEN);
-    				//Exit after saved
-                    //finish();
+    				controller.stopRecording();
                     return;
     			} else {
     				showNotification("Starting",NotificationLevel.INFO, false);
-    				getVideoController().startRecording();
     				btnStartStop.setBackgroundResource(R.drawable.button_stop);
-    		        //btnStartStop.setText("Parar");
-    		        //btnStartStop.setBackgroundColor(Color.RED);
+    				controller.startRecording();
     			}
     		}});
         btnStartStop.setEnabled(true);

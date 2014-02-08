@@ -108,6 +108,22 @@ public class MainController implements Observer {
 		return videoFrame;
 	}
 	
-
+	// public methods
+	public void startRecording() {
+		boolean result = videoController.startRecording();
+		if(!result) {
+			activity.showNotification("MainController.stopRecording(): Error,  can't start recording", 
+					NotificationLevel.ERROR, true);
+		}
+		return;
+	}
+	public void stopRecording() {
+		boolean result = videoController.stopRecording();		
+		if(!result) {
+			activity.showNotification("MainController.stopRecording(): Error,  can't stop recording", 
+					NotificationLevel.ERROR, true);
+		}
+		return;
+	}
 
 }

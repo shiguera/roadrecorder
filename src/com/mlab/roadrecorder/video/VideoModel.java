@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 
@@ -14,6 +15,7 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.ExifInterface;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.view.SurfaceHolder;
 
 import com.mlab.android.utils.AndroidUtils;
@@ -154,34 +156,71 @@ public class VideoModel extends AbstractObservable implements
 	// MediaRecorder management
 	public boolean startRecording() {
 		// LOG.debug(TAG, "VideoModel.startRecording() "+outputfile.getPath());
-		boolean result = prepare();
-		if(result) {
-			startRecordingTime = new Date().getTime();
-			mediaRecorder.start();
-			isRecording = true;
-		} else {
-			LOG.error("VideoModel.startRecording() : Can't start recording");
-			isRecording = false;
-			startRecordingTime = -1l;
+		RecordingStarter starter = new RecordingStarter();
+		starter.execute();
+		try {
+			return starter.get();
+
+		} catch (Exception e) {
+			LOG.error("VideoModel.startRecording() : Can't start recording");	
+			return false;
+		} 
+	}
+	class RecordingStarter extends AsyncTask<Void, Void, Boolean> {
+		@Override
+		protected Boolean doInBackground(Void... voids) {
+			boolean result = prepare();
+			return new Boolean(result);
 		}
-		return result;
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if(result) {
+				startRecordingTime = new Date().getTime();
+				mediaRecorder.start();
+				isRecording = true;
+			} else {
+				LOG.error("VideoModel.RecordingStarter : Can't start recording");
+				isRecording = false;
+				startRecordingTime = -1l;
+			}
+			super.onPostExecute(result);
+		}
 	}
 	public boolean stopRecording() {
+		RecordingStopper stopper = new RecordingStopper();
+		stopper.execute();
 		boolean result = false;
 		try {
-			LOG.debug("VideoModel.stopRecording() stopping VideoModel... ");
-			mediaRecorder.stop();
-			//releaseMediaRecorder();
-			result = true;
+			result = stopper.get();
 		} catch (Exception e) {
-			LOG.error("VideoModel.stopRecording() ERROR stopping mediaRecording. ");
+			LOG.debug("VideoModel.stopRecording() ERROR stopping VideoModel");
+			result = false;
 		}
-		releaseMediaRecorder();
-		isRecording = false;
-		startRecordingTime = -1l;
 		return result;
 	}
+	class RecordingStopper extends AsyncTask<Void, Void, Boolean> {
 
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			boolean result = false;
+			try {
+				mediaRecorder.stop();
+				result = true;
+				LOG.debug("VideoModel.RecordingStopper VideoModel stopped ");
+			} catch (Exception e) {
+				LOG.error("VideoModel.RecordingStopper ERROR stopping mediaRecording. ");
+			}
+			releaseMediaRecorder();
+			isRecording = false;
+			startRecordingTime = -1l;
+			return result;
+		}
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+		}
+		
+	}
 	// Status
 	public boolean isEnabled() {
 		return isEnabled;
