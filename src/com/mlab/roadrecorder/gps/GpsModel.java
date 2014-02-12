@@ -18,10 +18,18 @@ import com.mlab.gpx.api.GpxDocument;
 import com.mlab.gpx.api.GpxFactory;
 import com.mlab.gpx.api.WayPoint;
 import com.mlab.gpx.impl.AndroidWayPoint;
+import com.mlab.gpx.impl.SimpleWayPoint;
 import com.mlab.gpx.impl.Track;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.api.AbstractObservable;
 
+/**
+ * Dispone de un GpsManager para acceder al GPS. Registra las posiciones
+ * en un Track que se puede grabar en formato GPX y CSV
+ * 
+ * @author shiguera
+ *
+ */
 public class GpsModel extends AbstractObservable implements GpsListener {
 
 	//private final String TAG = "ROADRECORDER";
@@ -29,16 +37,33 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	private final Logger LOG = Logger.getLogger(GpsModel.class);
 	
 	private Context context;
+	private GpxFactory gpxFactory;
 
 	protected GpsManager gpsManager;
-	protected GpxFactory gpxFactory;
 	protected Track track;
-	protected AndroidWayPoint lastWayPoint;
-	protected double speed;
-	protected double bearing;
-	protected double distance;
 
+	// Datos de status guardados para el caso isRecording=true
 	protected boolean isRecording;
+	// Primer punto guardado: lon, lat, alt, t
+	protected WayPoint firstWayPoint;
+	// Ultimo punto guardado: lon, lat, alt, t
+	protected WayPoint lastWayPoint;
+	// Ultimo tramo recorrido (Del último punto al anetrior): distance, speed, bearing, incT, incAltitude 
+	protected long lastIncT;
+	protected double lastDistance;
+	protected double lastSpeed;
+	protected double lastBearing;
+	protected double lastIncAltitude;
+	// Datos a origen
+	protected long accT;
+	protected double accDistance;
+	protected double accDistanceUp;
+	protected double accDistanceDown;
+	protected double accIncAltitude;
+	protected double accIncAltitudeUp;
+	protected double accIncAltitudeDown;
+	// Medias
+	protected double avgSpeed;
 	
 	// Constructor
 	public GpsModel(Context context) {
@@ -48,10 +73,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		gpxFactory = GpxFactory.getFactory(GpxFactory.Type.AndroidGpxFactory);
 		track = new Track();
 		
-		lastWayPoint = null;
-		speed = -1.0;
-		bearing = -1.0;
-		distance = 0.0;
+		initStatusValues();
 	}
 	
 	// GpsManager management
@@ -59,7 +81,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		boolean result = gpsManager.startGpsUpdates();
 		if (result) { 
 			notifyObservers(null);
-		}
+		} 
 		return result;
 	}
 	public void stopGpsUpdates() {
@@ -82,17 +104,35 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	public boolean startRecording(boolean newtrack) {
 		if(this.gpsManager.isGpsEnabled()) {
 			if(newtrack) {
-				lastWayPoint = null;
-				speed = 0.0;
-				bearing = -1.0;
-				distance = 0.0;
 				track = new Track();
+				initStatusValues();
 			}
 			isRecording = true;
 			notifyObservers(null);
 			return true;
 		}
 		return false;
+	}
+	private void initStatusValues() {
+		firstWayPoint = null;
+		lastWayPoint = null;
+		//
+		lastIncT = 0l;
+		lastDistance = -1.0;
+		lastSpeed = -1.0;
+		lastBearing = -1.0;
+		lastIncAltitude = 0.0;
+		//
+		accT = 0l;
+		accDistance = 0.0;
+		accDistanceUp = 0.0;
+		accDistanceDown = 0.0;
+		accIncAltitude = 0.0;
+		accIncAltitudeUp = 0.0;
+		accIncAltitudeDown = 0.0;
+		// 
+		avgSpeed = 0.0;
+		
 	}
 	/**
 	 * Deja de añadir puntos al track en memoria
@@ -121,18 +161,45 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		return track.wayPointCount();
 	}
 	private void addPointToTrack(WayPoint wp) {
+		// TODO Pasar a AsyncTask con Synchronized
 		if(wp != null) {
-			if(lastWayPoint !=  null) {
-				double d = Util.dist3D(lastWayPoint, wp);
-				double t = (double)((wp.getTime()-lastWayPoint.getTime())/1000l);
-				distance = distance + d;
-				bearing = Util.bearing(lastWayPoint, wp);
-				speed = d / t;
-			}			
-			track.addWayPoint(wp, false);						
+			if(firstWayPoint == null) {
+				firstWayPoint = wp.clone();
+				lastWayPoint = wp.clone();
+				return;
+			}
+			// Last point
+			lastIncT = (long)((wp.getTime()-lastWayPoint.getTime())/1000l);
+			lastDistance = Util.dist3D(lastWayPoint, wp);
+			lastSpeed = lastDistance / (double)lastIncT;
+			lastBearing = Util.bearing(lastWayPoint, wp);
+			lastIncAltitude = wp.getAltitude() - lastWayPoint.getAltitude();
+			// Accumulates
+			accT += lastIncT;
+			accDistance += lastDistance;
+			if(lastIncAltitude>0.0) {
+				accDistanceUp += lastIncAltitude;
+				accIncAltitudeUp += lastIncAltitude;
+			} else {
+				accDistanceDown += lastIncAltitude;
+				accIncAltitudeDown += lastIncAltitude;
+			}
+			// Averages
+			avgSpeed = accDistance / (double)accT;
+			//
+			track.addWayPoint(wp, false);	
+			lastWayPoint = wp.clone();
 		}
 	}
 
+	/**
+	 * Graba el Track en un fichero en formato GPX.
+	 * Utiliza un proceso asíncrono, pero espera hasta la respuesta
+	 * 
+	 * @param outputfile Fichero de salida
+	 * 
+	 * @return true si ok, false en caso de errores
+	 */
 	public boolean saveTrackAsGpx(File outputfile) {
 		GpxSaver saver = new GpxSaver(outputfile);
 		saver.execute();
@@ -146,6 +213,11 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return result;
 	}
+	/**
+	 * AsyncTask para grabar el Track en un fichero en formato GPX.
+	 * Notifica a través de un Toast si hay error
+	 * 
+	 */
 	class GpxSaver extends AsyncTask<Void, Void, Boolean> {
 		File outFile;
 		GpxSaver(File outfile) {
@@ -174,6 +246,14 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 			super.onPostExecute(result);
 		}
 	}
+	/**
+	 * Graba el Track en un fichero en formato CSV.
+	 * Utiliza un proceso asíncrono, pero espera hasta la respuesta
+	 * 
+	 * @param outputfile Fichero de salida
+	 * 
+	 * @return true si ok, false en caso de errores
+	 */
 	public boolean saveTrackAsCsv(File outputfile, boolean withutmcoords) {
 		CsvSaver saver = new CsvSaver(outputfile, withutmcoords);
 		saver.execute();
@@ -186,6 +266,11 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return result;
 	}
+	/**
+	 * AsyncTask para grabar el Track en un fichero en formato CSV
+	 * Notifica a través de un Toast si hay error
+	 * 
+	 */
 	public class CsvSaver extends AsyncTask<Void, Void, Boolean> {
 		File outFile;
 		boolean withUtmCoords;
@@ -239,24 +324,25 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		return 0;
 	}
 	public double getSpeed() {
-		return speed;
+		return lastSpeed;
 	}
 	public double getBearing() {
-		return bearing;
+		return lastBearing;
 	}
 	public double getDistance() {
-		return distance;
+		return lastDistance;
 	}
-	
 
 	// Status
 	public boolean isGpsEnabled() {
 		return this.gpsManager.isGpsEnabled();
 	}
+	public boolean isReceiving() {
+		return this.gpsManager.isGpsEventFirstFix();
+	}
 	public boolean isRecording() {
 		return this.isRecording;
 	}
-
 
 	// Utilities
 	private AndroidWayPoint locToWayPoint(Location loc) {
@@ -270,5 +356,59 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
 
-	
+	public WayPoint getFirstWayPoint() {
+		return firstWayPoint;
+	}
+
+	public long getLastIncT() {
+		return lastIncT;
+	}
+
+	public double getLastDistance() {
+		return lastDistance;
+	}
+
+	public double getLastSpeed() {
+		return lastSpeed;
+	}
+
+	public double getLastBearing() {
+		return lastBearing;
+	}
+
+	public double getLastIncAltitude() {
+		return lastIncAltitude;
+	}
+
+	public long getAccT() {
+		return accT;
+	}
+
+	public double getAccDistance() {
+		return accDistance;
+	}
+
+	public double getAccDistanceUp() {
+		return accDistanceUp;
+	}
+
+	public double getAccDistanceDown() {
+		return accDistanceDown;
+	}
+
+	public double getAccIncAltitude() {
+		return accIncAltitude;
+	}
+
+	public double getAccIncAltitudeUp() {
+		return accIncAltitudeUp;
+	}
+
+	public double getAccIncAltitudeDown() {
+		return accIncAltitudeDown;
+	}
+
+	public double getAvgSpeed() {
+		return avgSpeed;
+	}
 }

@@ -1,12 +1,12 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.roadrecorderalvac.R;
-import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.video.VideoController;
 import com.mlab.roadrecorder.video.VideoModel;
@@ -55,6 +54,7 @@ public class NewActivity extends Activity  {
 	protected LinearLayout rightPanel;
 	TextView lblLon, lblLat, lblAcc, lblSpeed, lblBearing, lblTime, lblPts, lblDistance;
 	TextViewUpdater latUpdater, lonUpdater, accUpdater, speedUpdater, bearingUpdater, timeUpdater, ptsUpdater, distanceUpdater;
+	LabelInfoBlinker labelInfoBlinker;
 	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,37 +67,22 @@ public class NewActivity extends Activity  {
 		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		setContentView(R.layout.activity_main);
-		
+		setContentView(R.layout.activity_main);		
 		videoFrame = (FrameLayout)this.findViewById(R.id.videoview);
+        rightPanel = (LinearLayout)this.findViewById(R.id.rightPanel);
+        lblInfo = (TextView)this.findViewById(R.id.lblInfo);
 
-			
 		model = new MainModel(getApplicationContext());
 		App.setMainModel(model);
 		
 		controller = new MainController(model, this, videoFrame);
 		App.setMainController(controller);
 
-		//videoController = new VideoController(this, frameLayout, videoModel);
-
-		
 		initLayout();
+		
 
 	}
-	@Override
-	protected void onPause() {
-		LOG.info("MainActivity.onPause()");
-		if(videoFrame != null) {
-			videoFrame.removeAllViews();
-		}
-		if (controller != null && controller.getVideoController()!=null) {
-			controller.getVideoController().release();
-		}
-		if(model != null && model.getGpsModel() != null) {
-			// TODO ¿Grabar el track¿ ¿Detener el recording del GPS?
-		}
-		super.onPause();
-	}
+	
 	@Override
 	protected void onStart() {
 		LOG.info("MainActivity.onStart()");
@@ -116,6 +101,24 @@ public class NewActivity extends Activity  {
 	protected void onRestart() {
 		LOG.info("MainActivity.onRestart()");
 		super.onRestart();
+	}
+	@Override
+	protected void onPause() {
+		LOG.info("MainActivity.onPause()");
+		if(videoFrame != null) {
+			videoFrame.removeAllViews();
+		}
+		if(controller != null) {
+			controller.stopRecording();
+			if (controller.getVideoController()!=null) {
+				controller.getVideoController().release();
+			}
+		}
+		
+		if(labelInfoBlinker != null) {
+			labelInfoBlinker.setBlink(false);
+		}
+		super.onPause();
 	}
 	@Override
 	protected void onStop() {
@@ -151,14 +154,11 @@ public class NewActivity extends Activity  {
 		
 		configureBtnStartStop();
         
-        rightPanel = (LinearLayout)this.findViewById(R.id.rightPanel);
         
         configureLabels();
 
 	}
 	private void configureLabels() {
-		// lblInfo
-        lblInfo = (TextView)this.findViewById(R.id.lblInfo);
         
         // lonlat_panel
         lblLat = (TextView)this.findViewById(R.id.lbl_lat);
@@ -197,12 +197,13 @@ public class NewActivity extends Activity  {
     		@Override
     		public void onClick(View v) {
     			if(getVideoModel().isRecording()) {
-    				showNotification("Stoping",NotificationLevel.INFO, false);
+    				showNotification("Stopping media recorder and saving files",
+    					NotificationLevel.INFO, true);
     				btnStartStop.setBackgroundResource(R.drawable.button_start);
     				controller.stopRecording();
                     return;
     			} else {
-    				showNotification("Starting",NotificationLevel.INFO, false);
+    				showNotification("Starting recording",NotificationLevel.INFO, false);
     				btnStartStop.setBackgroundResource(R.drawable.button_stop);
     				controller.startRecording();
     			}
@@ -250,14 +251,57 @@ public class NewActivity extends Activity  {
 //		Intent i = new Intent(this, AboutActivity.class);
 //		startActivity(i);
 	}
-	
-	private VideoModel initVideoManager(File outputDirectory) {
-       	//videoManager = new VideoModel(this, frameLayout);
-       	// Asignar el outputDirectory al videoManager
-     	//videoManager.setOutputDirectory(outputDirectory);
-       	return null;//videoManager;
+
+	// LabelInfo
+	class LabelInfoBlinker extends AsyncTask<Void, Void, Void> {
+		boolean blink;
+		public LabelInfoBlinker() {
+			this.blink = true;
+		}
+		@Override
+		protected Void doInBackground(Void... params) {
+			while(blink) {
+				try {
+					Thread.sleep(500);
+					publishProgress();
+				} catch (Exception e) {
+					LOG.warn("Exception in LabelInfoBlinker: " + e.getMessage());
+				}
+			}
+			return null;
+		}
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			if(lblInfo.getVisibility() == View.VISIBLE) {
+				lblInfo.setVisibility(View.INVISIBLE);
+			} else {
+				lblInfo.setVisibility(View.VISIBLE);
+			}
+			super.onProgressUpdate(values);
+		}
+		public void setBlink(boolean blink) {
+			this.blink = blink;
+		}
+		
 	}
-	
+	public void setLabelInfoText(String text) {
+		this.lblInfo.setText(text);
+	}
+	public void setLabelInfoColor(int color) {
+		this.lblInfo.setTextColor(color);
+	}
+	public void startLabelInfoBlinker() {
+		if(labelInfoBlinker != null) {
+			this.stopLabelInfoBlinker();
+		}
+		labelInfoBlinker = new LabelInfoBlinker();
+		labelInfoBlinker.execute();
+	}
+	public void stopLabelInfoBlinker() {
+		if(labelInfoBlinker != null) {
+			labelInfoBlinker.setBlink(false);
+		}
+	}
 	// Utilities
 	public void showNotification(String message, NotificationLevel level, boolean withToast) {
 		switch(level) {

@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import android.os.AsyncTask;
+import android.R;
+import android.location.Location;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
+import com.mlab.android.gpsmanager.GpsListener;
 import com.mlab.android.utils.AndroidUtils;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.NewActivity.NotificationLevel;
@@ -16,7 +18,7 @@ import com.mlab.roadrecorder.api.Observable;
 import com.mlab.roadrecorder.api.Observer;
 import com.mlab.roadrecorder.video.VideoController;
 
-public class MainController implements Observer {
+public class MainController implements Observer, GpsListener {
 
 	private static Logger LOG = Logger.getLogger(MainController.class);
 	
@@ -47,9 +49,12 @@ public class MainController implements Observer {
 		// startGpsUpdates
 		result = model.getGpsModel().startGpsUpdates();
 		if(!result) {
-			activity.showNotification("GPS Desactivado", NotificationLevel.ERROR, true);
+			activity.showNotification("Active GPS. GPS Desactivado", 
+				NotificationLevel.ERROR, true);
+			activity.setLabelInfoText("Active GPS. GPS Desactivado");
+			activity.setLabelInfoColor(0xffff0000);
+			activity.startLabelInfoBlinker();
 		}
-		
 	}
 	// Private methods
 	private boolean initApplicationDirectory() {		
@@ -96,6 +101,17 @@ public class MainController implements Observer {
 		
 		
 	}
+	// Interface GpsListener
+	@Override
+	public void firstFixEvent() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void updateLocation(Location arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	// getters
 	public NewActivity getActivity() {
@@ -112,6 +128,7 @@ public class MainController implements Observer {
 	}
 	
 	// public methods
+	
 	public void startRecording() {
 		boolean result = videoController.startRecording();
 		if(!result) {
@@ -131,6 +148,7 @@ public class MainController implements Observer {
 		File outputVideoFile = model.getVideoModel().getOutputFile();
 		String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
 		
+		getModel().getGpsModel().stopRecording();
 		this.saveGpxFile(namewithoutext);
 		
 		if(App.isSaveAsCsv()) {
@@ -161,6 +179,7 @@ public class MainController implements Observer {
 			LOG.debug("MainController.saveGpxFile(): file" + gpxfilename + " saved");
 		}
 	}
+	
 }
 
 

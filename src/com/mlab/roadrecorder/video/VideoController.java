@@ -49,8 +49,8 @@ public class VideoController {
 		holder = view.getHolder();
 		holder.addCallback(model);
 		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);		
-		System.out.println("frameLayout==null"+String.format("%b", frameLayout==null));
-		System.out.println("view==null"+String.format("%b", view==null));
+		//System.out.println("frameLayout==null"+String.format("%b", frameLayout==null));
+		//System.out.println("view==null"+String.format("%b", view==null));
 		frameLayout.addView(view);
 		//initMediaRecorder();
 		if(!model.initMediaRecorder(holder)) {
