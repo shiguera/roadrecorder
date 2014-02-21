@@ -50,6 +50,7 @@ public class NewActivity extends Activity  {
     // Layout
 	protected Button btnStartStop;
 	protected TextView lblInfo, lblposition;
+	
 	protected FrameLayout videoFrame;
 	protected LinearLayout rightPanel;
 	TextView lblLon, lblLat, lblAcc, lblSpeed, lblBearing, lblTime, lblPts, lblDistance;
@@ -75,7 +76,7 @@ public class NewActivity extends Activity  {
 		model = new MainModel(getApplicationContext());
 		App.setMainModel(model);
 		
-		controller = new MainController(model, this, videoFrame);
+		controller = new MainController(this, videoFrame);
 		App.setMainController(controller);
 
 		initLayout();
@@ -162,34 +163,31 @@ public class NewActivity extends Activity  {
         
         // lonlat_panel
         lblLat = (TextView)this.findViewById(R.id.lbl_lat);
-        latUpdater = new TextViewUpdater(lblLat, new GetLatCommand(model));
+        latUpdater = new TextViewUpdater(lblLat, new GetLatCommand(controller.getGpsModel()));
 
         lblLon = (TextView)this.findViewById(R.id.lbl_lon);
-        lonUpdater = new TextViewUpdater(lblLon, new GetLonCommand(model));
+        lonUpdater = new TextViewUpdater(lblLon, new GetLonCommand(controller.getGpsModel()));
         
         lblAcc = (TextView)this.findViewById(R.id.lbl_acc);
-        accUpdater = new TextViewUpdater(lblAcc, new GetAccuracyCommand(model));
+        accUpdater = new TextViewUpdater(lblAcc, new GetAccuracyCommand(controller.getGpsModel()));
 
         // speed_panel
         lblSpeed = (TextView)this.findViewById(R.id.lbl_speed);
-        speedUpdater = new TextViewUpdater(lblSpeed, new GetSpeedCommand(model));
+        speedUpdater = new TextViewUpdater(lblSpeed, new GetSpeedCommand(controller.getGpsModel()));
 
         lblBearing = (TextView)this.findViewById(R.id.lbl_bearing);
-        bearingUpdater = new TextViewUpdater(lblBearing, new GetBearingCommand(model));
+        bearingUpdater = new TextViewUpdater(lblBearing, new GetBearingCommand(controller.getGpsModel()));
 
         // status_panel        
         lblTime = (TextView)this.findViewById(R.id.lbl_time);
-        timeUpdater = new TextViewUpdater(lblTime, new GetRecordingTimeCommand(model));
+        timeUpdater = new TextViewUpdater(lblTime, new GetRecordingTimeCommand(controller.getVideoController().getModel()));
 
         lblPts = (TextView)this.findViewById(R.id.lbl_pts);
-        ptsUpdater = new TextViewUpdater(lblPts, new GetPointsCountCommand(model));
+        ptsUpdater = new TextViewUpdater(lblPts, new GetPointsCountCommand(controller.getGpsModel()));
 
         lblDistance = (TextView)this.findViewById(R.id.lbl_dto);
-        distanceUpdater = new TextViewUpdater(lblDistance, new GetDistanceCommand(model));
+        distanceUpdater = new TextViewUpdater(lblDistance, new GetDistanceCommand(controller.getGpsModel()));
 
-        
-        
-        
 	}
 	private void configureBtnStartStop() {
 		btnStartStop = (Button)findViewById(R.id.btn_rec);
@@ -331,7 +329,7 @@ public class NewActivity extends Activity  {
 		return controller;
 	}
 	public VideoModel getVideoModel() {
-		return model.getVideoModel();
+		return controller.getVideoController().getModel();
 	}
 	public VideoController getVideoController() {
 		if(controller != null) {
@@ -342,7 +340,7 @@ public class NewActivity extends Activity  {
 	}
 	public GpsModel getGpsModel() {
 		if(model != null) {
-			return model.getGpsModel();			
+			return controller.getGpsModel();			
 		} else {
 			return null;
 		}

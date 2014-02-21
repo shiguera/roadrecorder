@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 	Date startDate;
 	
 	// Components: VideoManager
-	VideoModel videoManager;
+	VideoModel videoModel;
 	
 	// Components: GpsManager
 	GpsManager gpsManager=null;
@@ -124,13 +124,13 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
        	notify("MainActivity.onCreate() App directory at"+appDirectory.getPath(),LogLevel.DEBUG,false);
 		
         // Inicializar videoManager        
-		videoManager = initVideoManager(appDirectory);
-		if(videoManager.isEnabled() == false) {
+		videoModel = initVideoManager(appDirectory);
+		if(videoModel.isEnabled() == false) {
 			notify("ERROR: Can't enable VideoManager",LogLevel.ERROR,true);		
 			finish();
 			return;
 		}
-		notify("videoManager.isEnabled= "+videoManager.isEnabled(),LogLevel.DEBUG,false);
+		notify("videoManager.isEnabled= "+videoModel.isEnabled(),LogLevel.DEBUG,false);
 		        
 		// Inicializar sensores
         // Inicializar Sensores: en onResume()
@@ -195,11 +195,11 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
         if(timer != null ) {
         	timer.cancel();    
         }
-        if(videoManager != null ) {
-        	if(videoManager.isRecording()) {
-        		videoManager.stopRecording();
+        if(videoModel != null ) {
+        	if(videoModel.isRecording()) {
+        		videoModel.stopRecording();
         	}
-        	videoManager.release();
+        	videoModel.release();
         }
 
         if(gpsManager != null) {
@@ -303,7 +303,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
        	//videoManager = new VideoModel(this, frameLayout);
        	// Asignar el outputDirectory al videoManager
      	//videoManager.setOutputDirectory(outputDirectory);
-       	return videoManager;
+       	return videoModel;
 	}
 	private GpsManager initGpsManager() {
 		Log.d(TAG,"MainActivity.initGpsManager()");
@@ -372,7 +372,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 
 		@Override
 		public void onClick(View v) {
-			if(videoManager.isRecording()) {
+			if(videoModel.isRecording()) {
 				MainActivity.this.notify("Stoping",LogLevel.INFO, false);
 				stopRecording();
                 //Exit after saved
@@ -486,7 +486,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		timer.cancel();
 		
 		// stop recording and release camera
-        videoManager.stopRecording();  // stop the recording
+        videoModel.stopRecording();  // stop the recording
                          
         // Grabar track gpx
         // FIXME Gestionar resultado del método
@@ -730,7 +730,7 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 			double longitude = startp.getLongitude();
 			double latitude = startp.getLatitude();
 			double altitude = startp.getAltitude();
-			result = videoManager.geotagVideoFile(startDate, longitude, latitude, altitude);
+			result = videoModel.geotagVideoFile(startDate, longitude, latitude, altitude);
 		} else {
 			notify("MainActivity().geotagVideoFile() ERROR: Can't geotag video",
 					LogLevel.ERROR, false);

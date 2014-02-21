@@ -80,13 +80,13 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	public boolean startGpsUpdates() {
 		boolean result = gpsManager.startGpsUpdates();
 		if (result) { 
-			notifyObservers(null);
+			notifyObservers();
 		} 
 		return result;
 	}
 	public void stopGpsUpdates() {
 		gpsManager.stopGpsUpdates();
-		notifyObservers(null);
+		notifyObservers();
 		return;
 	}
 	
@@ -108,7 +108,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 				initStatusValues();
 			}
 			isRecording = true;
-			notifyObservers(null);
+			notifyObservers();
 			return true;
 		}
 		return false;
@@ -139,14 +139,14 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 */
 	public void stopRecording() {
 		isRecording = false;
-		notifyObservers(null);
+		notifyObservers();
 	}
 	
 	// Interface GpsListener
 	@Override
 	public void firstFixEvent() {
 		LOG.debug("GpsModel.firstFixEvent()");
-		notifyObservers(null);
+		notifyObservers();
 	}
 	@Override
 	public void updateLocation(Location loc) {
@@ -154,7 +154,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		if(isRecording) {
 			addPointToTrack(locToWayPoint(loc));
 		}
-		this.notifyObservers(null);
+		this.notifyObservers();
 	}
 	// Track management
 	public int wayPointCount() {

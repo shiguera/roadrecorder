@@ -20,23 +20,12 @@ public class MainModel extends AbstractObservable implements Observer {
 	private final Logger LOG = Logger.getLogger(MainModel.class);
 	
 	File outputDirectory;
-	GpsModel gpsModel;
-	VideoModel videoModel;
 
-	List<Observer> videoObservers;
-	List<Observer> gpsObservers;
 	
 	public MainModel(Context context) {
 		LOG.info("MainModel.MainModel()");
 		outputDirectory = null;
 		
-		videoObservers = new ArrayList<Observer>();
-		videoModel = new VideoModel();
-		videoModel.registerObserver(this);
-		
-		gpsObservers = new ArrayList<Observer>();
-		gpsModel = new GpsModel(context);
-		gpsModel.registerObserver(this);
 	}
 
 	// Interface Observer
@@ -45,37 +34,10 @@ public class MainModel extends AbstractObservable implements Observer {
 	 * de cada tipo
 	 */
 	@Override
-	public void update(Object sender, Bundle parameters) {
-		if(sender.getClass().isAssignableFrom(GpsModel.class)) {
-			this.notifyGpsObservers((GpsModel)sender, parameters);
-		} else if(sender.getClass().isAssignableFrom(VideoModel.class)) {
-			this.notifyVideoObservers((VideoModel)sender, parameters);
-		} else if(sender.getClass().isAssignableFrom(MainModel.class)){
-			this.notifyAllObservers(sender, parameters);
-		}
+	public void update() {
 	}
 
 	// Gestión de observers
-	private void notifyAllObservers(Object sender, Bundle parameters) {
-		this.notifyGpsObservers((GpsModel)sender, parameters);
-		this.notifyVideoObservers((VideoModel)sender, parameters);					
-	}
-	public void registerVideoObserver(Observer o) {
-		videoObservers.add(o);
-	}
-	private void notifyVideoObservers(VideoModel videomodel, Bundle parameters) {
-		for(Observer o: videoObservers) {
-			o.update(videomodel, parameters);
-		}
-	}
-	public void registerGpsObserver(Observer o) {
-		gpsObservers.add(o);
-	}
-	private void notifyGpsObservers(GpsModel gpsmodel, Bundle parameters) {
-		for(Observer o: gpsObservers) {
-			o.update(gpsmodel, parameters);
-		}
-	}
 	
 	// Getters
 	public File getOutputDirectory() {
@@ -88,11 +50,23 @@ public class MainModel extends AbstractObservable implements Observer {
 	public Observable getObservable() {
 		return null;
 	}
-	public GpsModel getGpsModel() {
-		return gpsModel;
+
+	@Override
+	public boolean addComponent(Observer o) {
+		// TODO Auto-generated method stub
+		return false;
 	}
-	public VideoModel getVideoModel() {
-		return videoModel;
+
+	@Override
+	public boolean removeComponent(Observer o) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Observer getComponent(int index) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

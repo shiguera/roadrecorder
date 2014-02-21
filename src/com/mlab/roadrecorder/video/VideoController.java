@@ -5,18 +5,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.mlab.roadrecorder.NewActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-public class VideoController {
+import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.api.Controller;
+
+public class VideoController implements Controller {
 	
 	private final String TAG = "ROADRECORDER";
 
@@ -28,16 +30,22 @@ public class VideoController {
 	protected SurfaceHolder holder;
 	
 	// Constructor
-	public VideoController( VideoModel model, NewActivity activity, FrameLayout frameLayout) {
+	public VideoController(NewActivity activity, FrameLayout frameLayout) {
 		String method = "VidoController.VideoController() "; 
 		Log.i(TAG, method);
 		this.activity = activity;
-		this.model = model;
+		this.model = new VideoModel();
 		this.frameLayout = frameLayout;		
 	}
 	private Context getContext() {
 		return this.activity;
 	}
+	/**
+	 * Este método se debe llamar antes de usar startRecording().<br/>
+	 * En la MainActivity en onCreate()
+	 * 
+	 * @return
+	 */
 	@SuppressWarnings("deprecation")
 	public boolean initMediaRecorder() {
 		String method="VideoController.initMediaRecorder()";
@@ -112,20 +120,6 @@ public class VideoController {
 		}
 		return result;
 	}
-
-	// Releasing resources
-	public void release() {
-		Log.i(TAG,"VideoController.release()");
-		model.release();
-	}
-
-	// Getters
-	public VideoModel getModel() {
-		return model;
-	}
-	public FrameLayout getFrameLayout() {
-		return frameLayout;
-	}
 	
 	// Utilities
 	public boolean hasCameraHardware() {
@@ -146,6 +140,21 @@ public class VideoController {
     	}
     	return timeStamp.format(date);
     }
+
+    // Interface Controller
+	@Override
+	public VideoModel getModel() {
+		return model;
+	}
+	@Override
+	public void release() {
+		Log.i(TAG,"VideoController.release()");
+		model.release();
+	}
+    @Override
+	public FrameLayout getView() {
+		return this.frameLayout;
+	}
 
 
 }

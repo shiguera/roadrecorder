@@ -124,7 +124,7 @@ public class VideoModel extends AbstractObservable implements
 	}
 
 	// Camera
-	public boolean initCamera() {
+	boolean initCamera() {
 		String cad = "VideoModel.initCamera() ";
 		boolean result = false;
 		camera = getCameraInstance();
@@ -282,6 +282,10 @@ public class VideoModel extends AbstractObservable implements
 	}
 	
 	// Utilities
+	/**
+	 * Tiempo que lleva grabando el vídeo actual
+	 * @return
+	 */
 	public long getRecordingTime() {
 		if(isRecording) {
 			long recordingtime = new Date().getTime() - this.startRecordingTime;

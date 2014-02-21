@@ -2,18 +2,19 @@ package com.mlab.roadrecorder.view.command;
 
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.MainModel;
-import com.mlab.roadrecorder.api.AbstractGetValueCommand;
-import com.mlab.roadrecorder.api.Observable;
+import com.mlab.roadrecorder.api.GetValueCommand;
+import com.mlab.roadrecorder.gps.GpsModel;
+import com.mlab.roadrecorder.video.VideoModel;
 
-public class GetRecordingTimeCommand extends AbstractGetValueCommand {
+public class GetRecordingTimeCommand extends GetValueCommand {
 
-	public GetRecordingTimeCommand(MainModel model) {
+	public GetRecordingTimeCommand(VideoModel model) {
 		super(model);
 	}
 
 	@Override
 	public String getValue() {
-		long t = ((MainModel)model).getVideoModel().getRecordingTime();
+		long t = ((VideoModel)model).getRecordingTime();
 		String value = Util.secondsToHMSString(t/1000);
 		return value;
 	}

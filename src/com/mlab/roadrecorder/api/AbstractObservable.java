@@ -2,9 +2,8 @@ package com.mlab.roadrecorder.api;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-import android.os.Bundle;
+import org.apache.log4j.Logger;
 
 /**
  * Implementación básica para derivar las clases de Observables.<br/>
@@ -36,10 +35,10 @@ public class AbstractObservable implements Observable {
 	}
 
 	@Override
-	public void notifyObservers(Bundle parameters) {
+	public void notifyObservers() {
 		if(this.isNotificationEnabled) {
 			for(Observer o: this.observers) {
-				o.update(this, parameters);
+				o.update();
 			}
 		}
 	}

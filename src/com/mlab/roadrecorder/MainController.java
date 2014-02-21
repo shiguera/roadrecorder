@@ -5,38 +5,36 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import android.R;
 import android.location.Location;
-import android.os.Bundle;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.mlab.android.gpsmanager.GpsListener;
 import com.mlab.android.utils.AndroidUtils;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.NewActivity.NotificationLevel;
-import com.mlab.roadrecorder.api.Observable;
-import com.mlab.roadrecorder.api.Observer;
+import com.mlab.roadrecorder.api.Controller;
+import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.video.VideoController;
 
-public class MainController implements Observer, GpsListener {
+public class MainController implements Controller, GpsListener {
 
 	private static Logger LOG = Logger.getLogger(MainController.class);
 	
-	NewActivity activity;
 	MainModel model;
+	NewActivity activity;
 	VideoController videoController;
+	GpsModel gpsModel;
+	
 	FrameLayout videoFrame;
 	
 	
-	public MainController(MainModel model, NewActivity activity, FrameLayout videoframe) {
+	public MainController(NewActivity activity, FrameLayout videoframe) {
 		this.activity = activity;
-		this.model = model;
 		this.videoFrame = videoframe;
+		this.model = new MainModel(this.activity);
 
-		// Init VideoController
-		videoController = new VideoController(model.getVideoModel(), 
-				activity, videoFrame);
-		
+
 		// Init application directory
 		boolean result = initApplicationDirectory();
 		if(!result) {
@@ -45,9 +43,14 @@ public class MainController implements Observer, GpsListener {
 			activity.finish();
 			return;
 		}
+
+		// Init VideoController
+		videoController = new VideoController(activity, videoFrame);
+		
+		gpsModel = new GpsModel(activity);
 		
 		// startGpsUpdates
-		result = model.getGpsModel().startGpsUpdates();
+		result = gpsModel.startGpsUpdates();
 		if(!result) {
 			activity.showNotification("Active GPS. GPS Desactivado", 
 				NotificationLevel.ERROR, true);
@@ -91,16 +94,6 @@ public class MainController implements Observer, GpsListener {
 		return true;
 		
 	}
-	// Interface Observer
-	@Override
-	public Observable getObservable() {
-		return model;
-	}
-	@Override
-	public void update(Object sender, Bundle parameters) {
-		
-		
-	}
 	// Interface GpsListener
 	@Override
 	public void firstFixEvent() {
@@ -116,9 +109,6 @@ public class MainController implements Observer, GpsListener {
 	// getters
 	public NewActivity getActivity() {
 		return activity;
-	}
-	public MainModel getModel() {
-		return model;
 	}
 	public VideoController getVideoController() {
 		return videoController;
@@ -145,10 +135,10 @@ public class MainController implements Observer, GpsListener {
 			return;
 		}
 		// Get filename
-		File outputVideoFile = model.getVideoModel().getOutputFile();
+		File outputVideoFile = videoController.getModel().getOutputFile();
 		String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
 		
-		getModel().getGpsModel().stopRecording();
+		gpsModel.stopRecording();
 		this.saveGpxFile(namewithoutext);
 		
 		if(App.isSaveAsCsv()) {
@@ -158,7 +148,7 @@ public class MainController implements Observer, GpsListener {
 	}
 	private void saveCsvFile(String namewithoutext) {
 		String csvfilename = namewithoutext + ".csv";
-		boolean result = model.getGpsModel().saveTrackAsCsv(
+		boolean result = gpsModel.saveTrackAsCsv(
 				new File(model.getOutputDirectory(), csvfilename), true);
 		if(!result) {
 			activity.showNotification("Error saving CSV file", 
@@ -170,14 +160,32 @@ public class MainController implements Observer, GpsListener {
 	}
 	private void saveGpxFile(String namewithoutext) {
 		String gpxfilename = namewithoutext+".gpx";
-		boolean result = model.getGpsModel().saveTrackAsGpx(new File(
-				model.getOutputDirectory(), gpxfilename));
+		boolean result = gpsModel.saveTrackAsGpx(new File(model.getOutputDirectory(), gpxfilename));
 		if(!result) {
 			activity.showNotification("Error saving GPX file", 
 				NotificationLevel.ERROR, true);
 		} else {
 			LOG.debug("MainController.saveGpxFile(): file" + gpxfilename + " saved");
 		}
+	}
+
+	// Interface Controller
+	@Override
+	public MainModel getModel() {
+		return model;
+	}
+	@Override
+	public View getView() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public void release() {
+		// TODO Auto-generated method stub
+		
+	}
+	public GpsModel getGpsModel() {
+		return gpsModel;
 	}
 	
 }
