@@ -1,6 +1,6 @@
 package com.mlab.roadrecorder;
 
-import com.example.roadrecorderalvac.R;
+import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.gps.GpsModel;
 
 import android.app.Activity;

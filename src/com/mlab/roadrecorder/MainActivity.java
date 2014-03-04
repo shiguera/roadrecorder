@@ -8,7 +8,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -32,7 +31,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.roadrecorderalvac.R;
 import com.mlab.android.gpsmanager.GpsListener;
 import com.mlab.android.gpsmanager.GpsManager;
 import com.mlab.gpx.api.GpxDocument;
@@ -41,6 +39,7 @@ import com.mlab.gpx.api.GpxFactory.Type;
 import com.mlab.gpx.api.WayPoint;
 import com.mlab.gpx.impl.Track;
 import com.mlab.gpx.impl.util.Util;
+import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.video.VideoModel;
 
 public class MainActivity extends Activity implements GpsListener, SensorEventListener {

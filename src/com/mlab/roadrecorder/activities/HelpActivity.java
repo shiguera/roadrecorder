@@ -1,6 +1,6 @@
 package com.mlab.roadrecorder.activities;
 
-import com.example.roadrecorderalvac.R;
+import com.mlab.roadrecorder.alvac.R;
 
 import android.app.Activity;
 import android.os.Bundle;

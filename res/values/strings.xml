@@ -36,4 +36,7 @@
         A efectos de sincronización posterior, es importante no cambiar de nombre los ficheros.</string>
     <string name="help_content3">Fijación del smartphone al retrovisor del automóvil</string>
     
+    <!-- OnlyVideoDialog -->
+    <string name='dialogvideo_accept'>Aceptar</string>
+    <string name='dialogvideo_cancel'>Cancelar</string>
 </resources>

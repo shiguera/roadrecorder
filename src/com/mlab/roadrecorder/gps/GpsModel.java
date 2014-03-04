@@ -102,7 +102,8 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 * @return true si todo va bien, false si el GPS no está habilitado
 	 */
 	public boolean startRecording(boolean newtrack) {
-		if(this.gpsManager.isGpsEnabled()) {
+		// Entra en estado de grabación aunque no esté recibiendo
+		//if(this.gpsManager.isGpsEnabled()) {
 			if(newtrack) {
 				track = new Track();
 				initStatusValues();
@@ -110,8 +111,8 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 			isRecording = true;
 			notifyObservers();
 			return true;
-		}
-		return false;
+		//}
+		//return false;
 	}
 	private void initStatusValues() {
 		firstWayPoint = null;
@@ -337,8 +338,10 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	public boolean isGpsEnabled() {
 		return this.gpsManager.isGpsEnabled();
 	}
+	@Deprecated
 	public boolean isReceiving() {
-		return this.gpsManager.isGpsEventFirstFix();
+		return this.gpsManager.isGpsEnabled();
+		//return this.gpsManager.isGpsEventFirstFix();
 	}
 	public boolean isRecording() {
 		return this.isRecording;

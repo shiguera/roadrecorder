@@ -161,9 +161,25 @@ public class VideoModel extends AbstractObservable implements
 	}
 	// MediaRecorder management
 	public boolean startRecording() {
-		// LOG.debug(TAG, "VideoModel.startRecording() "+outputfile.getPath());
+		LOG.debug("VideoModel.startRecording()");
+		boolean result = prepare();
+		if(result) {
+			startRecordingTime = new Date().getTime();
+			LOG.info("startRecordingTime = "+
+					Util.dateToString(startRecordingTime, true));
+			mediaRecorder.start();
+			isRecording = true;
+		} else {
+			LOG.error("VideoModel.startRecording(): Can't start recording");
+			isRecording = false;
+			startRecordingTime = -1l;
+		}
+		return result;
+	}
+	public boolean startRecordingWithThread() {
+		LOG.debug("VideoModel.startRecording()");
 		RecordingStarter starter = new RecordingStarter();
-		starter.execute();
+		starter.execute();		
 		try {
 			return starter.get();
 		} catch (Exception e) {
@@ -194,9 +210,23 @@ public class VideoModel extends AbstractObservable implements
 		}
 	}
 	public boolean stopRecording() {
+		boolean result = false;
+		try {
+			mediaRecorder.stop();
+			result = true;
+			LOG.debug("VideoModel.stopRecording stopped ");
+		} catch (Exception e) {
+			LOG.error("VideoModel.stopRecording ERROR stopping mediaRecording. ");
+		}
+		releaseMediaRecorder();
+		isRecording = false;
+		startRecordingTime = -1l;
+		return result;
+	}
+	public boolean stopRecordingWithThread() {
+		boolean result = false;
 		RecordingStopper stopper = new RecordingStopper();
 		stopper.execute();
-		boolean result = false;
 		try {
 			result = stopper.get();
 		} catch (Exception e) {

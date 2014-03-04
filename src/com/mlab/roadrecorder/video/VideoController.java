@@ -113,15 +113,26 @@ public class VideoController implements Controller {
 		return result;
 	}
 	public boolean stopRecording() {
-		Log.i(TAG,"VideoController.stopRecording()");	
-		boolean result = model.stopRecording();
-		if(!result) {
-			Log.e(TAG, "VideoController.stopRecording() : Can't stop recording");
+		Log.i(TAG,"VideoController.stopRecording()");
+		boolean result = false;
+		if(model.isRecording()) {
+			result = model.stopRecording();
+			if(!result) {
+				Log.e(TAG, "VideoController.stopRecording() : Can't stop recording");
+			}
+		} else {
+			result = true;
 		}
 		return result;
 	}
 	
 	// Utilities
+	public boolean isRecording() {
+		return model.isRecording();
+	}
+	public boolean isEnabled() {
+		return model.isEnabled();
+	}
 	public boolean hasCameraHardware() {
 		return getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
 	}

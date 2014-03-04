@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import android.app.Activity;
+import android.graphics.Color;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -15,9 +19,13 @@ import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.NewActivity.NotificationLevel;
 import com.mlab.roadrecorder.api.Controller;
 import com.mlab.roadrecorder.gps.GpsModel;
+import com.mlab.roadrecorder.state.BtnStoppedState;
+import com.mlab.roadrecorder.state.GpsDisabledState;
+import com.mlab.roadrecorder.state.GpsFixedState;
+import com.mlab.roadrecorder.state.GpsFixingState;
 import com.mlab.roadrecorder.video.VideoController;
 
-public class MainController implements Controller, GpsListener {
+public class MainController extends Activity  implements Controller, GpsListener, GpsStatus.Listener {
 
 	private static Logger LOG = Logger.getLogger(MainController.class);
 	
@@ -29,12 +37,15 @@ public class MainController implements Controller, GpsListener {
 	FrameLayout videoFrame;
 	
 	
-	public MainController(NewActivity activity, FrameLayout videoframe) {
+	public MainController(NewActivity activity) {
 		this.activity = activity;
-		this.videoFrame = videoframe;
 		this.model = new MainModel(this.activity);
 
+		this.videoFrame = activity.getVideoFrame();
 
+		App.setMainModel(model);
+		App.setMainController(this);
+		
 		// Init application directory
 		boolean result = initApplicationDirectory();
 		if(!result) {
@@ -46,20 +57,37 @@ public class MainController implements Controller, GpsListener {
 
 		// Init VideoController
 		videoController = new VideoController(activity, videoFrame);
+		videoController.initMediaRecorder();
 		
+		
+		// GpsModel
 		gpsModel = new GpsModel(activity);
-		
-		// startGpsUpdates
+		gpsModel.getGpsManager().registerStatusListener(this);
 		result = gpsModel.startGpsUpdates();
 		if(!result) {
 			activity.showNotification("Active GPS. GPS Desactivado", 
-				NotificationLevel.ERROR, true);
-			activity.setLabelInfoText("Active GPS. GPS Desactivado");
-			activity.setLabelInfoColor(0xffff0000);
-			activity.startLabelInfoBlinker();
+					NotificationLevel.ERROR, true);
+			activity.setGpsState(new GpsDisabledState(activity));
+		} else {
+			activity.setGpsState(new GpsFixingState(activity));
 		}
 	}
 	// Private methods
+	public void onRestart() {
+		LOG.debug("MainController.onRestart()");
+	}
+	public void onPause() {
+		LOG.debug("MainController.onPause()");
+		if(videoController.isRecording()) {
+			stopRecording();			
+		}
+		videoController.release();
+				
+		if(gpsModel.isRecording()) {
+			gpsModel.stopRecording();
+		}
+		gpsModel.stopGpsUpdates();
+	}
 	private boolean initApplicationDirectory() {		
 		// Try secondary card
 		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
@@ -94,17 +122,6 @@ public class MainController implements Controller, GpsListener {
 		return true;
 		
 	}
-	// Interface GpsListener
-	@Override
-	public void firstFixEvent() {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void updateLocation(Location arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	// getters
 	public NewActivity getActivity() {
@@ -118,31 +135,47 @@ public class MainController implements Controller, GpsListener {
 	}
 	
 	// public methods
-	
+	public boolean isRecording() {
+		return videoController.isRecording() || gpsModel.isRecording();
+	}
 	public void startRecording() {
 		boolean result = videoController.startRecording();
 		if(!result) {
-			activity.showNotification("MainController.stopRecording(): Error,  can't start recording", 
+			activity.showNotification("MainController.startRecording(): Error,  can't start recording", 
 					NotificationLevel.ERROR, true);
+			return;
+		}
+		result = gpsModel.startRecording(true);
+		if(!gpsModel.isGpsEnabled()) {
+			activity.showNotification("MainController.startRecording(): Error gps is not receiving."+
+				"Switching mode video-only", 
+				NotificationLevel.ERROR, true);
 		}
 		return;
 	}
 	public void stopRecording() {
-		boolean result = videoController.stopRecording();		
-		if(!result) {
-			activity.showNotification("MainController.stopRecording(): Error,  can't stop recording", 
-					NotificationLevel.ERROR, true);
-			return;
+		if(videoController.isRecording()) {
+			boolean result = videoController.stopRecording();		
+			if(!result) {
+				activity.showNotification("MainController.stopRecording(): Error,  can't stop recording", 
+						NotificationLevel.ERROR, true);
+				return;
+			}
 		}
-		// Get filename
-		File outputVideoFile = videoController.getModel().getOutputFile();
-		String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
-		
-		gpsModel.stopRecording();
-		this.saveGpxFile(namewithoutext);
-		
-		if(App.isSaveAsCsv()) {
-			this.saveCsvFile(namewithoutext);	
+		if(gpsModel.isRecording()) {
+			gpsModel.stopRecording();
+			if(gpsModel.getPointsCount()>0) {
+				// Get filename
+				File outputVideoFile = videoController.getModel().getOutputFile();
+				String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
+				this.saveGpxFile(namewithoutext);				
+				if(App.isSaveAsCsv()) {
+					this.saveCsvFile(namewithoutext);	
+				}			
+			} else {
+				activity.showNotification("MainController.stopRecording(): Can't save track, points=0", 
+						NotificationLevel.ERROR, true);
+			}
 		}
 		return;
 	}
@@ -169,6 +202,12 @@ public class MainController implements Controller, GpsListener {
 		}
 	}
 
+	//
+	private void onGpsStopped() {
+		LOG.error("ERROR : GPS stopped");
+		// if grabando, guardar y parar
+		
+	}
 	// Interface Controller
 	@Override
 	public MainModel getModel() {
@@ -187,6 +226,44 @@ public class MainController implements Controller, GpsListener {
 	public GpsModel getGpsModel() {
 		return gpsModel;
 	}
+	
+	// Interface GpsListener
+	@Override
+	public void firstFixEvent() {
+		LOG.debug("MainController.firstFixEvent()");
+		activity.setGpsState(new GpsFixedState(activity));
+	}
+	@Override
+	public void updateLocation(Location arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+		
+	// Interface GpsStatus.Listener
+	@Override
+	public void onGpsStatusChanged(int event) {
+		String text="MainController.";
+		switch(event) {
+		case(GpsStatus.GPS_EVENT_SATELLITE_STATUS):
+			text = "GPS_EVENT_SATELLITE_STATUS";
+			break;
+		case(GpsStatus.GPS_EVENT_STARTED):
+			Log.d("HAL", "MainController.onGpsStatusChanged(): GPS_EVENT_STARTED");				
+			//activity.setButtonState(new BtnStoppedState(activity));
+			break;
+		case(GpsStatus.GPS_EVENT_STOPPED):
+			Log.d("HAL", "MainController.onGpsStatusChanged(): GPS_EVENT_STOPED");	
+			activity.setGpsState(new GpsDisabledState(activity));
+			onGpsStopped();
+			break;
+		case(GpsStatus.GPS_EVENT_FIRST_FIX):
+			Log.d("HAL", "MainController.onGpsStatusChanged(): GPS_EVENT_FIRST_FIX");	
+			firstFixEvent();
+			break;
+		}
+		
+	}
+	
 	
 }
 

@@ -6,16 +6,18 @@
     android:gravity="center">
     
     <TextView
+        android:id="@+id/gps_icon_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="REC"
+        android:text="GPS SIGNAL"
         android:textSize="10dip"
         android:textStyle="italic" />  
 
     <ImageView
+        android:id="@+id/gps_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/btnred24"
+        android:src="@drawable/mylocation_1"
         android:layout_marginBottom="5dip"
         >
         
