@@ -2,17 +2,17 @@ package com.mlab.roadrecorder.activities;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import com.mlab.roadrecorder.alvac.R;
-
-import com.mlab.roadrecorder.MainActivity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.alvac.R;
+
 public class SplashActivity extends Activity {
 
-	private long splashDelay = 1000; //3 segundos
+	private long splashDelay = 2000; //3 segundos
 
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
 	    TimerTask task = new TimerTask() {
 	      @Override
 	      public void run() {
-	        Intent mainIntent = new Intent().setClass(SplashActivity.this, MainActivity.class);
+	        Intent mainIntent = new Intent().setClass(SplashActivity.this, NewActivity.class);
 	        startActivity(mainIntent);
 	        finish();//Destruimos esta activity para prevenit que el usuario retorne aqui presionando el boton Atras.
 	      }

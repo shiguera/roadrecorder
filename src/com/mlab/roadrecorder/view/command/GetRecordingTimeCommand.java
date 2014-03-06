@@ -12,6 +12,7 @@ public class GetRecordingTimeCommand extends GetValueCommand {
 		super(model);
 	}
 
+	// No funciona, el modelo de vídeo no envía updates
 	@Override
 	public String getValue() {
 		long t = ((VideoModel)model).getRecordingTime();

@@ -5,20 +5,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
+import android.media.MediaRecorder.OnErrorListener;
+import android.media.MediaRecorder.OnInfoListener;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.mlab.roadrecorder.NewActivity;
 import com.mlab.roadrecorder.api.Controller;
 
-public class VideoController implements Controller {
+public class VideoController implements Controller, OnInfoListener, OnErrorListener {
+	private final Logger LOG = Logger.getLogger(VideoController.class);
 	
 	private final String TAG = "ROADRECORDER";
 
@@ -65,6 +70,8 @@ public class VideoController implements Controller {
 			Log.e(TAG, "Can't init media recorder");
 			return false;
 		}
+		model.getMediaRecorder().setOnErrorListener(this);
+		model.getMediaRecorder().setOnInfoListener(this);
 		return true;
 	}
 	private void initCamera() {
@@ -165,6 +172,36 @@ public class VideoController implements Controller {
     @Override
 	public FrameLayout getView() {
 		return this.frameLayout;
+	}
+	@Override
+	public void onInfo(MediaRecorder mr, int what, int extra) {
+		switch(what) {
+		case MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN:
+			LOG.debug("VideoController.onInfo():  MEDIA_RECORDER_INFO_UNKNOWN");
+			break;
+		case MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED:
+			LOG.debug("VideoController.onInfo():  MEDIA_RECORDER_INFO_MAX_DURATION_REACHED");
+			break;
+		case MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED:
+			LOG.debug("VideoController.onInfo():  MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED");
+			break;
+		default:
+			LOG.debug("VideoController.onInfo():  unknown");				
+		}
+	}
+	@Override
+	public void onError(MediaRecorder mr, int what, int extra) {
+		switch(what) {
+		case MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN:
+			LOG.debug("VideoController.onError():  MEDIA_RECORDER_ERROR_UNKNOWN");
+			break;
+		case MediaRecorder.MEDIA_ERROR_SERVER_DIED:
+			LOG.debug("VideoController.onError():  MEDIA_ERROR_SERVER_DIED");
+			break;
+		default:
+			LOG.debug("VideoController.onError():  unknown");				
+		}
+		
 	}
 
 

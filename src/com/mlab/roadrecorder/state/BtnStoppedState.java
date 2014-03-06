@@ -13,6 +13,8 @@ public class BtnStoppedState extends ButtonState {
 	public void doAction() {
 		activity.setButtonBackground(NewActivity.BTNBACKGROUND.STOPPED);
 		activity.setButtonEnabled(true);
+		activity.setActionBarEnabled(true);
+
 	}
 
 }

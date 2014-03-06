@@ -154,6 +154,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 			activity.setButtonState(new BtnStoppedState(activity));
 			return;
 		}
+		
 		result = gpsModel.startRecording(true);
 		if(!gpsModel.isGpsEnabled()) {
 			activity.showNotification("MainController.startRecording(): Error gps is not receiving."+

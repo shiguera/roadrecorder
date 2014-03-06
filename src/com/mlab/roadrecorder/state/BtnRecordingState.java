@@ -13,6 +13,8 @@ public class BtnRecordingState extends ButtonState {
 	public void doAction() {
 		activity.setButtonBackground(NewActivity.BTNBACKGROUND.RECORDING);
 		activity.setButtonEnabled(true);
+		activity.setActionBarEnabled(false);
+
 	}
 
 }

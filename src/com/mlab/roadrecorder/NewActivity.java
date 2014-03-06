@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.AsyncTask;
@@ -21,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mlab.roadrecorder.activities.AboutActivity;
+import com.mlab.roadrecorder.activities.ConfigActivity;
+import com.mlab.roadrecorder.activities.HelpActivity;
 import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.state.ActivityState;
 import com.mlab.roadrecorder.state.ButtonState;
@@ -63,6 +67,8 @@ public class NewActivity extends Activity {
 	ActivityState btnState;
 
 	// Layout
+	protected Menu menu;
+	protected MenuItem menuItemBack,menuItemConfig, menuItemHelp, menuItemAbout;
 	protected Button btnStartStop;
 	protected FrameLayout videoFrame;
 	protected LinearLayout rightPanel;
@@ -267,13 +273,13 @@ public class NewActivity extends Activity {
 	}
 
 	public void setButtonState(ButtonState state) {
-		LOG.debug("MainActivity.setButtonState()");
+		//LOG.debug("MainActivity.setButtonState()");
 		this.btnState = state;
 		this.btnState.doAction();
 	}
 	// Button StartStop
 	public void setButtonEnabled(boolean enabled) {
-		LOG.debug("setButtonEnabled()"+String.format("%b", enabled));
+		//LOG.debug("setButtonEnabled()"+String.format("%b", enabled));
 		if (enabled) {
 			btnStartStop.setEnabled(true);
 		} else {
@@ -282,13 +288,13 @@ public class NewActivity extends Activity {
 	}
 	public void setButtonBackground(BTNBACKGROUND back) {
 		if(back == BTNBACKGROUND.DISABLED) {
-			LOG.debug("setButtonBackground() orange");
+			//LOG.debug("setButtonBackground() orange");
 			btnStartStop.setBackgroundResource(R.drawable.button_orange);
 		} else if(back == BTNBACKGROUND.STOPPED) {
-			LOG.debug("setButtonBackground() start");
+			//LOG.debug("setButtonBackground() start");
 			btnStartStop.setBackgroundResource(R.drawable.button_start);
 		} else if(back == BTNBACKGROUND.RECORDING) {
-			LOG.debug("setButtonBackground() stop");
+			//LOG.debug("setButtonBackground() stop");
 			btnStartStop.setBackgroundResource(R.drawable.button_stop);
 		}
 	}
@@ -298,6 +304,11 @@ public class NewActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+		this.menu = menu;
+		menuItemBack =menu.findItem(R.id.menuitem_back);
+		menuItemConfig = menu.findItem(R.id.menuitem_config);
+		menuItemAbout = menu.findItem(R.id.menuitem_about);
+		menuItemHelp = menu.findItem(R.id.menuitem_help);
 		return true;
 	}
 
@@ -319,26 +330,32 @@ public class NewActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	public void setActionBarEnabled(boolean enabled) {
+		this.menuItemAbout.setEnabled(enabled);
+		this.menuItemBack.setEnabled(enabled);
+		this.menuItemConfig.setEnabled(enabled);
+		this.menuItemHelp.setEnabled(enabled);
+	}
 
 	private void startActivityConfig() {
 		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 				true);
-		// Intent i = new Intent(this, ConfigActivity.class);
-		// startActivity(i);
+//		 Intent i = new Intent(this, ConfigActivity.class);
+//		 startActivity(i);
 	}
 
 	private void startActivityHelp() {
 		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 				true);
-		// Intent i = new Intent(this, HelpActivity.class);
-		// startActivity(i);
+//		 Intent i = new Intent(this, HelpActivity.class);
+//		 startActivity(i);
 	}
 
 	private void startActivityAbout() {
 		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 				true);
-		// Intent i = new Intent(this, AboutActivity.class);
-		// startActivity(i);
+//		 Intent i = new Intent(this, AboutActivity.class);
+//		 startActivity(i);
 	}
 
 

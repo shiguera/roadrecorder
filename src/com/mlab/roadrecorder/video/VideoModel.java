@@ -32,10 +32,12 @@ public class VideoModel extends AbstractObservable implements
 	public static final int LEVEL_WARNING = 2;
 	public static final int LEVEL_ERROR = 3;
 
-	public static final int VIDEO_MAX_DURATION = 6000000; // 6000 sg
-	public static final int VIDEO_MAX_FILE_SIZE = 500000000; // 500 Mb
+	public static final int VIDEO_MAX_DURATION = 18000000; // 18000 sg
+	public static final int VIDEO_MAX_FILE_SIZE = 1500000000; // 1500 Mb
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
-	private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_1080P;
+	//private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_1080P;
+	private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_HIGH;
+	
 
 	private MediaRecorder mediaRecorder;
 	private Camera camera;
@@ -416,5 +418,9 @@ public class VideoModel extends AbstractObservable implements
 	public static String getExifLongitude() {
 		// TODO
 		return "";
+	}
+
+	public MediaRecorder getMediaRecorder() {
+		return mediaRecorder;
 	}
 }

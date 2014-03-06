@@ -13,6 +13,7 @@ public class BtnDisabledState extends ButtonState {
 	public void doAction() {
 		activity.setButtonBackground(NewActivity.BTNBACKGROUND.DISABLED);
 		activity.setButtonEnabled(false);
+		activity.setActionBarEnabled(true);
 	}
 
 }
