@@ -27,7 +27,7 @@ public class GpsFixedState extends GpsState {
         activity.setGpsIcon(NewActivity.GPSICON.FIXED, "FIXED");
         activity.stopGpsIconBlinker();
         // Button
-        activity.setButtonState(new BtnStoppedState(activity));
+        // activity.setButtonState(new BtnStoppedState(activity));
         // InfoLabel
         activity.setLabelInfoColor(Color.GREEN);
         activity.stopLabelInfoBlinker("GPS fixed. You can start recording");

@@ -11,9 +11,8 @@ public class BtnRecordingState extends ButtonState {
 
 	@Override
 	public void doAction() {
-		activity.getBtnStartStop().setBackgroundResource(R.drawable.button_stop);
-		activity.getBtnStartStop().setEnabled(true);
-
+		activity.setButtonBackground(NewActivity.BTNBACKGROUND.RECORDING);
+		activity.setButtonEnabled(true);
 	}
 
 }

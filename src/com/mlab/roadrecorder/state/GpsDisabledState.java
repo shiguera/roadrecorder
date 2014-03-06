@@ -23,7 +23,7 @@ public class GpsDisabledState extends GpsState {
         activity.setGpsIcon(NewActivity.GPSICON.DISABLED, "DISABLED");
         activity.startGpsIconBlinker();
         // Button
-        activity.setButtonState(new BtnDisabledState(activity));
+        // activity.setButtonState(new BtnDisabledState(activity));
         // InfoLabel
         activity.setLabelInfoColor(Color.RED);
         activity.startLabelInfoBlinker("GPS No disponible. Active el GPS");

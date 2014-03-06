@@ -31,4 +31,5 @@ public abstract class SingleObserver implements Observer {
 		return null;
 	}
 
+	public abstract void update();
 }

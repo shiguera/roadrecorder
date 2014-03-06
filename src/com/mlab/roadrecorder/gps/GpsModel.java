@@ -70,6 +70,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		super();
 		this.context = context;
 		gpsManager = new GpsManager(context);
+		gpsManager.registerGpsListener(this);
 		gpxFactory = GpxFactory.getFactory(GpxFactory.Type.AndroidGpxFactory);
 		track = new Track();
 		
@@ -102,17 +103,14 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 * @return true si todo va bien, false si el GPS no está habilitado
 	 */
 	public boolean startRecording(boolean newtrack) {
-		// Entra en estado de grabación aunque no esté recibiendo
-		//if(this.gpsManager.isGpsEnabled()) {
-			if(newtrack) {
-				track = new Track();
-				initStatusValues();
-			}
-			isRecording = true;
-			notifyObservers();
-			return true;
-		//}
-		//return false;
+		LOG.debug("GpsModel.startRecording()");
+		if(newtrack) {
+			track = new Track();
+			initStatusValues();
+		}
+		isRecording = true;
+		notifyObservers();
+		return true;
 	}
 	private void initStatusValues() {
 		firstWayPoint = null;
@@ -139,6 +137,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 * Deja de añadir puntos al track en memoria
 	 */
 	public void stopRecording() {
+		LOG.debug("GpsModel.stopRecording()");
 		isRecording = false;
 		notifyObservers();
 	}
@@ -155,7 +154,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		if(isRecording) {
 			addPointToTrack(locToWayPoint(loc));
 		}
-		this.notifyObservers();
+		notifyObservers();
 	}
 	// Track management
 	public int wayPointCount() {

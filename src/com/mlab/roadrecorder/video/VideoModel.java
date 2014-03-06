@@ -216,7 +216,7 @@ public class VideoModel extends AbstractObservable implements
 			result = true;
 			LOG.debug("VideoModel.stopRecording stopped ");
 		} catch (Exception e) {
-			LOG.error("VideoModel.stopRecording ERROR stopping mediaRecording. ");
+			LOG.error("VideoModel.stopRecording ERROR stopping mediaRecorder. ");
 		}
 		releaseMediaRecorder();
 		isRecording = false;

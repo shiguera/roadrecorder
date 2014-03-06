@@ -15,12 +15,13 @@ import org.apache.log4j.Logger;
  */
 public class AbstractObservable implements Observable {
 	private final Logger LOG = Logger.getLogger(getClass().getName());
+	
 	List<Observer> observers; 
-	//protected boolean isNotificationStopped;
 	protected boolean isNotificationEnabled;
+	
 	protected AbstractObservable() {
-		this.observers= new ArrayList<Observer>();
-		this.isNotificationEnabled = true;
+		observers= new ArrayList<Observer>();
+		isNotificationEnabled = true;
 		
 	}
 	
@@ -37,7 +38,7 @@ public class AbstractObservable implements Observable {
 	@Override
 	public void notifyObservers() {
 		if(this.isNotificationEnabled) {
-			for(Observer o: this.observers) {
+			for(Observer o: observers) {
 				o.update();
 			}
 		}

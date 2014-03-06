@@ -23,7 +23,7 @@ public class GpsFixingState extends GpsState {
         activity.setGpsIcon(NewActivity.GPSICON.FIXING, "FIXING");
         activity.startGpsIconBlinker();
         // Button
-        activity.setButtonState(new BtnStoppedState(activity));
+        // activity.setButtonState(new BtnStoppedState(activity));
         // InfoLabel
         activity.setLabelInfoColor(Color.GREEN);
         activity.startLabelInfoBlinker("Fixing GPS position");

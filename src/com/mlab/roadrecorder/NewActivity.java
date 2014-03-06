@@ -240,24 +240,25 @@ public class NewActivity extends Activity {
 			public void onClick(View v) {
 				soundPool.play(sound, 1.0f, 1.0f, 0, 0, 1.0f);
 				if (controller.isRecording()) {
-					showNotification(
-							"Stopping media recorder and saving files",
-							NotificationLevel.INFO, true);
-					controller.stopRecording();
-					btnStartStop.setBackgroundResource(R.drawable.button_start);
-					return;
+					stopRecording();
 				} else {
-					showNotification("Starting recording",
-							NotificationLevel.INFO, false);
-					controller.startRecording();
-					btnStartStop.setBackgroundResource(R.drawable.button_stop);
+					startRecording();
 				}
 			}
 		});
-		//btnStartStop.setEnabled(false);
-		//btnStartStop.setBackgroundResource(R.drawable.button_orange);
 	}
-
+	private void startRecording() {
+		showNotification("Starting media recorder",
+			NotificationLevel.INFO, false);
+		controller.startRecording();
+	}
+	private void stopRecording() {
+		showNotification(
+			"Stopping media recorder and saving files",
+			NotificationLevel.INFO, true);
+		controller.stopRecording();
+		return;
+	}
 	// States
 	public void setGpsState(ActivityState state) {
 		LOG.debug("MainActivity.setGpsState()");
