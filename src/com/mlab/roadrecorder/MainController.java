@@ -58,19 +58,17 @@ public class MainController extends Activity  implements Controller, GpsListener
 
 		// Init VideoController
 		videoController = new VideoController(activity, videoFrame);
-		result = videoController.initMediaRecorder();
-		if(!result) {
-			activity.showNotification("Errores al inicializar el vídeo", 
-					NotificationLevel.ERROR, true);
-			activity.setButtonState(new BtnDisabledState(activity));
-			
-		}
+		initMediaRecorder();
 		
 		// GpsModel
 		gpsModel = new GpsModel(activity);
 		gpsModel.getGpsManager().registerStatusListener(this);
 		gpsModel.getGpsManager().registerGpsListener(this);
-		result = gpsModel.startGpsUpdates();
+		initGpsUpdates();
+	}
+	// Private methods
+	private void initGpsUpdates() {
+		boolean result = gpsModel.startGpsUpdates();
 		if(!result) {
 			activity.showNotification("Active GPS. GPS Desactivado", 
 					NotificationLevel.ERROR, true);
@@ -79,9 +77,20 @@ public class MainController extends Activity  implements Controller, GpsListener
 			activity.setGpsState(new GpsFixingState(activity));
 		}
 	}
-	// Private methods
+	private void initMediaRecorder() {
+		boolean result = videoController.initMediaRecorder();
+		if(!result) {
+			activity.showNotification("Errores al inicializar el vídeo", 
+					NotificationLevel.ERROR, true);
+			activity.setButtonState(new BtnDisabledState(activity));
+			
+		}		
+	}
+	
 	public void onRestart() {
 		LOG.debug("MainController.onRestart()");
+		videoController.postInitMediaRecorder();
+		initGpsUpdates();
 	}
 	public void onPause() {
 		LOG.debug("MainController.onPause()");

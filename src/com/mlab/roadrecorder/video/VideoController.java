@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnErrorListener;
 import android.media.MediaRecorder.OnInfoListener;
@@ -56,7 +57,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		String method="VideoController.initMediaRecorder()";
 		Log.i(TAG, method);
 		initDefaultDirectory();
-		initCamera();
+		initCamera();			
 		//System.out.println(model.getCamera().toString());		
 		view = new SurfaceView(getContext());		
 		holder = view.getHolder();
@@ -73,6 +74,22 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		model.getMediaRecorder().setOnErrorListener(this);
 		model.getMediaRecorder().setOnInfoListener(this);
 		return true;
+	}
+	private void initHolder() {
+		view = new SurfaceView(getContext());		
+		holder = view.getHolder();
+		holder.addCallback(model);
+		holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);		
+		//System.out.println("frameLayout==null"+String.format("%b", frameLayout==null));
+		//System.out.println("view==null"+String.format("%b", view==null));
+		frameLayout.removeAllViews();
+		frameLayout.addView(view);
+	}
+	public void postInitMediaRecorder() {
+		if(model.getCamera()==null) {
+			initCamera();
+		}
+		initHolder();
 	}
 	private void initCamera() {
 		String method = "VideoController.initCamera() ";

@@ -94,6 +94,9 @@ public class VideoModel extends AbstractObservable implements
 	private boolean prepare() {
 		mediaRecorder = null;
 		mediaRecorder=new MediaRecorder();
+		if(camera==null) {
+			initCamera();
+		}
 		camera.unlock();
 		mediaRecorder.setCamera(camera);
 		try {

@@ -338,24 +338,24 @@ public class NewActivity extends Activity {
 	}
 
 	private void startActivityConfig() {
-		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
-				true);
-//		 Intent i = new Intent(this, ConfigActivity.class);
-//		 startActivity(i);
+//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+//				true);
+		 Intent i = new Intent(this, ConfigActivity.class);
+		 startActivity(i);
 	}
 
 	private void startActivityHelp() {
-		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
-				true);
-//		 Intent i = new Intent(this, HelpActivity.class);
-//		 startActivity(i);
+//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+//				true);
+		 Intent i = new Intent(this, HelpActivity.class);
+		 startActivity(i);
 	}
 
 	private void startActivityAbout() {
-		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
-				true);
-//		 Intent i = new Intent(this, AboutActivity.class);
-//		 startActivity(i);
+//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+//				true);
+		 Intent i = new Intent(this, AboutActivity.class);
+		 startActivity(i);
 	}
 
 
