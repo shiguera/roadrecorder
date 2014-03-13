@@ -1,5 +1,6 @@
 package com.mlab.roadrecorder.video;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,7 +11,6 @@ import org.apache.log4j.Logger;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnErrorListener;
 import android.media.MediaRecorder.OnInfoListener;
@@ -53,10 +53,11 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	 * @return
 	 */
 	@SuppressWarnings("deprecation")
-	public boolean initMediaRecorder() {
+	public boolean initMediaRecorder(File outputDirectory) {
 		String method="VideoController.initMediaRecorder()";
 		Log.i(TAG, method);
-		initDefaultDirectory();
+		//initDefaultDirectory();
+		model.setOutputDirectory(outputDirectory);
 		initCamera();			
 		//System.out.println(model.getCamera().toString());		
 		view = new SurfaceView(getContext());		

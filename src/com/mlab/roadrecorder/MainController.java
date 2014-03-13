@@ -58,7 +58,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 
 		// Init VideoController
 		videoController = new VideoController(activity, videoFrame);
-		initMediaRecorder();
+		initMediaRecorder(model.getOutputDirectory());
 		
 		// GpsModel
 		gpsModel = new GpsModel(activity);
@@ -77,8 +77,8 @@ public class MainController extends Activity  implements Controller, GpsListener
 			activity.setGpsState(new GpsFixingState(activity));
 		}
 	}
-	private void initMediaRecorder() {
-		boolean result = videoController.initMediaRecorder();
+	private void initMediaRecorder(File outdirectory) {
+		boolean result = videoController.initMediaRecorder(outdirectory);
 		if(!result) {
 			activity.showNotification("Errores al inicializar el vídeo", 
 					NotificationLevel.ERROR, true);

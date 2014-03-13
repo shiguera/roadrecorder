@@ -181,6 +181,11 @@ public class VideoModel extends AbstractObservable implements
 		}
 		return result;
 	}
+	/**
+	 * No se usa. Método alternativo de arranque en segundo plano
+	 * No me funcionaba bien en Feb-2014
+	 * @return
+	 */
 	public boolean startRecordingWithThread() {
 		LOG.debug("VideoModel.startRecording()");
 		RecordingStarter starter = new RecordingStarter();
@@ -228,6 +233,11 @@ public class VideoModel extends AbstractObservable implements
 		startRecordingTime = -1l;
 		return result;
 	}
+	/**
+	 * No se usa. Método alternativo de parada en segundo plano
+	 * No me funcionaba bien en Feb-2014
+	 * @return
+	 */
 	public boolean stopRecordingWithThread() {
 		boolean result = false;
 		RecordingStopper stopper = new RecordingStopper();
@@ -274,6 +284,9 @@ public class VideoModel extends AbstractObservable implements
 	// output Directory and file
 	public File getOutputDirectory() {
 		return outputDirectory;
+	}
+	public void setOutputDirectory(File directory) {
+		this.outputDirectory = directory;
 	}
 	/**
 	 * Establece el directorio por defecto como directorio de grabación.
