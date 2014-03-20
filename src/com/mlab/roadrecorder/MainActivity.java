@@ -1,260 +1,288 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import org.apache.log4j.Logger;
 
 import android.app.Activity;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationManager;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mlab.android.gpsmanager.GpsListener;
-import com.mlab.android.gpsmanager.GpsManager;
-import com.mlab.gpx.api.GpxDocument;
-import com.mlab.gpx.api.GpxFactory;
-import com.mlab.gpx.api.GpxFactory.Type;
-import com.mlab.gpx.api.WayPoint;
-import com.mlab.gpx.impl.Track;
-import com.mlab.gpx.impl.util.Util;
+import com.mlab.roadrecorder.activities.AboutActivity;
+import com.mlab.roadrecorder.activities.ConfigActivity;
+import com.mlab.roadrecorder.activities.HelpActivity;
 import com.mlab.roadrecorder.alvac.R;
-import com.mlab.roadrecorder.video.VideoModel;
+import com.mlab.roadrecorder.state.ActivityState;
+import com.mlab.roadrecorder.state.ButtonState;
+import com.mlab.roadrecorder.view.TextViewUpdater;
+import com.mlab.roadrecorder.view.command.GetAccuracyCommand;
+import com.mlab.roadrecorder.view.command.GetBearingCommand;
+import com.mlab.roadrecorder.view.command.GetDistanceCommand;
+import com.mlab.roadrecorder.view.command.GetLatCommand;
+import com.mlab.roadrecorder.view.command.GetLonCommand;
+import com.mlab.roadrecorder.view.command.GetPointsCountCommand;
+import com.mlab.roadrecorder.view.command.GetRecordingTimeCommand;
+import com.mlab.roadrecorder.view.command.GetSpeedCommand;
 
-public class MainActivity extends Activity implements GpsListener, SensorEventListener {
+import de.mindpipe.android.logging.log4j.LogConfigurator;
 
-	private final String TAG = "RoadRecorder";
-    private enum LogLevel {INFO,DEBUG,WARNING,ERROR};
-    
-    public static final String EXTSDCARD_PATH = "/storage/extSdCard";
+public class MainActivity extends Activity {
+	private final static Logger LOG = Logger.getLogger(MainActivity.class);
+	
+	SoundPool soundPool; 
+	int sound; 
+	
+	public enum GPSICON {
+		DISABLED, FIXING, FIXED
+	};
+	public enum BTNBACKGROUND {
+		DISABLED, STOPPED, RECORDING
+	}
 
-    public static final String APP_FILENAME = "RoadRecorder";
-    public static final String DATABASE_NAME = "rvt.db";
+	public static final String TAG = "ROADRECORDER";
 
-    public static final int TIME_LAPSE = 1000; // Tiempo en milisegundos para el timer principal
-    public static final int BLINK_LABEL_LAPSE = 500; 
-    private static final long MAX_RECORDING_TIME = 1200000; // Número de milisegundos de cada grabación de ficheros 
-	   
-    // Layout
-	Button btnStartStop;
-	TextView lblInfo,lblrecordtime,lblposition, lblpointscount;
-	FrameLayout frameLayout;
-	int screenWidth, screenHeight;
+	public enum NotificationLevel {
+		INFO, DEBUG, WARNING, ERROR
+	};
 
-	// Data
-    private File appDirectory;
-	Track track;	
-	String trackLabel = "";
-	Date startDate;
-	
-	// Components: VideoManager
-	VideoModel videoModel;
-	
-	// Components: GpsManager
-	GpsManager gpsManager=null;
-	private Location lastLocReceived=null;
-	private Location lastLocSaved=null;
+	//
+	MainController controller;
 
-	// Components: SensorManager
-	SensorManager sensorManager;
-	Sensor accelerometerSensor, magneticSensor, linearAccSensor, pressureSensor;
-	double pressure = 0.0;
-	
-	// SensorTrack
-	//SensorTrack sensorTrack = null;
-	Track sensorTrack = null;
-	
-	// Components DatabaseManager
-	SQLiteDatabase db = null;
-		
-	// Components: Timer
-	Timer timer;     // Se utiliza para lanzar PointRecorder como tarea de fondo 
-	Timer mainTimer; // A intervalos definidos en TIME_LAPSE proporciona actualizaciones de pantalla
-	Timer blinkLabelTimer;
-	
-	// Status
-	private enum Status {FIXING_GPS, GPS_FIXED, RECORDING, SAVING};
-	private Status status;
-	
+	// States
+	ActivityState gpsState;
+	ActivityState btnState;
+
+	// Layout
+	protected Menu menu;
+	protected MenuItem menuItemBack,menuItemConfig, menuItemHelp, menuItemAbout;
+	protected Button btnStartStop;
+	protected FrameLayout videoFrame;
+	protected LinearLayout rightPanel;
+	TextView lblLon, lblLat, lblAcc, lblSpeed, lblBearing, lblTime, lblPts,
+			lblDistance;
+	TextViewUpdater latUpdater, lonUpdater, accUpdater, speedUpdater,
+			bearingUpdater, timeUpdater, ptsUpdater, distanceUpdater;
+	protected ImageView gpsIcon;
+	protected TextView gpsIconLabel;
+	protected GpsIconBlinker gpsIconBlinker;
+	protected TextView lblInfo;
+	protected LabelInfoBlinker labelInfoBlinker;
+
 	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG,"MainActivity.onCreate()");
+		configureLogger();
+		LOG.info("\n-----------------------");
+		LOG.info("MainActivity.onCreate()");
+		LOG.info("\n-----------------------");
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		
-		// Comprobar si es la primera ejecución
-		//checkFirstExecution();
-		
-		String cad="";
-		
-		// Ajustar el layout a la pantalla
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		adjustLayout();
-		
-		// Inicializar directorio de la aplicación
-        appDirectory = initAppDirectory();
-        if(appDirectory==null) {
-			notify("ERROR: Can't create storage directory", LogLevel.ERROR, true);
-           	finish();
-           	return;        		
-       	} 
-       	notify("MainActivity.onCreate() App directory at"+appDirectory.getPath(),LogLevel.DEBUG,false);
-		
-        // Inicializar videoManager        
-		videoModel = initVideoManager(appDirectory);
-		if(videoModel.isEnabled() == false) {
-			notify("ERROR: Can't enable VideoManager",LogLevel.ERROR,true);		
-			finish();
-			return;
-		}
-		notify("videoManager.isEnabled= "+videoModel.isEnabled(),LogLevel.DEBUG,false);
-		        
-		// Inicializar sensores
-        // Inicializar Sensores: en onResume()
-		initSensors();
-		//sensorTrack = new SensorTrack();
-		sensorTrack = new Track();
-		        	        
-        // Inicializar GpsManager
-		gpsManager = initGpsManager();
-        if(!gpsManager.isGpsEnabled()) {
-        	cad = "Error : Inicialización incorrecta del GpsManager";
-        	Toast.makeText(getApplicationContext(), cad, 
-        		Toast.LENGTH_LONG).show();	
-        	finish();
-        	return;
-        } else {
-        	cad = "MainActivity(): GpsManager inicializado corectamente";
-        }
-    	Log.d(TAG, cad);
-        gpsManager.registerGpsListener(this);
-        gpsManager.startGpsUpdates();
-        lastLocSaved=new Location(LocationManager.GPS_PROVIDER);
-        
-        
-        // Inicializar Timer
-        mainTimer = new Timer();
-        mainTimer.scheduleAtFixedRate(new MainTimerTask(), 0, TIME_LAPSE);
-        
-        initBlinkLabelTimer();
 
-        // Establecer status
-        status = Status.FIXING_GPS;
+
+		preInitLayout();
+
+		controller = new MainController(this);
+
+		postInitLayout();
+
 	}
-	@Override
-	protected void onRestart() {
-		Log.i(TAG,"MainActivity.onRestart()");
-		super.onRestart();
-	}
+
 	@Override
 	protected void onStart() {
-		Log.i(TAG,"MainActivity.onStart()");
+		LOG.info("MainActivity.onStart()");
+
+		controller.onRestart();
+
 		super.onStart();
 	}
 	@Override
-	protected void onResume() {
-		Log.i(TAG,"MainActivity.onResume()");
-		sensorManager.registerListener(this,accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListener(this,magneticSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListener(this, linearAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		sensorManager.registerListener(this, pressureSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		super.onResume();
+	protected void onRestart() {
+		LOG.info("MainActivity.onRestart()");
+		super.onRestart();
 	}
 	@Override
 	protected void onPause() {
-		Log.i(TAG,"MainActivity.onPause()");
-		if(mainTimer != null ) {
-        	mainTimer.cancel();    
-        }
-        if(blinkLabelTimer != null ) {
-        	blinkLabelTimer.cancel();    
-        }
-        if(timer != null ) {
-        	timer.cancel();    
-        }
-        if(videoModel != null ) {
-        	if(videoModel.isRecording()) {
-        		videoModel.stopRecording();
-        	}
-        	videoModel.release();
-        }
-
-        if(gpsManager != null) {
-        	gpsManager.stopGpsUpdates();
-        }
-		if(sensorManager!=null) {
-			sensorManager.unregisterListener(this);
+		LOG.info("MainActivity.onPause()");
+		
+		if (controller != null) {
+			controller.onPause();
 		}
-        super.onPause();
-
+		if (videoFrame != null) {
+			videoFrame.removeAllViews();
+		}
+		if (labelInfoBlinker != null) {
+			this.stopLabelInfoBlinker("");
+		}
+		if(gpsIconBlinker != null) {
+			this.stopGpsIconBlinker();
+		}
+		soundPool.release();
+		super.onPause();
 	}
 	@Override
 	protected void onStop() {
-		Log.i(TAG,"MainActivity.onStop()");
+		LOG.info("MainActivity.onStop()");
 		super.onStop();
 	}
 	@Override
 	protected void onDestroy() {
-		Log.i(TAG,"MainActivity.onDestroy()");
+		LOG.info("MainActivity.onDestroy()");
 		super.onDestroy();
 	}
 
-	// First execution
-	private void checkFirstExecution() {
-		if(isFirstExecution()) {
-			Log.d(TAG, "First execution");
-			if(!createAppDirectory()) {
-				Log.e(TAG, "Can't create application directory");
-				showMessage("Error Creating Application Directory");
-				finish();
-				return;
+	// Private methods
+	/**
+	 * Configura el Logger de android-logging-log4j
+	 */
+	private void configureLogger() {
+		final LogConfigurator logConfigurator = new LogConfigurator();
+
+		File logfile = new File(Environment.getExternalStorageDirectory(), "roadrecorder.log");
+//		String filename = Environment.getExternalStorageDirectory().getPath()+
+//			File.separator + "roadrecorder.log";
+//		System.out.println(filename);
+		logConfigurator.setFileName(logfile.getPath());
+
+		logConfigurator.setRootLevel(org.apache.log4j.Level.INFO);
+		// Set log level of a specific logger
+		logConfigurator.setLevel("com.mlab.roadrecorder",
+				org.apache.log4j.Level.INFO);
+		logConfigurator.setUseLogCatAppender(true);
+		logConfigurator.configure();
+
+	}
+	private void preInitLayout() {
+		LOG.debug("MainActivity.preInitLayout()");
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		setContentView(R.layout.activity_main);
+		videoFrame = (FrameLayout) this.findViewById(R.id.videoview);
+		rightPanel = (LinearLayout) this.findViewById(R.id.rightPanel);
+		lblInfo = (TextView) this.findViewById(R.id.lblInfo);
+		gpsIcon = (ImageView) this.findViewById(R.id.gps_icon);
+		gpsIconLabel = (TextView) this.findViewById(R.id.gps_icon_label);
+		btnStartStop = (Button) findViewById(R.id.btn_rec);
+		
+		soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+		sound = soundPool.load(this, R.raw.btnclick, 1);
+
+	}
+	private void postInitLayout() {
+		LOG.debug("MainActivity.postInitLayout()");
+
+		configureBtnStartStop();
+
+		configureLabels();
+
+	}
+
+	private void configureLabels() {
+
+		// lonlat_panel
+		lblLat = (TextView) this.findViewById(R.id.lbl_lat);
+		latUpdater = new TextViewUpdater(lblLat, new GetLatCommand(
+				controller.getGpsModel()));
+
+		lblLon = (TextView) this.findViewById(R.id.lbl_lon);
+		lonUpdater = new TextViewUpdater(lblLon, new GetLonCommand(
+				controller.getGpsModel()));
+
+		lblAcc = (TextView) this.findViewById(R.id.lbl_acc);
+		accUpdater = new TextViewUpdater(lblAcc, new GetAccuracyCommand(
+				controller.getGpsModel()));
+
+		// speed_panel
+		lblSpeed = (TextView) this.findViewById(R.id.lbl_speed);
+		speedUpdater = new TextViewUpdater(lblSpeed, new GetSpeedCommand(
+				controller.getGpsModel()));
+
+		lblBearing = (TextView) this.findViewById(R.id.lbl_bearing);
+		bearingUpdater = new TextViewUpdater(lblBearing, new GetBearingCommand(
+				controller.getGpsModel()));
+
+		// status_panel
+		lblTime = (TextView) this.findViewById(R.id.lbl_time);
+		timeUpdater = new TextViewUpdater(lblTime, new GetRecordingTimeCommand(
+				controller.getVideoController().getModel()));
+
+		lblPts = (TextView) this.findViewById(R.id.lbl_pts);
+		ptsUpdater = new TextViewUpdater(lblPts, new GetPointsCountCommand(
+				controller.getGpsModel()));
+
+		lblDistance = (TextView) this.findViewById(R.id.lbl_dto);
+		distanceUpdater = new TextViewUpdater(lblDistance,
+				new GetDistanceCommand(controller.getGpsModel()));
+
+	}
+	private void configureBtnStartStop() {
+		btnStartStop.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				soundPool.play(sound, 1.0f, 1.0f, 0, 0, 1.0f);
+				if (controller.isRecording()) {
+					stopRecording();
+				} else {
+					startRecording();
+				}
 			}
-			Log.d(TAG, "Created application directory");
-			if(!createSettingsFile()) {
-				Log.e(TAG, "Error Creating settings file");
-				showMessage("Error Creating File");
-				finish();
-				return;
-			}
-			Log.d(TAG, "Created settings file");
+		});
+	}
+	
+	private void startRecording() {
+		showNotification("Starting media recorder",
+			NotificationLevel.INFO, false);
+		controller.startRecording();
+	}
+	private void stopRecording() {
+		showNotification(
+			"Stopping media recorder and saving files",
+			NotificationLevel.INFO, true);
+		controller.stopRecording();
+		return;
+	}
+	// States
+	public void setGpsState(ActivityState state) {
+		LOG.debug("MainActivity.setGpsState()");
+		this.gpsState = state;
+		this.gpsState.doAction();
+	}
+	public void setButtonState(ButtonState state) {
+		//LOG.debug("MainActivity.setButtonState()");
+		this.btnState = state;
+		this.btnState.doAction();
+	}
+	// Button StartStop
+	public void setButtonEnabled(boolean enabled) {
+		//LOG.debug("setButtonEnabled()"+String.format("%b", enabled));
+		if (enabled) {
+			btnStartStop.setEnabled(true);
+		} else {
+			btnStartStop.setEnabled(false);
 		}
 	}
-	private boolean isFirstExecution() {
-		// Se comprueba si es la primera ejecución del programa
-		// por la existencia o no del directorio de la aplicación
-		// TODO Complete method
-		return true;
-	}
-	private boolean createAppDirectory() {
-		return true;
-	}
-	private boolean createSettingsFile() {
-		return true;
-	}
-	private void showMessage(String msg) {
-		Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+	public void setButtonBackground(BTNBACKGROUND back) {
+		if(back == BTNBACKGROUND.DISABLED) {
+			//LOG.debug("setButtonBackground() orange");
+			btnStartStop.setBackgroundResource(R.drawable.button_orange);
+		} else if(back == BTNBACKGROUND.STOPPED) {
+			//LOG.debug("setButtonBackground() start");
+			btnStartStop.setBackgroundResource(R.drawable.button_start);
+		} else if(back == BTNBACKGROUND.RECORDING) {
+			//LOG.debug("setButtonBackground() stop");
+			btnStartStop.setBackgroundResource(R.drawable.button_stop);
+		}
 	}
 
 	// Menu
@@ -262,16 +290,21 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+		this.menu = menu;
+		menuItemBack =menu.findItem(R.id.menuitem_back);
+		menuItemConfig = menu.findItem(R.id.menuitem_config);
+		menuItemAbout = menu.findItem(R.id.menuitem_about);
+		menuItemHelp = menu.findItem(R.id.menuitem_help);
 		return true;
 	}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
+		switch (item.getItemId()) {
 		case R.id.menuitem_config:
 			startActivityConfig();
 			break;
 		case R.id.menuitem_help:
-			startActivityHelp();			
+			startActivityHelp();
 			break;
 		case R.id.menuitem_about:
 			startActivityAbout();
@@ -282,460 +315,210 @@ public class MainActivity extends Activity implements GpsListener, SensorEventLi
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	public void setActionBarEnabled(boolean enabled) {
+		this.menuItemAbout.setEnabled(enabled);
+		this.menuItemBack.setEnabled(enabled);
+		this.menuItemConfig.setEnabled(enabled);
+		this.menuItemHelp.setEnabled(enabled);
+	}
 	private void startActivityConfig() {
-		this.showMessage("Opción en desarrollo");
-//		Intent i = new Intent(this, ConfigActivity.class);
-//		startActivity(i);
+//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+//				true);
+		 Intent i = new Intent(this, ConfigActivity.class);
+		 startActivity(i);
 	}
 	private void startActivityHelp() {
-		this.showMessage("Opción en desarrollo");
-//		Intent i = new Intent(this, HelpActivity.class);
-//		startActivity(i);	
+//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+//				true);
+		 Intent i = new Intent(this, HelpActivity.class);
+		 startActivity(i);
 	}
 	private void startActivityAbout() {
-		this.showMessage("Opción en desarrollo");
-//		Intent i = new Intent(this, AboutActivity.class);
-//		startActivity(i);
+//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+//				true);
+		 Intent i = new Intent(this, AboutActivity.class);
+		 startActivity(i);
 	}
-	
-	private VideoModel initVideoManager(File outputDirectory) {
-       	//videoManager = new VideoModel(this, frameLayout);
-       	// Asignar el outputDirectory al videoManager
-     	//videoManager.setOutputDirectory(outputDirectory);
-       	return videoModel;
-	}
-	private GpsManager initGpsManager() {
-		Log.d(TAG,"MainActivity.initGpsManager()");
-		gpsManager = new GpsManager(this.getApplicationContext());
-		return gpsManager;
-	}
-	private File initAppDirectory() {
-		// Probamos a ver si está montada la tarjeta externa
-		File device = new File(EXTSDCARD_PATH);
-		notify("File "+device.getPath()+" exists: "+String.format("%b", device.exists()),LogLevel.DEBUG,false);
-		notify("File "+device.getPath()+" can write: "+String.format("%b", device.canWrite()),LogLevel.DEBUG,false);
-		if(!device.exists() || !device.canWrite()) {
-			device = new File(Environment.getExternalStorageDirectory().getPath());
+
+	// LabelInfo
+	class LabelInfoBlinker extends AsyncTask<Void, Void, Void> {
+		boolean blink;
+
+		public LabelInfoBlinker() {
+			LOG.info("LabelInfoBlinker()");
+			this.blink = true;
 		}
-		File appdirectory = new File(device, APP_FILENAME);
-		if(appdirectory.exists()==false) {
-			if(appdirectory.mkdir()==false) {
-				return null;
-			}
-			notify("appDirectory created at "+appdirectory.getPath(),LogLevel.DEBUG, false);
-		}
-        return appdirectory;
-        
-	}
-	private void initSensors() {
-		sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
-		accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-		linearAccSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-		pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-	}
-	
-	private void adjustLayout() {
-		// Calcular el tamaño de la pantalla
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		screenWidth = size.x;
-		screenHeight = size.y;
-		Log.i(TAG, String.format("ScreenSize=%d x %d", screenWidth, screenHeight ));
-		
-		// Ajustar el tamaño del FrameLayout
-		int fheight = (int) (0.65*(float)size.y);
-		int fwidth = (int) ((float)fheight*1.5);
-		Log.i(TAG, String.format("FrameLayout size: %d x %d", fwidth, fheight));
-        //frameLayout = (FrameLayout)this.findViewById(R.id.videoview);
-        LinearLayout.LayoutParams pars = new LinearLayout.LayoutParams(fwidth, fheight);
-        frameLayout.setLayoutParams(pars);		
-
-        // Inicializar UI
-        // Button Start-Stop
-        btnStartStop = (Button)findViewById(R.id.btn_rec);
-        btnStartStop.setOnClickListener(myButtonOnClickListener);
-        btnStartStop.setEnabled(false); // Se activa en firstFixEvent() 
-        // lblInfo
-        lblInfo=(TextView)this.findViewById(R.id.lblInfo);
-      //  lblrecordtime=(TextView)this.findViewById(R.id.lblrecordtime);
-        //lblposition=(TextView)this.findViewById(R.id.lblposition);  
-       // lblpointscount=(TextView)this.findViewById(R.id.lblpointscount);          
-
-	}
-
-	// Button StartStop
-	Button.OnClickListener myButtonOnClickListener
-    = new Button.OnClickListener(){
 
 		@Override
-		public void onClick(View v) {
-			if(videoModel.isRecording()) {
-				MainActivity.this.notify("Stoping",LogLevel.INFO, false);
-				stopRecording();
-                //Exit after saved
-                finish();
-                return;
-			} else {
-				MainActivity.this.notify("Starting",LogLevel.INFO, false);
-				startRecording();
+		protected Void doInBackground(Void... params) {
+			LOG.info("LabelInfoBlinker().doInBackground()");
+			while(blink) {
+				try {
+					Thread.sleep(500);
+					publishProgress();
+				} catch (Exception e) {
+					LOG.warn("Exception in LabelInfoBlinker: " + e.getMessage());
+				}
 			}
-		}	
-	};
-
-	private void initBlinkLabelTimer() {
-		if(blinkLabelTimer != null) {
-			blinkLabelTimer.cancel();
+			return null;
 		}
-        blinkLabelTimer = new Timer();
-        blinkLabelTimer.scheduleAtFixedRate(new BlinkLabelTimerTask(), 0, BLINK_LABEL_LAPSE);
+
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			//LOG.info("LabelInfoBlinker.onProgressUpdate()");
+			if (lblInfo.getVisibility() == View.VISIBLE) {
+				//LOG.info("LabelInfoBlinker.onProgressUpdate() INVISIBLE");
+				lblInfo.setVisibility(View.INVISIBLE);
+			} else {
+				//LOG.info("LabelInfoBlinker.onProgressUpdate() VISIBLE");
+				lblInfo.setVisibility(View.VISIBLE);
+			}
+		}
+
+		public void setBlink(boolean blink) {
+			LOG.info("LabelInfoBlinker.setBlink() : " + Boolean.valueOf(blink).toString());
+			this.blink = blink;
+		}
 	}
-		
-		
-	public void notify(String message, LogLevel level, boolean withToast) {
-		switch(level) {
+	public void setLabelInfoText(String text) {
+		this.lblInfo.setText(text);
+	}
+	public void setLabelInfoColor(int color) {
+		this.lblInfo.setTextColor(color);
+	}
+	public void startLabelInfoBlinker(String message) {
+		LOG.debug("MainActivity.startLabelInfoBlinker()");
+//		if (labelInfoBlinker != null) {
+//			this.stopLabelInfoBlinker("");
+//		}
+		this.lblInfo.setText(message);
+		labelInfoBlinker = new LabelInfoBlinker();
+		labelInfoBlinker.execute();
+	}
+	public void stopLabelInfoBlinker(String message) {
+		LOG.debug("MainActivity.stopLabelInfoBlinker()");
+		this.lblInfo.setText(message);
+		if (labelInfoBlinker != null) {
+			labelInfoBlinker.setBlink(false);
+		}
+		this.lblInfo.setVisibility(View.VISIBLE);
+	}
+
+	// Utilities
+	public void showNotification(String message, NotificationLevel level,
+			boolean withToast) {
+		switch (level) {
 		case INFO:
-			Log.i(TAG, message);
+			// Log.i(TAG, message);
 			break;
 		case DEBUG:
-			Log.d(TAG, message);			
+			// Log.d(TAG, message);
 			break;
 		case WARNING:
-			Log.w(TAG, message);						
+			// Log.w(TAG, message);
 			break;
 		case ERROR:
-			Log.e(TAG, message);						
+			// Log.e(TAG, message);
 			break;
 		}
-		if(withToast) {
+		if (withToast) {
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		}
 	}
-	
-	// Interface GpsListener
-    @Override
-    public void firstFixEvent() {
-		//Log.d(TAG,"MainActivity.firstFixEvent()");
-		btnStartStop.setEnabled(true);
-		status = Status.GPS_FIXED;
-		lblInfo.setText("GPS fixed, you can start recording");
-		blinkLabelTimer.cancel();
-		lblInfo.setVisibility(View.VISIBLE);
-		notify("Gps fixed, you can start recording",LogLevel.DEBUG,true);
+
+	// Getters
+	public MainController getController() {
+		return controller;
 	}
 
-// Before modification 4-6-2013
-//    @Override
-//	public void updateLocation(Location loc) {
-//		this.lastLocReceived = new Location(loc);
-//		float[] globalacc = calculateGlobalAcceleration();
-//		SensorPoint point = new SensorPoint(lastLocReceived.getTime(), lastLocReceived.getLongitude(),
-//			lastLocReceived.getLatitude(), lastLocReceived.getAltitude(), (double)globalacc[0],
-//			(double)globalacc[1], (double)globalacc[2], pressure);
-//		if(status == Status.RECORDING) {
-//			this.sensorTrack.add(point);			
-//		}
-//	}
-    @Override
-	public void updateLocation(Location loc) {
-		this.lastLocReceived = new Location(loc);
-		float[] globalacc = calculateGlobalAcceleration();
-		GpxFactory factory = GpxFactory.getFactory(Type.ExtendedGpxFactory);
-		List<Double> listvalues = Arrays.asList(new Double[]{lastLocReceived.getLongitude(),
-				lastLocReceived.getLatitude(), lastLocReceived.getAltitude(),
-				(double) lastLocReceived.getSpeed(), (double) lastLocReceived.getBearing(), 
-				(double) lastLocReceived.getAccuracy(),	(double)globalacc[0], 
-				(double)globalacc[1], (double)globalacc[2], pressure});
-		WayPoint point = factory.createWayPoint("", "", lastLocReceived.getTime(), listvalues); 
-		if(status == Status.RECORDING) {
-			this.sensorTrack.addWayPoint(point, false);			
+	public Button getBtnStartStop() {
+		return btnStartStop;
+	}
+
+	public TextView getLblInfo() {
+		return lblInfo;
+	}
+
+	public FrameLayout getVideoFrame() {
+		return videoFrame;
+	}
+
+	public LinearLayout getRightPanel() {
+		return rightPanel;
+	}
+
+	public ImageView getGpsIcon() {
+		return gpsIcon;
+	}
+
+	public void setGpsIcon(MainActivity.GPSICON icon, String label) {
+		gpsIconLabel.setText(label);
+		switch (icon) {
+		case DISABLED:
+			gpsIcon.setBackgroundResource(R.drawable.mylocation_1);
+			break;
+		case FIXING:
+			gpsIcon.setBackgroundResource(R.drawable.mylocation_2);
+			break;
+		case FIXED:
+			gpsIcon.setBackgroundResource(R.drawable.mylocation_3);
+			break;
 		}
 	}
-    
-    private void startRecording() {
-		startDate = new Date();
-		//trackLabel = VideoModel.getTimeStamp(startDate, true);
-		//videoManager.setOutputFile(trackLabel);
-		
-		//sensorTrack = new SensorTrack();
-		sensorTrack = new Track();
-		
-		updateLocation(lastLocReceived);
-        
-		//boolean result = videoManager.startRecording();
-//        if(!result){
-//        	MainActivity.this.notify("MainActivity: Fail in startRecording!\n - Ended -",LogLevel.ERROR,true);
-//        	finish();
-//        	return;
-//        }
 
-        timer=new Timer();
-        
-		btnStartStop.setText("STOP");
-		btnStartStop.setEnabled(true);
-		lblInfo.setText("Recording ...");
-		lblInfo.setTextColor(Color.RED);
-		initBlinkLabelTimer();
-		
-		status = Status.RECORDING;
-	}
-	private void stopRecording() {
-		notify("Stopping mediaRecorder...", LogLevel.INFO, false);
-		timer.cancel();
-		
-		// stop recording and release camera
-        videoModel.stopRecording();  // stop the recording
-                         
-        // Grabar track gpx
-        // FIXME Gestionar resultado del método
-        Log.d(TAG, "Saving gpxFile...");
-        saveGpxFile();
-        
-        // Geoetiquetar vídeo
-        // FIXME Gestionar resultado del método
-        //Log.d(TAG, "Geotaging videofile");
-        //geotagVideoFile();		
-	}
+	class GpsIconBlinker extends AsyncTask<Void, Void, Void> {
+		private boolean blink;
 
-	private boolean saveGpxFile() {
-		boolean result=false;
-		// FIXME Hacerlo en segundo plano
-        String filename=appDirectory.getPath()+"/";
-        	//+VideoModel.getTimeStamp(startDate, true);
-        String gpxFilename = filename +".gpx";
-        String csvFilename = filename +".csv";
-        try {
-        	GpxFactory factory = GpxFactory.getFactory(Type.ExtendedGpxFactory);
-        	GpxDocument doc = factory.createGpxDocument();
-        	doc.addTrack(sensorTrack);
-        	Util.write(gpxFilename, doc.asGpx());
-        	Util.write(csvFilename, sensorTrack.asCsv(true));
-        	result = true;
-        } catch (Exception e) {
-        	notify("Error can't save GpxDocument",LogLevel.ERROR,true);
-        }
-		return result;
-	}
-	private void saveAndResume() {
-		notify("saveAndResume()",LogLevel.DEBUG,true);
-		this.btnStartStop.setEnabled(false);
-		status = Status.SAVING;
-		stopRecording();
-
-		// Empezar de nuevo
-		startRecording();
-		
-	}
-
-	// UpdateUI
-	private void updateUI() {
-		updateLabelPointsCount(this.sensorTrack.wayPointCount());
-		if(status == Status.RECORDING) {
-			updateLabelRecordingTime(new Date());
+		public GpsIconBlinker() {
+			LOG.info("GpsIconBlinker()");
+			this.blink = true;
 		}
-		if(lastLocReceived != null) {
-			updateLabelPosition(lastLocReceived);
-		}
-	}
-	private void updateLabelPointsCount(int pointscount) {
-		lblpointscount.setText(String.format("%d", pointscount));		
-		
-	}
-	private void updateLabelRecordingTime(Date date) {
-		long t = (long)((date.getTime() - startDate.getTime())/1000l);
-		lblrecordtime.setText(String.format("%d sg.", t));
-	}
-	private void updateLabelPosition(Location loc) {
-		String cad = String.format("lat=%7.3f  lon=%7.3f" , loc.getLatitude(),loc.getLongitude());
-		lblposition.setText(cad);			
-	}
 
-	// Timers
-	class MainTimerTask extends TimerTask {
 		@Override
-		public void run() {
-			MainTimerTaskOnUIThread task = new MainTimerTaskOnUIThread();
-			runOnUiThread(task);
-			// Comprobar el límite de tiempo de grabación
-			if(status == Status.RECORDING) {
-				Date now = new Date();
-				long recordingTime = now.getTime() - startDate.getTime();
-				if(recordingTime>=MAX_RECORDING_TIME) {
-					saveAndResume();
-				}	
+		protected Void doInBackground(Void... params) {
+			LOG.info("GpsIconBlinker.doInBackground()");
+			while(blink) {
+				try {
+					Thread.sleep(500);
+				} catch (Exception e) {
+					LOG.warn("Error in GpsIconBlinker");
+				}
+				publishProgress();
 			}
+			return null;
 		}
-	}
-	class MainTimerTaskOnUIThread implements Runnable {
-		@Override
-		public void run() {
-			updateUI();
-		}		
-	}
-	class BlinkLabelTimerTask extends TimerTask {
-		@Override
-		public void run() {
-			BlinkLabelTimerTaskOnUIThread task = new BlinkLabelTimerTaskOnUIThread();
-			runOnUiThread(task);
-		}
-	}
-	class BlinkLabelTimerTaskOnUIThread implements Runnable {
 
 		@Override
-		public void run() {
-			int visibility = lblInfo.getVisibility();
-			if(visibility == View.VISIBLE) {
-				lblInfo.setVisibility(View.INVISIBLE);
+		protected void onProgressUpdate(Void... values) {
+			//LOG.debug("GpsIconBlinker.onProgressUpddate()");
+			if (gpsIcon.getVisibility() == View.VISIBLE) {
+				//LOG.debug("GpsIconBlinker.onProgressUpddate(): VISIBLE");				
+				gpsIcon.setVisibility(View.INVISIBLE);
 			} else {
-				lblInfo.setVisibility(View.VISIBLE);
+				//LOG.debug("GpsIconBlinker.onProgressUpddate(): INVISIBLE");
+				gpsIcon.setVisibility(View.VISIBLE);
 			}
-		}		
-	}
-	
-	// Base de datos
-	/**
-	 * Inicializar la base de datos
-	 */
-	protected SQLiteDatabase initDatabase() {
-		Log.d(TAG,"initDatabase()");
-		String dbpath = appDirectory.getPath()+"/"+DATABASE_NAME;
-		//String dbpath=Environment.getExternalStorageDirectory()+"/"+APP_FILENAME+"/"+DATABASE_NAME;
-		File dbfile = new File(dbpath);
-		if(!dbfile.exists()) {
-			Log.d(TAG,"initDatabase(): Create");
-			db = createDatabase(dbpath);
-		} else {
-			Log.d(TAG,"initDatabase(): open");
-			db = openDatabase(dbpath);
 		}
-		return db;
-	}
-	protected SQLiteDatabase createDatabase(String dbpath) {
-		SQLiteDatabase db = null;
-		try {
-			db = this.openOrCreateDatabase(dbpath, MODE_PRIVATE, null);
-			String query = "CREATE TABLE trkpt (id int primary key, "+
-				"label text, time int, lon double, lat double, "+
-				"alt double, vel double, rumbo double, acc double)";
-			db.execSQL(query);
-			return db;
-		} catch (Exception e) {
-			Log.d(TAG, "Can't create database");
-			return null;
-		}		
-	}
-	protected SQLiteDatabase openDatabase(String dbpath) {
-		SQLiteDatabase db = this.openOrCreateDatabase(dbpath, MODE_PRIVATE, null);
-		return db;
+
+		public void setBlink(boolean blink) {
+			this.blink = blink;
+		}
 	}
 
-	// Sensores
-	float[] localGravity = new float[3];
-	float[] geomagneticVector = new float[3];
-	float[] localAcceleration = new float[3];
-	float[] rotationMatrix = new float[9];
-	float[] inclinationMatrix = new float[9];
-	float[] orientation = new float[3];
-	//float[] oldOreintation = new float[3];
-	@Override
-	public void onAccuracyChanged(Sensor arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		switch(event.sensor.getType()) {
-		case Sensor.TYPE_ACCELEROMETER:
-			System.arraycopy(event.values, 0, localGravity, 0, 3);
-			break;
-		case Sensor.TYPE_MAGNETIC_FIELD:
-			System.arraycopy(event.values, 0, geomagneticVector, 0, 3);			
-			break;
-		case Sensor.TYPE_LINEAR_ACCELERATION:
-			System.arraycopy(event.values, 0, localAcceleration, 0, 3);			
-			break;
-		case Sensor.TYPE_PRESSURE:
-			pressure = event.values[0];
-		}
-		
-        boolean success = SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix, 
-        		localGravity, geomagneticVector);
-        if(success) {
-            SensorManager.getOrientation(rotationMatrix, orientation);
-        }		
-		
-	}
-	private float[] calculateGlobalAcceleration() {
-		float[] rtrasp = traspose(rotationMatrix);
-		float[] globalAcceleration = this.vectorByMatrixMultiplication(localAcceleration, rtrasp);
-		return globalAcceleration;
-	}
-	/**
-	 * Multiplica un vector de dimensión 3 por una matriz 3x3 y devuelve el vector resultado
-	 * @param vector vector fila de tres dimensiones [v0 v1 v2]
-	 * @param matrix matriz de 3x3
-	 * @return vector fila de tres dimensiones [r0 r1 r2] resultado de multiplicar
-	 * el vector original por la matriz
-	 */
-	private float[] vectorByMatrixMultiplication(float[] vector, float[] matrix) {
-		//
-		float[] result = new float[3];
-		// Comprobar dimension del vector y matriz de entrada
-		if (vector.length != 3 || matrix.length != 9) {
-			return null;
-		}
-		// Calcular elproducto vectorxmatriz
-		result[0] = vector[0]*matrix[0]+vector[1]*matrix[3]+vector[2]*matrix[6];
-		result[1] = vector[0]*matrix[1]+vector[1]*matrix[4]+vector[2]*matrix[7];
-		result[2] = vector[0]*matrix[2]+vector[1]*matrix[5]+vector[2]*matrix[8];
-		
-		// Devolver el resultado
-		return result;
-	}
-	/**
-	 * Traspone una matriz 3x3 recibida en forma de Array float  
-	 * @param originalMatrix [a00 a01 a02 a10 a11 a12 a20 a21 a22]
-	 * @return Trasposed matrix [a00 a10 a20 a01 a11 a21 a02 a12 a22]
-	 */
-	private float[] traspose(float[] originalMatrix) {
-		float[] result = new float[9];
-		
-		// Comprobar dimensión matriz original
-		if(originalMatrix.length!=9) {
-			return null;
-		}
-		// Trasponer
-		result[0]=originalMatrix[0];
-		result[1]=originalMatrix[3];
-		result[2]=originalMatrix[6];
-		result[3]=originalMatrix[1];
-		result[4]=originalMatrix[4];
-		result[5]=originalMatrix[7];
-		result[6]=originalMatrix[2];
-		result[7]=originalMatrix[5];
-		result[8]=originalMatrix[8];
-		
-		// Devolver el resultado
-		return result;
+	public void startGpsIconBlinker() {
+		LOG.info("startGpsIconBlinker");
+//		if (gpsIconBlinker != null) {
+//			this.stopGpsIconBlinker();
+//		}
+		gpsIconBlinker = new GpsIconBlinker();
+		gpsIconBlinker.execute();
 	}
 
-	// Geotagging
-	private boolean geotagVideoFile() {
-		// FIXME Hacer en segundo plano
-		boolean result = false;
-		WayPoint startp = track.getStartWayPoint();
-		if(startp != null) {
-			double longitude = startp.getLongitude();
-			double latitude = startp.getLatitude();
-			double altitude = startp.getAltitude();
-			result = videoModel.geotagVideoFile(startDate, longitude, latitude, altitude);
-		} else {
-			notify("MainActivity().geotagVideoFile() ERROR: Can't geotag video",
-					LogLevel.ERROR, false);
+	public void stopGpsIconBlinker() {
+		LOG.info("stopGpsIconBlinker");
+		if (gpsIconBlinker != null) {
+			gpsIconBlinker.setBlink(false);
 		}
-		return result;
+		this.gpsIcon.setVisibility(View.VISIBLE);
 	}
-
-
 }

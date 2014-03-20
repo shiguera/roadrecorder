@@ -1,12 +1,12 @@
 package com.mlab.roadrecorder.state;
 
-import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.MainActivity;
 
 public abstract class ActivityState {
 
-	protected NewActivity activity;
+	protected MainActivity activity;
 	
-	public ActivityState(NewActivity activity) {
+	public ActivityState(MainActivity activity) {
 		this.activity = activity;
 	}
 	public abstract void doAction();

@@ -20,7 +20,7 @@ import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.MainActivity;
 import com.mlab.roadrecorder.api.Controller;
 
 public class VideoController implements Controller, OnInfoListener, OnErrorListener {
@@ -28,7 +28,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	
 	private final String TAG = "ROADRECORDER";
 
-	protected NewActivity activity;
+	protected MainActivity activity;
 	protected VideoModel model;
 	
 	protected FrameLayout frameLayout;
@@ -36,7 +36,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	protected SurfaceHolder holder;
 	
 	// Constructor
-	public VideoController(NewActivity activity, FrameLayout frameLayout) {
+	public VideoController(MainActivity activity, FrameLayout frameLayout) {
 		String method = "VidoController.VideoController() "; 
 		Log.i(TAG, method);
 		this.activity = activity;
@@ -68,7 +68,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		//System.out.println("view==null"+String.format("%b", view==null));
 		frameLayout.addView(view);
 		//initMediaRecorder();
-		if(!model.initMediaRecorder(holder)) {
+		if(!model.initMediaRecorder()) {
 			Log.e(TAG, "Can't init media recorder");
 			return false;
 		}

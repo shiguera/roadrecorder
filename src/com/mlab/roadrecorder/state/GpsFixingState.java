@@ -1,8 +1,8 @@
 package com.mlab.roadrecorder.state;
 
 
-import com.mlab.roadrecorder.NewActivity;
-import com.mlab.roadrecorder.NewActivity.GPSICON;
+import com.mlab.roadrecorder.MainActivity;
+import com.mlab.roadrecorder.MainActivity.GPSICON;
 
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -10,7 +10,7 @@ import android.graphics.LightingColorFilter;
 
 public class GpsFixingState extends GpsState {
 
-	public GpsFixingState(NewActivity activity) {
+	public GpsFixingState(MainActivity activity) {
 		super(activity);
 	}
 
@@ -20,12 +20,12 @@ public class GpsFixingState extends GpsState {
         // GpsIcon
 		//ColorFilter filter = new LightingColorFilter( Color.TRANSPARENT,Color.TRANSPARENT);
         //activity.getGpsIcon().setColorFilter(Color.RED);
-        activity.setGpsIcon(NewActivity.GPSICON.FIXING, "FIXING");
+        activity.setGpsIcon(MainActivity.GPSICON.FIXING, "FIXING");
         activity.startGpsIconBlinker();
         // Button
         // activity.setButtonState(new BtnStoppedState(activity));
         // InfoLabel
-        activity.setLabelInfoColor(Color.GREEN);
+        activity.setLabelInfoColor(Color.YELLOW);
         activity.startLabelInfoBlinker("Fixing GPS position");
 	}
 

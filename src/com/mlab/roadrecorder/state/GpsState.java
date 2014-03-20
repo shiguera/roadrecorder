@@ -1,10 +1,10 @@
 package com.mlab.roadrecorder.state;
 
-import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.MainActivity;
 
 public abstract class GpsState extends ActivityState {
 
-	public GpsState(NewActivity activity) {
+	public GpsState(MainActivity activity) {
 		super(activity);
 	}
 

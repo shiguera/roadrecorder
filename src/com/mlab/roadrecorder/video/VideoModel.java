@@ -83,11 +83,9 @@ public class VideoModel extends AbstractObservable implements
 	 * en su método onStart() a través del controlador.
 	 * @return
 	 */
-	public boolean initMediaRecorder(SurfaceHolder holder) {
+	public boolean initMediaRecorder() {
 		String cad = "VideoModel.initMediaRecorder() ";
-		//this.holder = holder;
 		mediaRecorder = new MediaRecorder();
-		//camera.unlock();
 		mediaRecorder.setCamera(camera);
 		return true;
 	}
@@ -103,12 +101,14 @@ public class VideoModel extends AbstractObservable implements
 			mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 			mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 			int profile = getCamcorderProfile();
+			
 			if(profile == -1) {
+				LOG.error("VideoModel.prepare() error: profile ==-1");
 				releaseMediaRecorder();
 				return false;
 			}
 			mediaRecorder.setProfile(CamcorderProfile.get(profile));
-			
+			LOG.info("VideoModel.prepare(): CamcorderProfile " + new Integer(profile).toString());
 			outputFile = createOutputFile();
 			if(outputFile == null) {
 				releaseMediaRecorder();

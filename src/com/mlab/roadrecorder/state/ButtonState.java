@@ -1,10 +1,10 @@
 package com.mlab.roadrecorder.state;
 
-import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.MainActivity;
 
 public abstract class ButtonState extends ActivityState {
 
-	public ButtonState(NewActivity activity) {
+	public ButtonState(MainActivity activity) {
 		super(activity);
 	}
 	

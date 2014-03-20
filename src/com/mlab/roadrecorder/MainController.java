@@ -15,7 +15,7 @@ import android.widget.FrameLayout;
 import com.mlab.android.gpsmanager.GpsListener;
 import com.mlab.android.utils.AndroidUtils;
 import com.mlab.gpx.impl.util.Util;
-import com.mlab.roadrecorder.NewActivity.NotificationLevel;
+import com.mlab.roadrecorder.MainActivity.NotificationLevel;
 import com.mlab.roadrecorder.api.Controller;
 import com.mlab.roadrecorder.gps.GpsModel;
 import com.mlab.roadrecorder.state.BtnDisabledState;
@@ -31,18 +31,19 @@ public class MainController extends Activity  implements Controller, GpsListener
 	private static Logger LOG = Logger.getLogger(MainController.class);
 	
 	MainModel model;
-	NewActivity activity;
+	MainActivity activity;
 	VideoController videoController;
 	GpsModel gpsModel;
 	
 	FrameLayout videoFrame;
 	
 	
-	public MainController(NewActivity activity) {
+	public MainController(MainActivity activity) {
 		this.activity = activity;
-		this.model = new MainModel(this.activity);
-
+		
 		this.videoFrame = activity.getVideoFrame();
+
+		this.model = new MainModel(this.activity);
 
 		App.setMainModel(model);
 		App.setMainController(this);
@@ -140,7 +141,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 	}
 	
 	// getters
-	public NewActivity getActivity() {
+	public MainActivity getActivity() {
 		return activity;
 	}
 	public VideoController getVideoController() {

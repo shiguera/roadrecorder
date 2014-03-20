@@ -34,7 +34,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.mlab.roadrecorder.NewActivity"
+            android:name="com.mlab.roadrecorder.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
         </activity>

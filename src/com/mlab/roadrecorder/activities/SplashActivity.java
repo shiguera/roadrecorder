@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.mlab.roadrecorder.NewActivity;
+import com.mlab.roadrecorder.MainActivity;
 import com.mlab.roadrecorder.alvac.R;
 
 public class SplashActivity extends Activity {
@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
 	    TimerTask task = new TimerTask() {
 	      @Override
 	      public void run() {
-	        Intent mainIntent = new Intent().setClass(SplashActivity.this, NewActivity.class);
+	        Intent mainIntent = new Intent().setClass(SplashActivity.this, MainActivity.class);
 	        startActivity(mainIntent);
 	        finish();//Destruimos esta activity para prevenit que el usuario retorne aqui presionando el boton Atras.
 	      }

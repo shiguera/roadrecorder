@@ -3,8 +3,8 @@ package com.mlab.roadrecorder.state;
 
 import org.apache.log4j.Logger;
 
-import com.mlab.roadrecorder.NewActivity;
-import com.mlab.roadrecorder.NewActivity.GPSICON;
+import com.mlab.roadrecorder.MainActivity;
+import com.mlab.roadrecorder.MainActivity.GPSICON;
 
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -14,7 +14,7 @@ import android.util.Log;
 public class GpsFixedState extends GpsState {
 	private final Logger LOG = Logger.getLogger(GpsFixedState.class);
 	
-	public GpsFixedState(NewActivity activity) {
+	public GpsFixedState(MainActivity activity) {
 		super(activity);
 	}
 
@@ -24,7 +24,7 @@ public class GpsFixedState extends GpsState {
 		// GpsIcon
 		ColorFilter filter = new LightingColorFilter( Color.GREEN,Color.GREEN);
         //activity.getGpsIcon().setColorFilter(Color.RED);
-        activity.setGpsIcon(NewActivity.GPSICON.FIXED, "FIXED");
+        activity.setGpsIcon(MainActivity.GPSICON.FIXED, "FIXED");
         activity.stopGpsIconBlinker();
         // Button
         // activity.setButtonState(new BtnStoppedState(activity));
