@@ -14,7 +14,9 @@ import android.widget.FrameLayout;
 
 import com.mlab.android.gpsmanager.GpsListener;
 import com.mlab.android.utils.AndroidUtils;
+import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.gpx.impl.util.Util;
+import com.mlab.roadrecorder.App.VERSION;
 import com.mlab.roadrecorder.MainActivity.NotificationLevel;
 import com.mlab.roadrecorder.api.Controller;
 import com.mlab.roadrecorder.gps.GpsModel;
@@ -29,24 +31,24 @@ import com.mlab.roadrecorder.video.VideoController;
 public class MainController extends Activity  implements Controller, GpsListener, GpsStatus.Listener {
 
 	private static Logger LOG = Logger.getLogger(MainController.class);
-	
-	MainModel model;
+	private final int DEFAULT_MIN_DISK_SPACE = 250; // 250 Mb mínimo para empezar a grabar
 	MainActivity activity;
+	FrameLayout videoFrame;
+
+	MainModel model;
 	VideoController videoController;
 	GpsModel gpsModel;
-	
-	FrameLayout videoFrame;
-	
+		
 	
 	public MainController(MainActivity activity) {
 		this.activity = activity;
-		
 		this.videoFrame = activity.getVideoFrame();
 
 		this.model = new MainModel(this.activity);
 
 		App.setMainModel(model);
 		App.setMainController(this);
+		
 		
 		// Init application directory
 		boolean result = initApplicationDirectory();
@@ -60,6 +62,9 @@ public class MainController extends Activity  implements Controller, GpsListener
 		// Init VideoController
 		videoController = new VideoController(activity, videoFrame);
 		initMediaRecorder(model.getOutputDirectory());
+		
+		// Set version
+		setVersionLimits(App.getVERSION_NAME(), App.getVERSION_NUMBER());
 		
 		// GpsModel
 		gpsModel = new GpsModel(activity);
@@ -139,7 +144,10 @@ public class MainController extends Activity  implements Controller, GpsListener
 		return true;
 		
 	}
-	
+	private void setVersionLimits(VERSION versionName, String versionNumber) {
+		LOG.info("MainController.setVersionLimits(): "+versionName+" "+versionNumber);
+		videoController.setMaxVideoDuration(App.getMaxVideoDuration());
+	}
 	// getters
 	public MainActivity getActivity() {
 		return activity;
@@ -157,7 +165,15 @@ public class MainController extends Activity  implements Controller, GpsListener
 	}
 	public void startRecording() {
 		activity.setButtonState(new BtnDisabledState(activity));
-		boolean result = videoController.startRecording();
+		boolean result = checkDiskSpace();
+		if(!result) {
+			activity.showNotification("MainController.startRecording(): Error, disk full", 
+					NotificationLevel.ERROR, true);
+			activity.setButtonState(new BtnStoppedState(activity));
+			return;
+		}
+		
+		result = videoController.startRecording();
 		if(!result) {
 			activity.showNotification("MainController.startRecording(): Error,  can't start recording", 
 					NotificationLevel.ERROR, true);
@@ -173,6 +189,16 @@ public class MainController extends Activity  implements Controller, GpsListener
 		}
 		activity.setButtonState(new BtnRecordingState(activity));
 		return;
+	}
+	private boolean checkDiskSpace() {
+		int maxVideoFileSize = (int) AvailableSpaceHandler.getAvailableSpaceInMB(model.getOutputDirectory().getPath());
+		// LOG.info("Available space: "+maxVideoFileSize);
+		if(maxVideoFileSize < this.DEFAULT_MIN_DISK_SPACE) {
+			return false;
+		}
+		maxVideoFileSize = (int) 0.8 * maxVideoFileSize;
+		videoController.setMaxVideoFileSize(maxVideoFileSize);		
+		return true;
 	}
 	public void stopRecording() {
 		activity.setButtonState(new BtnDisabledState(activity));

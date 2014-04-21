@@ -14,19 +14,18 @@ import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnErrorListener;
 import android.media.MediaRecorder.OnInfoListener;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.roadrecorder.MainActivity;
 import com.mlab.roadrecorder.api.Controller;
 
 public class VideoController implements Controller, OnInfoListener, OnErrorListener {
 	private final Logger LOG = Logger.getLogger(VideoController.class);
-	
-	private final String TAG = "ROADRECORDER";
+	//private final String TAG = "ROADRECORDER";
 
 	protected MainActivity activity;
 	protected VideoModel model;
@@ -37,11 +36,11 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	
 	// Constructor
 	public VideoController(MainActivity activity, FrameLayout frameLayout) {
-		String method = "VidoController.VideoController() "; 
-		Log.i(TAG, method);
+		LOG.info("VideoController()");
 		this.activity = activity;
-		this.model = new VideoModel();
 		this.frameLayout = frameLayout;		
+		
+		this.model = new VideoModel();
 	}
 	private Context getContext() {
 		return this.activity;
@@ -55,7 +54,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	@SuppressWarnings("deprecation")
 	public boolean initMediaRecorder(File outputDirectory) {
 		String method="VideoController.initMediaRecorder()";
-		Log.i(TAG, method);
+		LOG.info( method);
 		//initDefaultDirectory();
 		model.setOutputDirectory(outputDirectory);
 		initCamera();			
@@ -69,13 +68,14 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		frameLayout.addView(view);
 		//initMediaRecorder();
 		if(!model.initMediaRecorder()) {
-			Log.e(TAG, "Can't init media recorder");
+			LOG.error( "Can't init media recorder");
 			return false;
 		}
 		model.getMediaRecorder().setOnErrorListener(this);
 		model.getMediaRecorder().setOnInfoListener(this);
 		return true;
 	}
+	@SuppressWarnings("deprecation")
 	private void initHolder() {
 		view = new SurfaceView(getContext());		
 		holder = view.getHolder();
@@ -95,7 +95,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	private void initCamera() {
 		String method = "VideoController.initCamera() ";
 		String msg = "";
-		Log.i(TAG, method);
+		LOG.info( method);
 		boolean result = hasCameraHardware();
 		if(result) {
 			result = model.initCamera();
@@ -107,22 +107,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		} else {
 			msg = "Error,  there isn't camera hardware";
 		}
-		Log.e(TAG, method + msg);
-		Toast.makeText(getContext(), msg,Toast.LENGTH_LONG).show();		
-		activity.finish();
-		return;
-	}
-	private void initDefaultDirectory() {
-		String method = "VideoController.initDefaultDirectory() ";
-		String msg = "";
-		Log.i(TAG, method);
-		boolean result = model.setDefaultDirectory();
-		if(result) { 
-			return;
-		} else {
-			msg = "Error,  can't init default directory";
-		}			
-		Log.e(TAG, method + msg);
+		LOG.error( method + msg);
 		Toast.makeText(getContext(), msg,Toast.LENGTH_LONG).show();		
 		activity.finish();
 		return;
@@ -130,27 +115,32 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	
 	// MediaRecorder management
 	public boolean startRecording() {
-		Log.i(TAG,"VideoController.startRecording()");
+		LOG.info("VideoController.startRecording()");
 		boolean result = model.startRecording();
 		if(!result) {
-			Log.e(TAG, "VideoController.startRecording() : Can't start recording");
+			LOG.error( "VideoController.startRecording() : Can't start recording");
 		}
 		return result;
 	}
 	public boolean stopRecording() {
-		Log.i(TAG,"VideoController.stopRecording()");
+		LOG.info("VideoController.stopRecording()");
 		boolean result = false;
 		if(model.isRecording()) {
 			result = model.stopRecording();
 			if(!result) {
-				Log.e(TAG, "VideoController.stopRecording() : Can't stop recording");
+				LOG.error( "VideoController.stopRecording() : Can't stop recording");
 			}
 		} else {
 			result = true;
 		}
 		return result;
 	}
-	
+	public void setMaxVideoDuration(int maxduration) {
+		model.setMaxDuration(maxduration);
+	}
+	public void setMaxVideoFileSize(int maxFileSize) {
+		model.setMaxFileSize(maxFileSize);
+	}
 	// Utilities
 	public boolean isRecording() {
 		return model.isRecording();
@@ -184,7 +174,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	}
 	@Override
 	public void release() {
-		Log.i(TAG,"VideoController.release()");
+		LOG.info("VideoController.release()");
 		model.release();
 	}
     @Override

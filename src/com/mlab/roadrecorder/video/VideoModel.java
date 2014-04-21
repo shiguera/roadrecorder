@@ -27,13 +27,13 @@ public class VideoModel extends AbstractObservable implements
 	
 	private final Logger LOG = Logger.getLogger(VideoModel.class);
 
-	public static final int LEVEL_INFO = 0;
-	public static final int LEVEL_DEBUG = 1;
-	public static final int LEVEL_WARNING = 2;
-	public static final int LEVEL_ERROR = 3;
+	//public static final int LEVEL_INFO = 0;
+	//public static final int LEVEL_DEBUG = 1;
+	//public static final int LEVEL_WARNING = 2;
+	//public static final int LEVEL_ERROR = 3;
 
-	public static final int VIDEO_MAX_DURATION = 18000000; // 18000 sg
-	public static final int VIDEO_MAX_FILE_SIZE = 1500000000; // 1500 Mb
+	public static final int DEFAULT_VIDEO_MAX_DURATION = 18000000; // 18000 sg
+	public static final int DEFAULT_VIDEO_MAX_FILE_SIZE = 1500000000; // 1500 Mb
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
 	//private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_1080P;
 	private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_HIGH;
@@ -41,9 +41,12 @@ public class VideoModel extends AbstractObservable implements
 
 	private MediaRecorder mediaRecorder;
 	private Camera camera;
-	
-	private File outputFile;
+
 	private File outputDirectory;
+	private File outputFile;
+	private int maxVideoDuration;
+	private int maxVideoFileSize;
+	
 	// private Date startDate;
 	private boolean isRecording;
 	private boolean isEnabled;
@@ -75,6 +78,10 @@ public class VideoModel extends AbstractObservable implements
 
 		isRecording = false;
 		isEnabled = false;
+		
+		maxVideoDuration = DEFAULT_VIDEO_MAX_DURATION;
+		maxVideoFileSize = DEFAULT_VIDEO_MAX_FILE_SIZE;
+		
 	}
 
 	/**
@@ -84,15 +91,16 @@ public class VideoModel extends AbstractObservable implements
 	 * @return
 	 */
 	public boolean initMediaRecorder() {
-		String cad = "VideoModel.initMediaRecorder() ";
+		//String cad = "VideoModel.initMediaRecorder() ";
 		mediaRecorder = new MediaRecorder();
 		mediaRecorder.setCamera(camera);
+		// TODO No es necesario devolver boolean
 		return true;
 	}
 	private boolean prepare() {
 		mediaRecorder = null;
-		mediaRecorder=new MediaRecorder();
-		if(camera==null) {
+		mediaRecorder = new MediaRecorder();
+		if(camera == null) {
 			initCamera();
 		}
 		camera.unlock();
@@ -108,13 +116,18 @@ public class VideoModel extends AbstractObservable implements
 				return false;
 			}
 			mediaRecorder.setProfile(CamcorderProfile.get(profile));
-			LOG.info("VideoModel.prepare(): CamcorderProfile " + new Integer(profile).toString());
+			//LOG.info("VideoModel.prepare(): CamcorderProfile " + Integer.valueOf(profile).toString());
+			
+			// TODO Sincronizar bien con el método startRecording() y startRecordingTime
 			outputFile = createOutputFile();
 			if(outputFile == null) {
 				releaseMediaRecorder();
 				return false;
 			}
 			mediaRecorder.setOutputFile(outputFile.getPath());
+			
+			mediaRecorder.setMaxDuration(maxVideoDuration);
+			mediaRecorder.setMaxFileSize(maxVideoFileSize);
 			
 			mediaRecorder.prepare();
 			isEnabled = true;
@@ -166,7 +179,7 @@ public class VideoModel extends AbstractObservable implements
 	}
 	// MediaRecorder management
 	public boolean startRecording() {
-		LOG.debug("VideoModel.startRecording()");
+		//LOG.debug("VideoModel.startRecording()");
 		boolean result = prepare();
 		if(result) {
 			startRecordingTime = new Date().getTime();
@@ -313,7 +326,7 @@ public class VideoModel extends AbstractObservable implements
 				return false;
 			}
 		}
-		LOG.debug(method + "outputDirectory: " + outputDirectory.getPath());
+		//LOG.debug(method + "outputDirectory: " + outputDirectory.getPath());
 		return true;
 	}
 	public File getOutputFile() {
@@ -438,5 +451,21 @@ public class VideoModel extends AbstractObservable implements
 
 	public MediaRecorder getMediaRecorder() {
 		return mediaRecorder;
+	}
+
+	public int getMaxDuration() {
+		return maxVideoDuration;
+	}
+
+	public void setMaxDuration(int maxDuration) {
+		this.maxVideoDuration = maxDuration;
+	}
+
+	public int getMaxFileSize() {
+		return maxVideoFileSize;
+	}
+
+	public void setMaxFileSize(int maxFileSize) {
+		this.maxVideoFileSize = maxFileSize;
 	}
 }
