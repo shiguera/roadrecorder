@@ -12,7 +12,7 @@ import com.mlab.roadrecorder.alvac.R;
 
 public class SplashActivity extends Activity {
 
-	private long splashDelay = 2000; //3 segundos
+	private long splashDelay = 500; //3 segundos
 
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {

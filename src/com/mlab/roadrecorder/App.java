@@ -1,5 +1,7 @@
 package com.mlab.roadrecorder;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 import android.app.Application;
@@ -23,6 +25,7 @@ public class App extends Application {
 	
 	
 	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
+	private static File applicationDirectory;
 
 	private static MainModel mainModel;
 	private static MainController mainController;
@@ -78,5 +81,13 @@ public class App extends Application {
 			dur = EXTENDED_VERSION_MAX_VIDEO_DURATION;
 		}
 		return dur;
+	}
+
+	public static File getApplicationDirectory() {
+		return applicationDirectory;
+	}
+
+	public static void setApplicationDirectory(File applicationDirectory) {
+		App.applicationDirectory = applicationDirectory;
 	}
 }

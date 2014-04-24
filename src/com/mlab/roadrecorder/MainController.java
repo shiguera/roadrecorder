@@ -6,9 +6,16 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.location.GpsStatus;
 import android.location.Location;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -44,21 +51,12 @@ public class MainController extends Activity  implements Controller, GpsListener
 		this.activity = activity;
 		this.videoFrame = activity.getVideoFrame();
 
-		this.model = new MainModel(this.activity);
+		model = new MainModel(this.activity);
+		model.setOutputDirectory(App.getApplicationDirectory());	
 
-		App.setMainModel(model);
 		App.setMainController(this);
+		App.setMainModel(model);
 		
-		
-		// Init application directory
-		boolean result = initApplicationDirectory();
-		if(!result) {
-			activity.showNotification("Can't init application directory", 
-				NotificationLevel.ERROR, true);
-			activity.finish();
-			return;
-		}
-
 		// Init VideoController
 		videoController = new VideoController(activity, videoFrame);
 		initMediaRecorder(model.getOutputDirectory());
@@ -109,40 +107,6 @@ public class MainController extends Activity  implements Controller, GpsListener
 			gpsModel.stopRecording();
 		}
 		gpsModel.stopGpsUpdates();
-	}
-	private boolean initApplicationDirectory() {		
-		// Try secondary card
-		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
-		File outdir = null;
-		if(secdirs.size()>0) {
-			LOG.info("MainController.initApplicationDirectory() appdir: " + 
-					secdirs.get(0).getPath());
-			outdir = new File(secdirs.get(0), App.getAPP_DIRECTORY_NAME());
-			return setApplicationDirectory(outdir);
-		}	
-		// Try normal external storage
-		if(!AndroidUtils.isExternalStorageEnabled()) {
-			LOG.info("MainController.initApplicationDirectory() "+ 
-					"ERROR, can't init external storage"); 
-			return false;
-		}
-		outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAPP_DIRECTORY_NAME());
-		return setApplicationDirectory(outdir);
-	}
-	private boolean setApplicationDirectory(File outdir) {
-		if(!outdir.exists()) {
-			if(!outdir.mkdir()) {
-				LOG.info("MainController.setApplicationDirectory() "+ 
-						"ERROR, can't create application directory"); 
-				activity.finish();
-				return false;				
-			}
-		}
-		LOG.info("MainController.setApplicationDirectory() "+ 
-				"appicationDirectory = "+outdir.getPath()); 
-		model.setOutputDirectory(outdir);	
-		return true;
-		
 	}
 	private void setVersionLimits(VERSION versionName, String versionNumber) {
 		LOG.info("MainController.setVersionLimits(): "+versionName+" "+versionNumber);
@@ -310,6 +274,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 		}
 		
 	}
+	
 	
 	
 }

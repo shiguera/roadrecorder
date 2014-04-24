@@ -1,16 +1,19 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,12 +25,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mlab.android.utils.AndroidUtils;
 import com.mlab.roadrecorder.activities.AboutActivity;
 import com.mlab.roadrecorder.activities.ConfigActivity;
 import com.mlab.roadrecorder.activities.HelpActivity;
 import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.state.ActivityState;
 import com.mlab.roadrecorder.state.ButtonState;
+import com.mlab.roadrecorder.view.ShowMessageDialogFragment;
 import com.mlab.roadrecorder.view.TextViewUpdater;
 import com.mlab.roadrecorder.view.command.GetAccuracyCommand;
 import com.mlab.roadrecorder.view.command.GetBearingCommand;
@@ -40,7 +45,7 @@ import com.mlab.roadrecorder.view.command.GetSpeedCommand;
 
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
 	
 	SoundPool soundPool; 
@@ -93,7 +98,13 @@ public class MainActivity extends Activity {
 
 
 		preInitLayout();
-
+		
+		boolean result = initApplicationDirectory();
+		if(!result) {
+			exit("ERROR: Can't open application directory");
+			return;
+		}
+		
 		controller = new MainController(this);
 
 		postInitLayout();
@@ -103,8 +114,9 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onStart() {
 		LOG.info("MainActivity.onStart()");
-
-		controller.onRestart();
+		if(controller != null) {
+			controller.onRestart();			
+		}
 
 		super.onStart();
 	}
@@ -163,6 +175,34 @@ public class MainActivity extends Activity {
 		logConfigurator.setUseLogCatAppender(true);
 		logConfigurator.configure();
 
+	}
+	private boolean initApplicationDirectory() {		
+		// Try secondary card
+		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
+		File outdir = null;
+		if(secdirs.size()>0) {
+			LOG.info("MainController.initApplicationDirectory() appdir: " + 
+					secdirs.get(0).getPath());
+			outdir = new File(secdirs.get(0), App.getAPP_DIRECTORY_NAME());
+			return setApplicationDirectory(outdir);
+		} 
+		// Try normal external storage
+		if(!AndroidUtils.isExternalStorageEnabled()) {
+			LOG.info("MainController.initApplicationDirectory() "+ 
+					"ERROR, can't init external storage"); 
+			return false;
+		}
+		outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAPP_DIRECTORY_NAME());
+		return setApplicationDirectory(outdir);
+	}
+	private boolean setApplicationDirectory(File outdir) {
+		if(!outdir.exists()) {
+			if(!outdir.mkdir()) {
+				return false;				
+			}
+		}
+		App.setApplicationDirectory(outdir);	
+		return true;		
 	}
 	private void preInitLayout() {
 		LOG.debug("MainActivity.preInitLayout()");
@@ -425,6 +465,37 @@ public class MainActivity extends Activity {
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		}
 	}
+	public void showDialogNotification(String message, NotificationLevel level) {
+		switch (level) {
+		case INFO:
+			// Log.i(TAG, message);
+			break;
+		case DEBUG:
+			// Log.d(TAG, message);
+			break;
+		case WARNING:
+			// Log.w(TAG, message);
+			break;
+		case ERROR:
+			// Log.e(TAG, message);
+			break;
+		}
+		
+	}
+	private void exit(final String message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(message);
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				LOG.info("exit(): "+ message);
+				finish();
+				return;
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
 
 	// Getters
 	public MainController getController() {
@@ -521,4 +592,6 @@ public class MainActivity extends Activity {
 		}
 		this.gpsIcon.setVisibility(View.VISIBLE);
 	}
+
+	
 }
