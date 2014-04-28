@@ -32,7 +32,6 @@ import com.mlab.roadrecorder.activities.HelpActivity;
 import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.state.ActivityState;
 import com.mlab.roadrecorder.state.ButtonState;
-import com.mlab.roadrecorder.view.ShowMessageDialogFragment;
 import com.mlab.roadrecorder.view.TextViewUpdater;
 import com.mlab.roadrecorder.view.command.GetAccuracyCommand;
 import com.mlab.roadrecorder.view.command.GetBearingCommand;
@@ -47,24 +46,24 @@ import de.mindpipe.android.logging.log4j.LogConfigurator;
 
 public class MainActivity extends FragmentActivity {
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
-	
-	SoundPool soundPool; 
-	int sound; 
-	
+	private enum RunModes {Test, Debug, Production};
+
+	private final RunModes RUNMODE = RunModes.Production;
+		
 	public enum GPSICON {
 		DISABLED, FIXING, FIXED
 	};
 	public enum BTNBACKGROUND {
 		DISABLED, STOPPED, RECORDING
 	}
-
-	public static final String TAG = "ROADRECORDER";
-
 	public enum NotificationLevel {
 		INFO, DEBUG, WARNING, ERROR
 	};
 
-	//
+	SoundPool soundPool; 
+	int sound; 
+
+	// Controller
 	MainController controller;
 
 	// States
@@ -110,7 +109,6 @@ public class MainActivity extends FragmentActivity {
 		postInitLayout();
 
 	}
-
 	@Override
 	protected void onStart() {
 		LOG.info("MainActivity.onStart()");
@@ -163,18 +161,19 @@ public class MainActivity extends FragmentActivity {
 		final LogConfigurator logConfigurator = new LogConfigurator();
 
 		File logfile = new File(Environment.getExternalStorageDirectory(), "roadrecorder.log");
-//		String filename = Environment.getExternalStorageDirectory().getPath()+
-//			File.separator + "roadrecorder.log";
-//		System.out.println(filename);
 		logConfigurator.setFileName(logfile.getPath());
 
-		logConfigurator.setRootLevel(org.apache.log4j.Level.INFO);
-		// Set log level of a specific logger
-		logConfigurator.setLevel("com.mlab.roadrecorder",
-				org.apache.log4j.Level.INFO);
-		logConfigurator.setUseLogCatAppender(true);
+		if(RUNMODE == RunModes.Production) {
+			logConfigurator.setRootLevel(org.apache.log4j.Level.INFO);			
+			logConfigurator.setLevel("com.mlab.roadrecorder", org.apache.log4j.Level.INFO);
+			logConfigurator.setUseLogCatAppender(false);
+		} else {
+			logConfigurator.setRootLevel(org.apache.log4j.Level.ALL);			
+			logConfigurator.setLevel("com.mlab.roadrecorder", org.apache.log4j.Level.ALL);
+			logConfigurator.setUseLogCatAppender(true);			
+		}
+		
 		logConfigurator.configure();
-
 	}
 	private boolean initApplicationDirectory() {		
 		// Try secondary card

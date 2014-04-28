@@ -233,6 +233,7 @@ public class VideoModel extends AbstractObservable implements
 		}
 	}
 	public boolean stopRecording() {
+		LOG.debug("VideoModel.stopRecording()");
 		boolean result = false;
 		try {
 			mediaRecorder.stop();

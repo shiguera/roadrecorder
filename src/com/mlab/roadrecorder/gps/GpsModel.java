@@ -150,7 +150,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	}
 	@Override
 	public void updateLocation(Location loc) {
-		LOG.debug("GpsModel.updateLocation(): "+loc.toString());		
+		//LOG.debug("GpsModel.updateLocation(): "+loc.toString());		
 		if(isRecording) {
 			addPointToTrack(locToWayPoint(loc));
 		}
@@ -201,11 +201,12 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 * @return true si ok, false en caso de errores
 	 */
 	public boolean saveTrackAsGpx(File outputfile) {
+		LOG.debug("GpsModel.saveTrackAsGpx() "+outputfile.getPath());
 		GpxSaver saver = new GpxSaver(outputfile);
 		saver.execute();
 		boolean result = false;
 		try { 
-			saver.get();
+			//saver.get();
 			result = true;
 		} catch (Exception e) {
 			LOG.error("GpsModel.saveTrackAsGpx(); ERROR : can't save gpx track");
@@ -225,13 +226,18 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		@Override
 		protected Boolean doInBackground(Void... params) {
+			LOG.debug("GpsModel.GpxSaver.doInBackground()");
 			boolean result=false;
 	        try {
 	        	GpxDocument doc = gpxFactory.createGpxDocument();
 	        	doc.addTrack(track);
-	        	Util.write(outFile.getPath(), doc.asGpx());
+	        	int resp = Util.write(outFile.getPath(), doc.asGpx());
+	        	if(resp != 1) {
+	        		LOG.error("Error saving file: "+resp);
+	        	}
 	        	result = true;
 	        } catch (Exception e) {
+	        	LOG.error("GpsModel.GpxSaver.doInBackground(): Error saving file");
 	        	result = false;
 	        }	
 			return result;
@@ -257,9 +263,9 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	public boolean saveTrackAsCsv(File outputfile, boolean withutmcoords) {
 		CsvSaver saver = new CsvSaver(outputfile, withutmcoords);
 		saver.execute();
-		boolean result = false;
+		boolean result = true;
 		try {
-			result = saver.get();
+			//result = saver.get();
 		} catch (Exception e ) {
 			LOG.error("GpsModel.saveTrackAsCsv() ERROR: Can't save csv track");
 			result = false;

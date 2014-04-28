@@ -131,6 +131,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 				LOG.error( "VideoController.stopRecording() : Can't stop recording");
 			}
 		} else {
+			LOG.debug("VideoController.stopRecording(): OK");
 			result = true;
 		}
 		return result;

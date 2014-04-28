@@ -23,7 +23,7 @@ public class MainModel extends AbstractObservable implements Observer {
 
 	
 	public MainModel(Context context) {
-		LOG.info("MainModel.MainModel()");
+		LOG.debug("MainModel.MainModel()");
 		outputDirectory = null;
 		
 	}

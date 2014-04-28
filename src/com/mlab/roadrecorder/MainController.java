@@ -38,6 +38,8 @@ import com.mlab.roadrecorder.video.VideoController;
 public class MainController extends Activity  implements Controller, GpsListener, GpsStatus.Listener {
 
 	private static Logger LOG = Logger.getLogger(MainController.class);
+	
+	
 	private final int DEFAULT_MIN_DISK_SPACE = 250; // 250 Mb mínimo para empezar a grabar
 	MainActivity activity;
 	FrameLayout videoFrame;
@@ -186,6 +188,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 		return;
 	}
 	private void saveTrack() {
+		LOG.debug("MainController.saveTrack()");
 		File outputVideoFile = videoController.getModel().getOutputFile();
 		String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
 		this.saveGpxFile(namewithoutext);				
@@ -194,6 +197,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 		}					
 	}
 	private void saveCsvFile(String namewithoutext) {
+		LOG.debug("MainController.saveCsvFile()");
 		String csvfilename = namewithoutext + ".csv";
 		boolean result = gpsModel.saveTrackAsCsv(
 				new File(model.getOutputDirectory(), csvfilename), true);
@@ -206,6 +210,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 		
 	}
 	private void saveGpxFile(String namewithoutext) {
+		LOG.debug("MainController.saveGpxFile()");
 		String gpxfilename = namewithoutext+".gpx";
 		boolean result = gpsModel.saveTrackAsGpx(new File(model.getOutputDirectory(), gpxfilename));
 		if(!result) {

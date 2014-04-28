@@ -39,7 +39,7 @@ public class App extends Application {
 	}
 
 	public static void setMainModel(MainModel mainModel) {
-		LOG.info("App.setMainModel()");
+		LOG.debug("App.setMainModel()");
 		App.mainModel = mainModel;
 	}
 
@@ -48,7 +48,7 @@ public class App extends Application {
 	}
 
 	public static void setMainController(MainController mainController) {
-		LOG.info("App.setMainController()");
+		LOG.debug("App.setMainController()");
 		App.mainController = mainController;
 	}
 
