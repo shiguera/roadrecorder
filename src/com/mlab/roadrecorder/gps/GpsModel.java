@@ -200,13 +200,13 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 * 
 	 * @return true si ok, false en caso de errores
 	 */
-	public boolean saveTrackAsGpx(File outputfile) {
+	public boolean saveTrackAsGpx2(File outputfile) {
 		LOG.debug("GpsModel.saveTrackAsGpx() "+outputfile.getPath());
 		GpxSaver saver = new GpxSaver(outputfile);
-		saver.execute();
+		saver.execute();		
 		boolean result = false;
 		try { 
-			//saver.get();
+			saver.get();
 			result = true;
 		} catch (Exception e) {
 			LOG.error("GpsModel.saveTrackAsGpx(); ERROR : can't save gpx track");
@@ -214,15 +214,27 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return result;
 	}
+	public boolean saveTrackAsGpx(File outputfile) {
+		LOG.debug("GpsModel.saveTrackAsGpx() "+outputfile.getPath());
+		boolean result = false;
+    	GpxDocument doc = gpxFactory.createGpxDocument();
+    	doc.addTrack(track);
+    	int resp = Util.write(outputfile.getPath(), doc.asGpx());
+		if(resp == 1) {
+			result = true;
+		}
+    	return result;
+	}
 	/**
 	 * AsyncTask para grabar el Track en un fichero en formato GPX.
 	 * Notifica a través de un Toast si hay error
 	 * 
 	 */
-	class GpxSaver extends AsyncTask<Void, Void, Boolean> {
+	class GpxSaver extends AsyncTask<Void,String, Boolean> {
 		File outFile;
 		GpxSaver(File outfile) {
-			this.outFile = outfile;
+			LOG.debug("GpxSaver()");
+			this.outFile = new File(outfile.getPath());
 		}
 		@Override
 		protected Boolean doInBackground(Void... params) {
@@ -232,25 +244,39 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	        	GpxDocument doc = gpxFactory.createGpxDocument();
 	        	doc.addTrack(track);
 	        	int resp = Util.write(outFile.getPath(), doc.asGpx());
-	        	if(resp != 1) {
-	        		LOG.error("Error saving file: "+resp);
-	        	}
-	        	result = true;
+	        	if(resp == 0) {
+	        		onProgressUpdate("File saved: "+outFile.getPath());
+	        		result = true;
+	        	} else {
+	        		onProgressUpdate("Error " + resp + "saving file "+outFile.getPath());
+	        		result = false;
+	        	} 
 	        } catch (Exception e) {
-	        	LOG.error("GpsModel.GpxSaver.doInBackground(): Error saving file");
+	        	String s = "GpsModel.GpxSaver.doInBackground(): Error saving file";
+	        	onProgressUpdate(s);
 	        	result = false;
 	        }	
 			return result;
 		}
 		@Override
+		protected void onProgressUpdate(String... values) {
+			for(String s: values) {
+				log(s);
+			}
+		}
+		
+		@Override
 		protected void onPostExecute(Boolean result) {
 			if(!result) {
 				String msg = "Error can't save Gpx Document";
-	        	LOG.error("GpsModel.saveTrackAsGpx(): " + msg);
-	        	GpsModel.this.showNotification(msg);
+	        	log("GpsModel.saveTrackAsGpx(): " + msg);
+	        	showNotification(msg);
 			}
-			super.onPostExecute(result);
+			//super.onPostExecute(result);
 		}
+	}
+	private void log(String msg) {
+		LOG.debug(msg);
 	}
 	/**
 	 * Graba el Track en un fichero en formato CSV.
@@ -260,7 +286,7 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 	 * 
 	 * @return true si ok, false en caso de errores
 	 */
-	public boolean saveTrackAsCsv(File outputfile, boolean withutmcoords) {
+	public boolean saveTrackAsCsv2(File outputfile, boolean withutmcoords) {
 		CsvSaver saver = new CsvSaver(outputfile, withutmcoords);
 		saver.execute();
 		boolean result = true;
@@ -272,6 +298,17 @@ public class GpsModel extends AbstractObservable implements GpsListener {
 		}
 		return result;
 	}
+	public boolean saveTrackAsCsv(File outputfile, boolean withutmcoords) {
+    	GpxDocument doc = gpxFactory.createGpxDocument();
+    	doc.addTrack(track);
+    	boolean result = false;
+    	int resp = Util.write(outputfile.getPath(), track.asCsv(withutmcoords));
+		if(resp==1) {
+			result = true;
+		}
+    	return result;
+	}
+
 	/**
 	 * AsyncTask para grabar el Track en un fichero en formato CSV
 	 * Notifica a través de un Toast si hay error

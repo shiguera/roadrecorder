@@ -48,7 +48,7 @@ public class MainActivity extends FragmentActivity {
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
 	private enum RunModes {Test, Debug, Production};
 
-	private final RunModes RUNMODE = RunModes.Production;
+	private final RunModes RUNMODE = RunModes.Test;
 		
 	public enum GPSICON {
 		DISABLED, FIXING, FIXED
