@@ -89,20 +89,20 @@ public class MainActivity extends FragmentActivity {
 	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		configureLogger();
-		LOG.info("\n-----------------------");
-		LOG.info("MainActivity.onCreate()");
-		LOG.info("\n-----------------------");
 		super.onCreate(savedInstanceState);
 
-
-		preInitLayout();
-		
-		boolean result = initApplicationDirectory();
-		if(!result) {
+		if(!initApplicationDirectory()) {
 			exit("ERROR: Can't open application directory");
 			return;
 		}
+
+		configureLogger();
+		LOG.info("-----------------------");
+		LOG.info("MainActivity.onCreate()");
+		LOG.info("-----------------------");
+
+		preInitLayout();
+		
 		
 		controller = new MainController(this);
 
@@ -139,7 +139,9 @@ public class MainActivity extends FragmentActivity {
 		if(gpsIconBlinker != null) {
 			this.stopGpsIconBlinker();
 		}
-		soundPool.release();
+		if(soundPool != null) {
+			soundPool.release();			
+		}
 		super.onPause();
 	}
 	@Override
@@ -158,10 +160,12 @@ public class MainActivity extends FragmentActivity {
 	 * Configura el Logger de android-logging-log4j
 	 */
 	private void configureLogger() {
+		File logfile = new File(App.getApplicationDirectory(), "roadrecorder.log");
 		final LogConfigurator logConfigurator = new LogConfigurator();
-
-		File logfile = new File(Environment.getExternalStorageDirectory(), "roadrecorder.log");
+		logConfigurator.setMaxBackupSize(1);
+		logConfigurator.setMaxFileSize(500*1024);
 		logConfigurator.setFileName(logfile.getPath());
+		logConfigurator.setFilePattern("%d - %t - %p [%c{1}]: %m%n");
 
 		if(RUNMODE == RunModes.Production) {
 			logConfigurator.setRootLevel(org.apache.log4j.Level.INFO);			
@@ -175,6 +179,15 @@ public class MainActivity extends FragmentActivity {
 		
 		logConfigurator.configure();
 	}
+	/**
+	 * Inicializa el directorio utilizado por la aplicación.<br/>
+	 * Si existe una secondary sdcard la selecciona y si no selecciona 
+	 * la sdcard normal.<br/>
+	 * Crea o utiliza un directorio llamado App.getAppDirectoryName().
+	 * 
+	 * @return True si todo va bien, flse si no es posible asignar un directorio
+	 * a la aplicación
+	 */
 	private boolean initApplicationDirectory() {		
 		// Try secondary card
 		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
@@ -182,7 +195,7 @@ public class MainActivity extends FragmentActivity {
 		if(secdirs.size()>0) {
 			LOG.info("MainController.initApplicationDirectory() appdir: " + 
 					secdirs.get(0).getPath());
-			outdir = new File(secdirs.get(0), App.getAPP_DIRECTORY_NAME());
+			outdir = new File(secdirs.get(0), App.getAppDirectoryName());
 			return setApplicationDirectory(outdir);
 		} 
 		// Try normal external storage
@@ -191,7 +204,7 @@ public class MainActivity extends FragmentActivity {
 					"ERROR, can't init external storage"); 
 			return false;
 		}
-		outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAPP_DIRECTORY_NAME());
+		outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
 		return setApplicationDirectory(outdir);
 	}
 	private boolean setApplicationDirectory(File outdir) {

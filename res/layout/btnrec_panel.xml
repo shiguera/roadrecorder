@@ -3,32 +3,48 @@
     android:layout_width="wrap_content"
     android:layout_height="70dip"
     android:layout_gravity="center_horizontal"
-    android:padding="8dip"
     android:gravity="center"
-    android:orientation="horizontal" >
-    
-    <include
-        android:id="@+id/gps_icon_panel"
+    android:orientation="horizontal"
+    android:padding="8dip" >
+
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        layout="@layout/gpsicon" 
         android:layout_marginRight="16dip"
-        />
-    
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/gps_icon_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GPS SIGNAL"
+            android:textSize="10dip"
+            android:textStyle="italic" />
+
+        <ImageView
+            android:id="@+id/gps_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dip"
+            android:src="@drawable/mylocation_1" >
+        </ImageView>
+    </LinearLayout>
+
     <Button
         android:id="@+id/btn_rec"
         android:layout_width="150dip"
         android:layout_height="50dip"
         android:layout_marginRight="16dip"
         android:background="@drawable/btnstart_selector" />
-    
+
     <include
         android:id="@+id/btn_rec_led"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        layout="@layout/recled" 
-        />
+        layout="@layout/recled" />
 
 </LinearLayout>

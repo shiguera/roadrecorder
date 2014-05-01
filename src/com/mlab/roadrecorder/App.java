@@ -52,10 +52,6 @@ public class App extends Application {
 		App.mainController = mainController;
 	}
 
-	public static String getAPP_DIRECTORY_NAME() {
-		return APP_DIRECTORY_NAME;
-	}
-
 	public static boolean isSaveAsCsv() {
 		return saveAsCsv;
 	}
