@@ -1,13 +1,14 @@
-package com.mlab.roadrecorder.activities;
+package com.mlab.roadrecorder.settings;
 
-import com.mlab.roadrecorder.alvac.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class ConfigActivity extends Activity {
+import com.mlab.roadrecorder.alvac.R;
+
+public class SettingsActivity extends Activity {
 
 	private final String TAG = "RoadRecorder";
 
@@ -15,7 +16,9 @@ public class ConfigActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG,"ConfigActivity.onCreate()");
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_config);
+		//setContentView(R.layout.activity_config);
+		getFragmentManager().beginTransaction()
+			.replace(android.R.id.content, new SettingsFragment()).commit();
 	}
 	@Override
 	protected void onRestart() {
@@ -50,10 +53,6 @@ public class ConfigActivity extends Activity {
 		Log.i(TAG,"ConfigActivity.onDestroy()");
 		super.onDestroy();
 	}
-
-
-
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

@@ -27,9 +27,9 @@ import android.widget.Toast;
 
 import com.mlab.android.utils.AndroidUtils;
 import com.mlab.roadrecorder.activities.AboutActivity;
-import com.mlab.roadrecorder.activities.ConfigActivity;
 import com.mlab.roadrecorder.activities.HelpActivity;
 import com.mlab.roadrecorder.alvac.R;
+import com.mlab.roadrecorder.settings.SettingsActivity;
 import com.mlab.roadrecorder.state.ActivityState;
 import com.mlab.roadrecorder.state.ButtonState;
 import com.mlab.roadrecorder.view.TextViewUpdater;
@@ -376,7 +376,7 @@ public class MainActivity extends FragmentActivity {
 	private void startActivityConfig() {
 //		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 //				true);
-		 Intent i = new Intent(this, ConfigActivity.class);
+		 Intent i = new Intent(this, SettingsActivity.class);
 		 startActivity(i);
 	}
 	private void startActivityHelp() {

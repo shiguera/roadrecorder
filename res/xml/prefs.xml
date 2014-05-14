@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<!-- HightResolution video -->
+    <SwitchPreference
+        android:key="highres"
+        android:title="@string/pref_high_resolution_title"
+        android:summaryOff="@string/pref_high_resolution_summary_off"
+        android:summaryOn="@string/pref_high_resolution_summary_on"
+        android:switchTextOn="@string/pref_high_resolution_switch_text_on"
+        android:switchTextOff="@string/pref_high_resolution_switch_text_off">
+    </SwitchPreference>
+
+</PreferenceScreen>
