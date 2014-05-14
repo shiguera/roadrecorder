@@ -46,5 +46,10 @@
     <string name="pref_high_resolution_summary_off">High resolution deactivated</string>
     <string name="pref_high_resolution_switch_text_on">ON</string>
     <string name="pref_high_resolution_switch_text_off">OFF</string>
+    <string name="pref_saveascsv_title">Save CSV</string>
+    <string name="pref_saveascsv_summary_on">Save track as CSV file activated</string>
+    <string name="pref_saveascsv_summary_off">Save track as CSV file deactivated</string>
+    <string name="pref_saveascsv_switch_text_on">ON</string>
+    <string name="pref_saveascsv_switch_text_off">OFF</string>
     
 </resources>

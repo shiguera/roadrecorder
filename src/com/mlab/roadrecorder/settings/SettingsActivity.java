@@ -1,20 +1,23 @@
 package com.mlab.roadrecorder.settings;
 
+import org.apache.log4j.Logger;
+
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.mlab.roadrecorder.App;
 import com.mlab.roadrecorder.alvac.R;
 
 public class SettingsActivity extends Activity {
 
-	private final String TAG = "RoadRecorder";
+	private final Logger LOG = Logger.getLogger(SettingsActivity.class);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG,"ConfigActivity.onCreate()");
+		LOG.debug("ConfigActivity.onCreate()");
 		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.activity_config);
 		getFragmentManager().beginTransaction()
@@ -22,35 +25,36 @@ public class SettingsActivity extends Activity {
 	}
 	@Override
 	protected void onRestart() {
-		Log.i(TAG,"ConfigActivity.onRestart()");
+		LOG.debug("ConfigActivity.onRestart()");
 		super.onRestart();
 	}
 	@Override
 	protected void onStart() {
-		Log.i(TAG,"ConfigActivity.onStart()");
+		LOG.debug("ConfigActivity.onStart()");
 		super.onStart();
 	}
 
 	@Override
 	protected void onResume() {
-		Log.i(TAG,"ConfigActivity.onResume()");
+		LOG.debug("ConfigActivity.onResume()");
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		Log.i(TAG,"ConfigActivity.onPause()");
+		LOG.debug("ConfigActivity.onPause()");
 		super.onPause();
+		updateAppConstantsWithPreferences();
 	}
 	@Override
 	protected void onStop() {
-		Log.i(TAG,"ConfigActivity.onStop()");
+		LOG.debug("ConfigActivity.onStop()");
 		super.onStop();
 	}
 
 	@Override
 	protected void onDestroy() {
-		Log.i(TAG,"ConfigActivity.onDestroy()");
+		LOG.debug("ConfigActivity.onDestroy()");
 		super.onDestroy();
 	}
 
@@ -69,5 +73,11 @@ public class SettingsActivity extends Activity {
 			break;
 		}
 		return true;
+	}
+	private void updateAppConstantsWithPreferences() {
+		LOG.debug("SettingsActivity.updateAppConstantsWithPreferences()");
+		SharedPreferences prefs = getSharedPreferences("preferences",MODE_PRIVATE);
+		App.setHighResolutionVideoRecording(prefs.getBoolean("highres", false));
+		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
 	}
 }

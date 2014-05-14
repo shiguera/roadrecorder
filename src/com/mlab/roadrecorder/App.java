@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 /**
  * Base class to maintain global application state
@@ -30,9 +31,12 @@ public class App extends Application {
 	private static MainModel mainModel;
 	private static MainController mainController;
 	
+	// Variables configurables en SharedPreferences a través de SettingsActivity
+	private static boolean highResolutionVideoRecording = true;
 	private static boolean saveAsCsv = true;
 	
-
+	//
+	
 	// Getters
 	public static MainModel getMainModel() {
 		return mainModel;
@@ -57,6 +61,7 @@ public class App extends Application {
 	}
 
 	public static void setSaveAsCsv(boolean saveAsCsv) {
+		LOG.debug("App.setSaveAsCsv()");
 		App.saveAsCsv = saveAsCsv;
 	}
 
@@ -84,6 +89,17 @@ public class App extends Application {
 	}
 
 	public static void setApplicationDirectory(File applicationDirectory) {
+		LOG.debug("App.setApplicationDirectory()");
 		App.applicationDirectory = applicationDirectory;
+	}
+
+	public static boolean isHighResolutionVideoRecording() {
+		return highResolutionVideoRecording;
+	}
+
+	public static void setHighResolutionVideoRecording(
+			boolean highResolutionVideoRecording) {
+		LOG.debug("App.setHighResolutionVideoRecording()");
+		App.highResolutionVideoRecording = highResolutionVideoRecording;
 	}
 }

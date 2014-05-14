@@ -20,6 +20,7 @@ import android.view.SurfaceHolder;
 
 import com.mlab.android.utils.AndroidUtils;
 import com.mlab.gpx.impl.util.Util;
+import com.mlab.roadrecorder.App;
 import com.mlab.roadrecorder.api.AbstractObservable;
 
 public class VideoModel extends AbstractObservable implements
@@ -166,6 +167,11 @@ public class VideoModel extends AbstractObservable implements
 	}
 	private int getCamcorderProfile() {
 		int profile = DEFAULT_CAMCORDER_PROFILE;
+		if(App.isHighResolutionVideoRecording()) {
+			profile = CamcorderProfile.QUALITY_HIGH;
+		} else {
+			profile = CamcorderProfile.QUALITY_LOW;
+		}
 		if (!CamcorderProfile.hasProfile(profile)) {
 			if(CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
 				profile = CamcorderProfile.QUALITY_HIGH;

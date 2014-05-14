@@ -8,11 +8,11 @@ import org.apache.log4j.Logger;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,22 +46,27 @@ import de.mindpipe.android.logging.log4j.LogConfigurator;
 
 public class MainActivity extends FragmentActivity {
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
-	private enum RunModes {Test, Debug, Production};
+
+	private enum RunModes {
+		Test, Debug, Production
+	};
 
 	private final RunModes RUNMODE = RunModes.Test;
-		
+
 	public enum GPSICON {
 		DISABLED, FIXING, FIXED
 	};
+
 	public enum BTNBACKGROUND {
 		DISABLED, STOPPED, RECORDING
 	}
+
 	public enum NotificationLevel {
 		INFO, DEBUG, WARNING, ERROR
 	};
 
-	SoundPool soundPool; 
-	int sound; 
+	SoundPool soundPool;
+	int sound;
 
 	// Controller
 	MainController controller;
@@ -72,7 +77,8 @@ public class MainActivity extends FragmentActivity {
 
 	// Layout
 	protected Menu menu;
-	protected MenuItem menuItemBack,menuItemConfig, menuItemHelp, menuItemAbout;
+	protected MenuItem menuItemBack, menuItemConfig, menuItemHelp,
+			menuItemAbout;
 	protected Button btnStartStop;
 	protected FrameLayout videoFrame;
 	protected LinearLayout rightPanel;
@@ -91,7 +97,7 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if(!initApplicationDirectory()) {
+		if (!initApplicationDirectory()) {
 			exit("ERROR: Can't open application directory");
 			return;
 		}
@@ -101,32 +107,36 @@ public class MainActivity extends FragmentActivity {
 		LOG.info("MainActivity.onCreate()");
 		LOG.info("-----------------------");
 
+		loadPreferences();
+
 		preInitLayout();
-		
-		
+
 		controller = new MainController(this);
 
 		postInitLayout();
 
 	}
+
 	@Override
 	protected void onStart() {
 		LOG.info("MainActivity.onStart()");
-		if(controller != null) {
-			controller.onRestart();			
+		if (controller != null) {
+			controller.onRestart();
 		}
 
 		super.onStart();
 	}
+
 	@Override
 	protected void onRestart() {
 		LOG.info("MainActivity.onRestart()");
 		super.onRestart();
 	}
+
 	@Override
 	protected void onPause() {
 		LOG.info("MainActivity.onPause()");
-		
+
 		if (controller != null) {
 			controller.onPause();
 		}
@@ -136,19 +146,21 @@ public class MainActivity extends FragmentActivity {
 		if (labelInfoBlinker != null) {
 			this.stopLabelInfoBlinker("");
 		}
-		if(gpsIconBlinker != null) {
+		if (gpsIconBlinker != null) {
 			this.stopGpsIconBlinker();
 		}
-		if(soundPool != null) {
-			soundPool.release();			
+		if (soundPool != null) {
+			soundPool.release();
 		}
 		super.onPause();
 	}
+
 	@Override
 	protected void onStop() {
 		LOG.info("MainActivity.onStop()");
 		super.onStop();
 	}
+
 	@Override
 	protected void onDestroy() {
 		LOG.info("MainActivity.onDestroy()");
@@ -156,66 +168,81 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	// Private methods
+	private void loadPreferences() {
+		LOG.debug("MainActivity.loadPreferences()");
+		SharedPreferences prefs = getSharedPreferences("preferences",
+				MODE_PRIVATE);
+		App.setHighResolutionVideoRecording(prefs.getBoolean("highres", false));
+		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
+	}
+
 	/**
 	 * Configura el Logger de android-logging-log4j
 	 */
 	private void configureLogger() {
-		File logfile = new File(App.getApplicationDirectory(), "roadrecorder.log");
+		File logfile = new File(App.getApplicationDirectory(),
+				"roadrecorder.log");
 		final LogConfigurator logConfigurator = new LogConfigurator();
 		logConfigurator.setMaxBackupSize(1);
-		logConfigurator.setMaxFileSize(500*1024);
+		logConfigurator.setMaxFileSize(500 * 1024);
 		logConfigurator.setFileName(logfile.getPath());
 		logConfigurator.setFilePattern("%d - %t - %p [%c{1}]: %m%n");
 
-		if(RUNMODE == RunModes.Production) {
-			logConfigurator.setRootLevel(org.apache.log4j.Level.INFO);			
-			logConfigurator.setLevel("com.mlab.roadrecorder", org.apache.log4j.Level.INFO);
+		if (RUNMODE == RunModes.Production) {
+			logConfigurator.setRootLevel(org.apache.log4j.Level.INFO);
+			logConfigurator.setLevel("com.mlab.roadrecorder",
+					org.apache.log4j.Level.INFO);
 			logConfigurator.setUseLogCatAppender(false);
 		} else {
-			logConfigurator.setRootLevel(org.apache.log4j.Level.ALL);			
-			logConfigurator.setLevel("com.mlab.roadrecorder", org.apache.log4j.Level.ALL);
-			logConfigurator.setUseLogCatAppender(true);			
+			logConfigurator.setRootLevel(org.apache.log4j.Level.ALL);
+			logConfigurator.setLevel("com.mlab.roadrecorder",
+					org.apache.log4j.Level.ALL);
+			logConfigurator.setUseLogCatAppender(true);
 		}
-		
+
 		logConfigurator.configure();
 	}
+
 	/**
 	 * Inicializa el directorio utilizado por la aplicación.<br/>
-	 * Si existe una secondary sdcard la selecciona y si no selecciona 
-	 * la sdcard normal.<br/>
+	 * Si existe una secondary sdcard la selecciona y si no selecciona la sdcard
+	 * normal.<br/>
 	 * Crea o utiliza un directorio llamado App.getAppDirectoryName().
 	 * 
 	 * @return True si todo va bien, flse si no es posible asignar un directorio
-	 * a la aplicación
+	 *         a la aplicación
 	 */
-	private boolean initApplicationDirectory() {		
+	private boolean initApplicationDirectory() {
 		// Try secondary card
 		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
 		File outdir = null;
-		if(secdirs.size()>0) {
-			LOG.info("MainController.initApplicationDirectory() appdir: " + 
-					secdirs.get(0).getPath());
+		if (secdirs.size() > 0) {
+			LOG.info("MainController.initApplicationDirectory() appdir: "
+					+ secdirs.get(0).getPath());
 			outdir = new File(secdirs.get(0), App.getAppDirectoryName());
 			return setApplicationDirectory(outdir);
-		} 
+		}
 		// Try normal external storage
-		if(!AndroidUtils.isExternalStorageEnabled()) {
-			LOG.info("MainController.initApplicationDirectory() "+ 
-					"ERROR, can't init external storage"); 
+		if (!AndroidUtils.isExternalStorageEnabled()) {
+			LOG.info("MainController.initApplicationDirectory() "
+					+ "ERROR, can't init external storage");
 			return false;
 		}
-		outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
+		outdir = new File(AndroidUtils.getExternalStorageDirectory(),
+				App.getAppDirectoryName());
 		return setApplicationDirectory(outdir);
 	}
+
 	private boolean setApplicationDirectory(File outdir) {
-		if(!outdir.exists()) {
-			if(!outdir.mkdir()) {
-				return false;				
+		if (!outdir.exists()) {
+			if (!outdir.mkdir()) {
+				return false;
 			}
 		}
-		App.setApplicationDirectory(outdir);	
-		return true;		
+		App.setApplicationDirectory(outdir);
+		return true;
 	}
+
 	private void preInitLayout() {
 		LOG.debug("MainActivity.preInitLayout()");
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -226,11 +253,12 @@ public class MainActivity extends FragmentActivity {
 		gpsIcon = (ImageView) this.findViewById(R.id.gps_icon);
 		gpsIconLabel = (TextView) this.findViewById(R.id.gps_icon_label);
 		btnStartStop = (Button) findViewById(R.id.btn_rec);
-		
+
 		soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		sound = soundPool.load(this, R.raw.btnclick, 1);
 
 	}
+
 	private void postInitLayout() {
 		LOG.debug("MainActivity.postInitLayout()");
 
@@ -278,6 +306,7 @@ public class MainActivity extends FragmentActivity {
 				new GetDistanceCommand(controller.getGpsModel()));
 
 	}
+
 	private void configureBtnStartStop() {
 		btnStartStop.setOnClickListener(new Button.OnClickListener() {
 			@Override
@@ -291,48 +320,52 @@ public class MainActivity extends FragmentActivity {
 			}
 		});
 	}
-	
+
 	private void startRecording() {
-		showNotification("Starting media recorder",
-			NotificationLevel.INFO, false);
+		showNotification("Starting media recorder", NotificationLevel.INFO,
+				false);
 		controller.startRecording();
 	}
+
 	private void stopRecording() {
-		showNotification(
-			"Stopping media recorder and saving files",
-			NotificationLevel.INFO, true);
+		showNotification("Stopping media recorder and saving files",
+				NotificationLevel.INFO, true);
 		controller.stopRecording();
 		return;
 	}
+
 	// States
 	public void setGpsState(ActivityState state) {
 		LOG.debug("MainActivity.setGpsState()");
 		this.gpsState = state;
 		this.gpsState.doAction();
 	}
+
 	public void setButtonState(ButtonState state) {
-		//LOG.debug("MainActivity.setButtonState()");
+		// LOG.debug("MainActivity.setButtonState()");
 		this.btnState = state;
 		this.btnState.doAction();
 	}
+
 	// Button StartStop
 	public void setButtonEnabled(boolean enabled) {
-		//LOG.debug("setButtonEnabled()"+String.format("%b", enabled));
+		// LOG.debug("setButtonEnabled()"+String.format("%b", enabled));
 		if (enabled) {
 			btnStartStop.setEnabled(true);
 		} else {
 			btnStartStop.setEnabled(false);
 		}
 	}
+
 	public void setButtonBackground(BTNBACKGROUND back) {
-		if(back == BTNBACKGROUND.DISABLED) {
-			//LOG.debug("setButtonBackground() orange");
+		if (back == BTNBACKGROUND.DISABLED) {
+			// LOG.debug("setButtonBackground() orange");
 			btnStartStop.setBackgroundResource(R.drawable.button_orange);
-		} else if(back == BTNBACKGROUND.STOPPED) {
-			//LOG.debug("setButtonBackground() start");
+		} else if (back == BTNBACKGROUND.STOPPED) {
+			// LOG.debug("setButtonBackground() start");
 			btnStartStop.setBackgroundResource(R.drawable.button_start);
-		} else if(back == BTNBACKGROUND.RECORDING) {
-			//LOG.debug("setButtonBackground() stop");
+		} else if (back == BTNBACKGROUND.RECORDING) {
+			// LOG.debug("setButtonBackground() stop");
 			btnStartStop.setBackgroundResource(R.drawable.button_stop);
 		}
 	}
@@ -343,12 +376,13 @@ public class MainActivity extends FragmentActivity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		this.menu = menu;
-		menuItemBack =menu.findItem(R.id.menuitem_back);
+		menuItemBack = menu.findItem(R.id.menuitem_back);
 		menuItemConfig = menu.findItem(R.id.menuitem_config);
 		menuItemAbout = menu.findItem(R.id.menuitem_about);
 		menuItemHelp = menu.findItem(R.id.menuitem_help);
 		return true;
 	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -367,29 +401,33 @@ public class MainActivity extends FragmentActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
 	public void setActionBarEnabled(boolean enabled) {
 		this.menuItemAbout.setEnabled(enabled);
 		this.menuItemBack.setEnabled(enabled);
 		this.menuItemConfig.setEnabled(enabled);
 		this.menuItemHelp.setEnabled(enabled);
 	}
+
 	private void startActivityConfig() {
-//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
-//				true);
-		 Intent i = new Intent(this, SettingsActivity.class);
-		 startActivity(i);
+		// this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+		// true);
+		Intent i = new Intent(this, SettingsActivity.class);
+		startActivity(i);
 	}
+
 	private void startActivityHelp() {
-//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
-//				true);
-		 Intent i = new Intent(this, HelpActivity.class);
-		 startActivity(i);
+		// this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+		// true);
+		Intent i = new Intent(this, HelpActivity.class);
+		startActivity(i);
 	}
+
 	private void startActivityAbout() {
-//		this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
-//				true);
-		 Intent i = new Intent(this, AboutActivity.class);
-		 startActivity(i);
+		// this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
+		// true);
+		Intent i = new Intent(this, AboutActivity.class);
+		startActivity(i);
 	}
 
 	// LabelInfo
@@ -404,7 +442,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			LOG.info("LabelInfoBlinker().doInBackground()");
-			while(blink) {
+			while (blink) {
 				try {
 					Thread.sleep(500);
 					publishProgress();
@@ -417,36 +455,41 @@ public class MainActivity extends FragmentActivity {
 
 		@Override
 		protected void onProgressUpdate(Void... values) {
-			//LOG.info("LabelInfoBlinker.onProgressUpdate()");
+			// LOG.info("LabelInfoBlinker.onProgressUpdate()");
 			if (lblInfo.getVisibility() == View.VISIBLE) {
-				//LOG.info("LabelInfoBlinker.onProgressUpdate() INVISIBLE");
+				// LOG.info("LabelInfoBlinker.onProgressUpdate() INVISIBLE");
 				lblInfo.setVisibility(View.INVISIBLE);
 			} else {
-				//LOG.info("LabelInfoBlinker.onProgressUpdate() VISIBLE");
+				// LOG.info("LabelInfoBlinker.onProgressUpdate() VISIBLE");
 				lblInfo.setVisibility(View.VISIBLE);
 			}
 		}
 
 		public void setBlink(boolean blink) {
-			LOG.info("LabelInfoBlinker.setBlink() : " + Boolean.valueOf(blink).toString());
+			LOG.info("LabelInfoBlinker.setBlink() : "
+					+ Boolean.valueOf(blink).toString());
 			this.blink = blink;
 		}
 	}
+
 	public void setLabelInfoText(String text) {
 		this.lblInfo.setText(text);
 	}
+
 	public void setLabelInfoColor(int color) {
 		this.lblInfo.setTextColor(color);
 	}
+
 	public void startLabelInfoBlinker(String message) {
 		LOG.debug("MainActivity.startLabelInfoBlinker()");
-//		if (labelInfoBlinker != null) {
-//			this.stopLabelInfoBlinker("");
-//		}
+		// if (labelInfoBlinker != null) {
+		// this.stopLabelInfoBlinker("");
+		// }
 		this.lblInfo.setText(message);
 		labelInfoBlinker = new LabelInfoBlinker();
 		labelInfoBlinker.execute();
 	}
+
 	public void stopLabelInfoBlinker(String message) {
 		LOG.debug("MainActivity.stopLabelInfoBlinker()");
 		this.lblInfo.setText(message);
@@ -477,6 +520,7 @@ public class MainActivity extends FragmentActivity {
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		}
 	}
+
 	public void showDialogNotification(String message, NotificationLevel level) {
 		switch (level) {
 		case INFO:
@@ -492,15 +536,16 @@ public class MainActivity extends FragmentActivity {
 			// Log.e(TAG, message);
 			break;
 		}
-		
+
 	}
+
 	private void exit(final String message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(message);
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				LOG.info("exit(): "+ message);
+				LOG.info("exit(): " + message);
 				finish();
 				return;
 			}
@@ -560,7 +605,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			LOG.info("GpsIconBlinker.doInBackground()");
-			while(blink) {
+			while (blink) {
 				try {
 					Thread.sleep(500);
 				} catch (Exception e) {
@@ -573,12 +618,12 @@ public class MainActivity extends FragmentActivity {
 
 		@Override
 		protected void onProgressUpdate(Void... values) {
-			//LOG.debug("GpsIconBlinker.onProgressUpddate()");
+			// LOG.debug("GpsIconBlinker.onProgressUpddate()");
 			if (gpsIcon.getVisibility() == View.VISIBLE) {
-				//LOG.debug("GpsIconBlinker.onProgressUpddate(): VISIBLE");				
+				// LOG.debug("GpsIconBlinker.onProgressUpddate(): VISIBLE");
 				gpsIcon.setVisibility(View.INVISIBLE);
 			} else {
-				//LOG.debug("GpsIconBlinker.onProgressUpddate(): INVISIBLE");
+				// LOG.debug("GpsIconBlinker.onProgressUpddate(): INVISIBLE");
 				gpsIcon.setVisibility(View.VISIBLE);
 			}
 		}
@@ -590,9 +635,9 @@ public class MainActivity extends FragmentActivity {
 
 	public void startGpsIconBlinker() {
 		LOG.info("startGpsIconBlinker");
-//		if (gpsIconBlinker != null) {
-//			this.stopGpsIconBlinker();
-//		}
+		// if (gpsIconBlinker != null) {
+		// this.stopGpsIconBlinker();
+		// }
 		gpsIconBlinker = new GpsIconBlinker();
 		gpsIconBlinker.execute();
 	}
@@ -605,5 +650,4 @@ public class MainActivity extends FragmentActivity {
 		this.gpsIcon.setVisibility(View.VISIBLE);
 	}
 
-	
 }
