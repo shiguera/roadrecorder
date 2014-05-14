@@ -182,7 +182,8 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	public FrameLayout getView() {
 		return this.frameLayout;
 	}
-	@Override
+	// Interface onInfoListener
+    @Override
 	public void onInfo(MediaRecorder mr, int what, int extra) {
 		switch(what) {
 		case MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN:
@@ -198,6 +199,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 			LOG.debug("VideoController.onInfo():  unknown");				
 		}
 	}
+    // Interface onErrorListener
 	@Override
 	public void onError(MediaRecorder mr, int what, int extra) {
 		switch(what) {

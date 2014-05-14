@@ -377,7 +377,7 @@ public class MainActivity extends FragmentActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		this.menu = menu;
 		menuItemBack = menu.findItem(R.id.menuitem_back);
-		menuItemConfig = menu.findItem(R.id.menuitem_config);
+		menuItemConfig = menu.findItem(R.id.menuitem_settings);
 		menuItemAbout = menu.findItem(R.id.menuitem_about);
 		menuItemHelp = menu.findItem(R.id.menuitem_help);
 		return true;
@@ -386,8 +386,8 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menuitem_config:
-			startActivityConfig();
+		case R.id.menuitem_settings:
+			startActivitySettings();
 			break;
 		case R.id.menuitem_help:
 			startActivityHelp();
@@ -409,7 +409,7 @@ public class MainActivity extends FragmentActivity {
 		this.menuItemHelp.setEnabled(enabled);
 	}
 
-	private void startActivityConfig() {
+	private void startActivitySettings() {
 		// this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 		// true);
 		Intent i = new Intent(this, SettingsActivity.class);

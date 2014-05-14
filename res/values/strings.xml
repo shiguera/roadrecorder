@@ -16,7 +16,8 @@
     <string name="title_activity_help">HelpActivity</string>
     <string name="title_activity_about">AboutActivity</string>
     
-    <string name="menuitem_config">Configuración</string>
+    <!-- MenuItems -->
+    <string name="menuitem_settings">Configuración</string>
     <string name="menuitem_help">Ayuda</string>
     <string name="menuitem_about">Acerca de RoadRecorder</string>
     <string name="menuitem_back">Volver atrás</string>

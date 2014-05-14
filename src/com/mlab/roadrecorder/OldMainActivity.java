@@ -267,7 +267,7 @@ public class OldMainActivity extends Activity implements GpsListener, SensorEven
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()) {
-		case R.id.menuitem_config:
+		case R.id.menuitem_settings:
 			startActivityConfig();
 			break;
 		case R.id.menuitem_help:
