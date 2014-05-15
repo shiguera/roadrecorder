@@ -2,6 +2,10 @@ package com.mlab.roadrecorder;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -92,6 +96,7 @@ public class MainActivity extends FragmentActivity {
 	protected TextView lblInfo;
 	protected LabelInfoBlinker labelInfoBlinker;
 
+	public ExecutorService executor;
 	// Live cycle
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +114,8 @@ public class MainActivity extends FragmentActivity {
 
 		loadPreferences();
 
+		executor = Executors.newFixedThreadPool(5);
+		
 		preInitLayout();
 
 		controller = new MainController(this);
@@ -436,7 +443,7 @@ public class MainActivity extends FragmentActivity {
 
 		public LabelInfoBlinker() {
 			LOG.info("LabelInfoBlinker()");
-			this.blink = true;
+			setBlink(true);
 		}
 
 		@Override
@@ -444,7 +451,7 @@ public class MainActivity extends FragmentActivity {
 			LOG.info("LabelInfoBlinker().doInBackground()");
 			while (blink) {
 				try {
-					Thread.sleep(500);
+					Thread.sleep(1000);
 					publishProgress();
 				} catch (Exception e) {
 					LOG.warn("Exception in LabelInfoBlinker: " + e.getMessage());
@@ -465,7 +472,7 @@ public class MainActivity extends FragmentActivity {
 			}
 		}
 
-		public void setBlink(boolean blink) {
+		synchronized public void setBlink(boolean blink) {
 			LOG.info("LabelInfoBlinker.setBlink() : "
 					+ Boolean.valueOf(blink).toString());
 			this.blink = blink;
@@ -487,7 +494,7 @@ public class MainActivity extends FragmentActivity {
 		// }
 		this.lblInfo.setText(message);
 		labelInfoBlinker = new LabelInfoBlinker();
-		labelInfoBlinker.execute();
+		labelInfoBlinker.executeOnExecutor(executor);
 	}
 
 	public void stopLabelInfoBlinker(String message) {
@@ -599,7 +606,7 @@ public class MainActivity extends FragmentActivity {
 
 		public GpsIconBlinker() {
 			LOG.info("GpsIconBlinker()");
-			this.blink = true;
+			setBlink(true);
 		}
 
 		@Override
@@ -607,7 +614,7 @@ public class MainActivity extends FragmentActivity {
 			LOG.info("GpsIconBlinker.doInBackground()");
 			while (blink) {
 				try {
-					Thread.sleep(500);
+					Thread.sleep(1000);
 				} catch (Exception e) {
 					LOG.warn("Error in GpsIconBlinker");
 				}
@@ -628,7 +635,7 @@ public class MainActivity extends FragmentActivity {
 			}
 		}
 
-		public void setBlink(boolean blink) {
+		synchronized public void setBlink(boolean blink) {
 			this.blink = blink;
 		}
 	}
@@ -639,7 +646,7 @@ public class MainActivity extends FragmentActivity {
 		// this.stopGpsIconBlinker();
 		// }
 		gpsIconBlinker = new GpsIconBlinker();
-		gpsIconBlinker.execute();
+		gpsIconBlinker.executeOnExecutor(executor);
 	}
 
 	public void stopGpsIconBlinker() {

@@ -6,7 +6,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.log4j.Logger;
 
@@ -25,20 +27,20 @@ import com.mlab.roadrecorder.api.AbstractObservable;
 
 public class VideoModel extends AbstractObservable implements
 		SurfaceHolder.Callback {
-	
+
 	private final Logger LOG = Logger.getLogger(VideoModel.class);
 
-	//public static final int LEVEL_INFO = 0;
-	//public static final int LEVEL_DEBUG = 1;
-	//public static final int LEVEL_WARNING = 2;
-	//public static final int LEVEL_ERROR = 3;
+	// public static final int LEVEL_INFO = 0;
+	// public static final int LEVEL_DEBUG = 1;
+	// public static final int LEVEL_WARNING = 2;
+	// public static final int LEVEL_ERROR = 3;
 
 	public static final int DEFAULT_VIDEO_MAX_DURATION = 18000000; // 18000 sg
 	public static final int DEFAULT_VIDEO_MAX_FILE_SIZE = 1500000000; // 1500 Mb
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
-	//private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_1080P;
+	// private final int DEFAULT_CAMCORDER_PROFILE =
+	// CamcorderProfile.QUALITY_1080P;
 	private final int DEFAULT_CAMCORDER_PROFILE = CamcorderProfile.QUALITY_HIGH;
-	
 
 	private MediaRecorder mediaRecorder;
 	private Camera camera;
@@ -47,13 +49,25 @@ public class VideoModel extends AbstractObservable implements
 	private File outputFile;
 	private int maxVideoDuration;
 	private int maxVideoFileSize;
-	
+
 	// private Date startDate;
 	private boolean isRecording;
 	private boolean isEnabled;
-	
+
+	/**
+	 * Fecha y hora del comienzo de la grabación
+	 */
 	private long startRecordingTime;
-	//SurfaceHolder holder;
+	/**
+	 * Duración de la grabación en curso, milisegundos desde que se comenzó a
+	 * grabar
+	 */
+	private long recordingDuration;
+	
+	ExecutorService executor;
+	VideoTimer videoTimer;
+
+	// SurfaceHolder holder;
 
 	// Constructor
 	/**
@@ -61,13 +75,14 @@ public class VideoModel extends AbstractObservable implements
 	 * Tras crear la instancia hay que comprobar la disponibilidad con el método
 	 * isEnabled(); <br/>
 	 * El proceso de inicialización que hay que seguir es :<br/>
-	 *  - 1.- setDefaultDirectory();<br/>
-	 *  - 2.- initCamera();<br/>
-	 *  - 3.- initMediaRecorder(SurfaceHolder);<br/>
-	 *  El SurfaceHolder no lo crea el VideoModel, hay que pasárselo como argumento 
-	 *  en el método initMediaRecorder(). Además, la clase que crea el SurfaceHolder, 
-	 *  tendrá que indicarle que VideoModel es quién tiene el SurfaceHolder.Callback:<br/>
-	 *  surfaceHolder.addCallback(model)<br/>
+	 * - 1.- setDefaultDirectory();<br/>
+	 * - 2.- initCamera();<br/>
+	 * - 3.- initMediaRecorder(SurfaceHolder);<br/>
+	 * El SurfaceHolder no lo crea el VideoModel, hay que pasárselo como
+	 * argumento en el método initMediaRecorder(). Además, la clase que crea el
+	 * SurfaceHolder, tendrá que indicarle que VideoModel es quién tiene el
+	 * SurfaceHolder.Callback:<br/>
+	 * surfaceHolder.addCallback(model)<br/>
 	 * 
 	 * @param context
 	 *            Context donde se ejecuta la app.
@@ -79,29 +94,32 @@ public class VideoModel extends AbstractObservable implements
 
 		isRecording = false;
 		isEnabled = false;
-		
+
 		maxVideoDuration = DEFAULT_VIDEO_MAX_DURATION;
 		maxVideoFileSize = DEFAULT_VIDEO_MAX_FILE_SIZE;
-		
+
+		executor = Executors.newFixedThreadPool(2);
 	}
 
 	/**
-	 * El método initMediaRecorder() debe ser llamado antes de empezar a
-	 * operar con el MediaRecorder. En concreto, la MainActivity lo llama
-	 * en su método onStart() a través del controlador.
+	 * El método initMediaRecorder() debe ser llamado antes de empezar a operar
+	 * con el MediaRecorder. En concreto, la MainActivity lo llama en su método
+	 * onStart() a través del controlador.
+	 * 
 	 * @return
 	 */
 	public boolean initMediaRecorder() {
-		//String cad = "VideoModel.initMediaRecorder() ";
+		// String cad = "VideoModel.initMediaRecorder() ";
 		mediaRecorder = new MediaRecorder();
 		mediaRecorder.setCamera(camera);
 		// TODO No es necesario devolver boolean
 		return true;
 	}
+
 	private boolean prepare() {
 		mediaRecorder = null;
 		mediaRecorder = new MediaRecorder();
-		if(camera == null) {
+		if (camera == null) {
 			initCamera();
 		}
 		camera.unlock();
@@ -110,26 +128,28 @@ public class VideoModel extends AbstractObservable implements
 			mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 			mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 			int profile = getCamcorderProfile();
-			
-			if(profile == -1) {
+
+			if (profile == -1) {
 				LOG.error("VideoModel.prepare() error: profile ==-1");
 				releaseMediaRecorder();
 				return false;
 			}
 			mediaRecorder.setProfile(CamcorderProfile.get(profile));
-			//LOG.info("VideoModel.prepare(): CamcorderProfile " + Integer.valueOf(profile).toString());
-			
-			// TODO Sincronizar bien con el método startRecording() y startRecordingTime
+			// LOG.info("VideoModel.prepare(): CamcorderProfile " +
+			// Integer.valueOf(profile).toString());
+
+			// TODO Sincronizar bien con el método startRecording() y
+			// startRecordingTime
 			outputFile = createOutputFile();
-			if(outputFile == null) {
+			if (outputFile == null) {
 				releaseMediaRecorder();
 				return false;
 			}
 			mediaRecorder.setOutputFile(outputFile.getPath());
-			
+
 			mediaRecorder.setMaxDuration(maxVideoDuration);
 			mediaRecorder.setMaxFileSize(maxVideoFileSize);
-			
+
 			mediaRecorder.prepare();
 			isEnabled = true;
 		} catch (Exception e) {
@@ -156,6 +176,7 @@ public class VideoModel extends AbstractObservable implements
 		LOG.debug(cad);
 		return result;
 	}
+
 	private Camera getCameraInstance() {
 		Camera c = null;
 		try {
@@ -165,34 +186,39 @@ public class VideoModel extends AbstractObservable implements
 		}
 		return c; // returns null if camera is unavailable
 	}
+
 	private int getCamcorderProfile() {
 		int profile = DEFAULT_CAMCORDER_PROFILE;
-		if(App.isHighResolutionVideoRecording()) {
+		if (App.isHighResolutionVideoRecording()) {
 			profile = CamcorderProfile.QUALITY_HIGH;
 		} else {
 			profile = CamcorderProfile.QUALITY_LOW;
 		}
 		if (!CamcorderProfile.hasProfile(profile)) {
-			if(CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
+			if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
 				profile = CamcorderProfile.QUALITY_HIGH;
-			} else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW)) {
+			} else if (CamcorderProfile
+					.hasProfile(CamcorderProfile.QUALITY_LOW)) {
 				profile = CamcorderProfile.QUALITY_LOW;
 			} else {
-				return -1; 
+				return -1;
 			}
 		}
 		return profile;
 	}
+
 	// MediaRecorder management
 	public boolean startRecording() {
-		//LOG.debug("VideoModel.startRecording()");
+		// LOG.debug("VideoModel.startRecording()");
 		boolean result = prepare();
-		if(result) {
+		if (result) {
 			startRecordingTime = new Date().getTime();
-			LOG.info("startRecordingTime = "+
-					Util.dateToString(startRecordingTime, true));
+			LOG.info("startRecordingTime = "
+					+ Util.dateToString(startRecordingTime, true));
 			mediaRecorder.start();
+			startVideoTimer();
 			isRecording = true;
+
 		} else {
 			LOG.error("VideoModel.startRecording(): Can't start recording");
 			isRecording = false;
@@ -200,34 +226,38 @@ public class VideoModel extends AbstractObservable implements
 		}
 		return result;
 	}
+
 	/**
-	 * No se usa. Método alternativo de arranque en segundo plano
-	 * No me funcionaba bien en Feb-2014
+	 * No se usa. Método alternativo de arranque en segundo plano No me
+	 * funcionaba bien en Feb-2014
+	 * 
 	 * @return
 	 */
 	public boolean startRecordingWithThread() {
 		LOG.debug("VideoModel.startRecording()");
 		RecordingStarter starter = new RecordingStarter();
-		starter.execute();		
+		starter.execute();
 		try {
 			return starter.get();
 		} catch (Exception e) {
-			LOG.error("VideoModel.startRecording() : Can't start recording");	
+			LOG.error("VideoModel.startRecording() : Can't start recording");
 			return false;
-		} 
+		}
 	}
+
 	class RecordingStarter extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... voids) {
 			boolean result = prepare();
 			return result;
 		}
+
 		@Override
 		protected void onPostExecute(Boolean result) {
-			if(result) {
+			if (result) {
 				startRecordingTime = new Date().getTime();
-				LOG.info("VideoModel.RecordingStatarter startRecordingTime = "+
-						Util.dateToString(startRecordingTime, true));
+				LOG.info("VideoModel.RecordingStatarter startRecordingTime = "
+						+ Util.dateToString(startRecordingTime, true));
 				mediaRecorder.start();
 				isRecording = true;
 			} else {
@@ -238,6 +268,7 @@ public class VideoModel extends AbstractObservable implements
 			super.onPostExecute(result);
 		}
 	}
+
 	public boolean stopRecording() {
 		LOG.debug("VideoModel.stopRecording()");
 		boolean result = false;
@@ -249,13 +280,16 @@ public class VideoModel extends AbstractObservable implements
 			LOG.error("VideoModel.stopRecording ERROR stopping mediaRecorder. ");
 		}
 		releaseMediaRecorder();
+		stopVideoTimer();
 		isRecording = false;
 		startRecordingTime = -1l;
 		return result;
 	}
+
 	/**
-	 * No se usa. Método alternativo de parada en segundo plano
-	 * No me funcionaba bien en Feb-2014
+	 * No se usa. Método alternativo de parada en segundo plano No me funcionaba
+	 * bien en Feb-2014
+	 * 
 	 * @return
 	 */
 	public boolean stopRecordingWithThread() {
@@ -270,6 +304,7 @@ public class VideoModel extends AbstractObservable implements
 		}
 		return result;
 	}
+
 	class RecordingStopper extends AsyncTask<Void, Void, Boolean> {
 
 		@Override
@@ -287,16 +322,19 @@ public class VideoModel extends AbstractObservable implements
 			startRecordingTime = -1l;
 			return result;
 		}
+
 		@Override
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
 		}
-		
+
 	}
+
 	// Status
 	public boolean isEnabled() {
 		return isEnabled;
 	}
+
 	public boolean isRecording() {
 		return isRecording;
 	}
@@ -305,9 +343,11 @@ public class VideoModel extends AbstractObservable implements
 	public File getOutputDirectory() {
 		return outputDirectory;
 	}
+
 	public void setOutputDirectory(File directory) {
 		this.outputDirectory = directory;
 	}
+
 	/**
 	 * Establece el directorio por defecto como directorio de grabación.
 	 * (Directorio Environment.DIRECTORY_PICTURES, ALBUM_NAME )
@@ -326,41 +366,47 @@ public class VideoModel extends AbstractObservable implements
 		// LOG.debug(TAG, method + "outputDirectory path: "+
 		// outputDirectory.getPath());
 		if (!outputDirectory.exists()) {
-			LOG.debug(method + outputDirectory.getPath() + " doesnt exist, creating...");
+			LOG.debug(method + outputDirectory.getPath()
+					+ " doesnt exist, creating...");
 			if (!outputDirectory.mkdir()) {
-				LOG.error(method + "Error, can't create default directory " + 
-						outputDirectory.getPath());
+				LOG.error(method + "Error, can't create default directory "
+						+ outputDirectory.getPath());
 				return false;
 			}
 		}
-		//LOG.debug(method + "outputDirectory: " + outputDirectory.getPath());
+		// LOG.debug(method + "outputDirectory: " + outputDirectory.getPath());
 		return true;
 	}
+
 	public File getOutputFile() {
 		return this.outputFile;
 	}
-	
+
 	private File createOutputFile() {
-		if(outputDirectory != null) {		 
-			String filename = AndroidUtils.getTimeStamp(new Date(), true) +".mp4";
+		if (outputDirectory != null) {
+			String filename = AndroidUtils.getTimeStamp(new Date(), true)
+					+ ".mp4";
 			outputFile = new File(outputDirectory, filename);
 			return outputFile;
 		}
 		return null;
 	}
-	
+
 	// Utilities
 	/**
 	 * Tiempo que lleva grabando el vídeo actual
+	 * 
 	 * @return
 	 */
 	public long getRecordingTime() {
-		if(isRecording) {
+		//LOG.debug("getRecordingTime()");
+		if (isRecording) {
 			long recordingtime = new Date().getTime() - this.startRecordingTime;
 			return recordingtime;
 		}
 		return 0;
 	}
+
 	// Camera
 	public Camera getCamera() {
 		return camera;
@@ -381,19 +427,21 @@ public class VideoModel extends AbstractObservable implements
 		releaseMediaRecorder();
 		releaseCamera();
 	}
+
 	private void releaseCamera() {
 		if (camera != null) {
 			camera.release(); // release the camera for other applications
 			camera = null;
 		}
 	}
+
 	private void releaseMediaRecorder() {
 		if (mediaRecorder != null) {
-            mediaRecorder.reset();   // clear recorder configuration
-            mediaRecorder.release(); // release the recorder object
-            mediaRecorder = null;
-            camera.lock();           // lock camera for later use
-        }
+			mediaRecorder.reset(); // clear recorder configuration
+			mediaRecorder.release(); // release the recorder object
+			mediaRecorder = null;
+			camera.lock(); // lock camera for later use
+		}
 	}
 
 	// Interface SurfaceHolder.Callback
@@ -402,6 +450,7 @@ public class VideoModel extends AbstractObservable implements
 		// TODO Auto-generated method stub
 
 	}
+
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		try {
@@ -413,6 +462,7 @@ public class VideoModel extends AbstractObservable implements
 		}
 
 	}
+
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
@@ -427,6 +477,7 @@ public class VideoModel extends AbstractObservable implements
 		}
 		return timeStamp.format(date);
 	}
+
 	@SuppressLint("DefaultLocale")
 	public boolean geotagVideoFile(Date startDate, double longitude,
 			double latitude, double altitude) {
@@ -451,6 +502,7 @@ public class VideoModel extends AbstractObservable implements
 
 		return result;
 	}
+
 	public static String getExifLongitude() {
 		// TODO
 		return "";
@@ -475,4 +527,75 @@ public class VideoModel extends AbstractObservable implements
 	public void setMaxFileSize(int maxFileSize) {
 		this.maxVideoFileSize = maxFileSize;
 	}
+
+	private void startVideoTimer() {
+		//LOG.debug("startVideoTimer()");
+		videoTimer = new VideoTimer();
+		videoTimer.executeOnExecutor(executor);
+	}
+
+	private void stopVideoTimer() {
+		//LOG.debug("stopVideoTimer()");
+		if (videoTimer != null) {
+			videoTimer.setRunning(false);
+		}
+		// videoTimer = null;
+	}
+
+	/**
+	 * Proporciona un mecanismo para notificar periodicamente a los observers
+	 * del modelo de vídeo
+	 * 
+	 * @author shiguera
+	 * 
+	 */
+	class VideoTimer extends AsyncTask<Void, Void, Void> {
+		final long INTERVAL = 1000l;
+		boolean running;
+
+		public void setRunning(boolean running) {
+			//LOG.debug("setRunning("+running+")");
+			this.running = running;
+		}
+
+		public VideoTimer() {
+			//LOG.debug("VideoTimer()");
+			setRunning(true);
+		}
+
+		@Override
+		protected Void doInBackground(Void... voids) {
+			//LOG.debug("doInBackground()");
+			while(running) {
+				try {
+					Thread.sleep(INTERVAL);
+					publishProgress();
+				} catch (Exception e) {
+					LOG.debug("Error en doInBackground()");
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Void...voids) {
+			//LOG.debug("VideoTimer.onProgressUpdate()");
+			notifyObservers();
+		}
+
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			//LOG.debug("onPostExecute()");
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			//LOG.debug("onPreExecute()");
+			super.onPreExecute();
+		}
+
+	}
+
 }
