@@ -194,7 +194,9 @@ public class MainController extends Activity  implements Controller, GpsListener
 		this.saveGpxFile(namewithoutext);				
 		if(App.isSaveAsCsv()) {
 			this.saveCsvFile(namewithoutext);	
-		}					
+		} else {
+			LOG.debug("Doesn't save as CSV");
+		}
 	}
 	private void saveCsvFile(String namewithoutext) {
 		LOG.debug("MainController.saveCsvFile()");

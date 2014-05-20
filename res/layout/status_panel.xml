@@ -27,7 +27,7 @@
             android:background="#dcdcdc"
             android:gravity="center"
             android:layout_marginRight="12dip"
-            android:text="1h 27m 32sg" />
+            android:text="" />
     </LinearLayout>
     
     <!-- lblPtos -->

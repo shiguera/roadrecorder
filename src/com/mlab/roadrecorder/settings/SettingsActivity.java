@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -76,7 +77,7 @@ public class SettingsActivity extends Activity {
 	}
 	private void updateAppConstantsWithPreferences() {
 		LOG.debug("SettingsActivity.updateAppConstantsWithPreferences()");
-		SharedPreferences prefs = getSharedPreferences("preferences",MODE_PRIVATE);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		App.setHighResolutionVideoRecording(prefs.getBoolean("highres", false));
 		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
 	}

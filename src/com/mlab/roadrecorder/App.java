@@ -20,10 +20,12 @@ public class App extends Application {
 	public static enum VERSION {Basic, Extended};
 	private static final int BASIC_VERSION_MAX_VIDEO_DURATION = 600000;
 	private static final int EXTENDED_VERSION_MAX_VIDEO_DURATION = 6000000;
-	
+
+	private static final String LOGFILE_NAME = "roadrecorder.log";
+	private static final String PREFSFILE_NAME = "prefs";
+
 	private static VERSION VERSION_NAME = VERSION.Basic;
 	private static final String VERSION_NUMBER = "1.0";
-	
 	
 	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
 	private static File applicationDirectory;
@@ -60,9 +62,9 @@ public class App extends Application {
 		return saveAsCsv;
 	}
 
-	public static void setSaveAsCsv(boolean saveAsCsv) {
+	public static void setSaveAsCsv(boolean saveascsv) {
 		LOG.debug("App.setSaveAsCsv()");
-		App.saveAsCsv = saveAsCsv;
+		App.saveAsCsv = saveascsv;
 	}
 
 	public static VERSION getVERSION_NAME() {
@@ -101,5 +103,13 @@ public class App extends Application {
 			boolean highResolutionVideoRecording) {
 		LOG.debug("App.setHighResolutionVideoRecording()");
 		App.highResolutionVideoRecording = highResolutionVideoRecording;
+	}
+
+	public static String getLogfileName() {
+		return LOGFILE_NAME;
+	}
+
+	public static String getPrefsfileName() {
+		return PREFSFILE_NAME;
 	}
 }

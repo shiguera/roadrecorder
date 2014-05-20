@@ -17,6 +17,7 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -177,10 +178,13 @@ public class MainActivity extends FragmentActivity {
 	// Private methods
 	private void loadPreferences() {
 		LOG.debug("MainActivity.loadPreferences()");
-		SharedPreferences prefs = getSharedPreferences("preferences",
-				MODE_PRIVATE);
-		App.setHighResolutionVideoRecording(prefs.getBoolean("highres", false));
-		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		boolean highres = prefs.getBoolean("highres", false);
+		LOG.debug("highres=" + highres );
+		App.setHighResolutionVideoRecording(highres);
+		boolean saveascsv = prefs.getBoolean("saveascsv", false);
+		LOG.debug("saveascsv=" + saveascsv );
+		App.setSaveAsCsv(saveascsv);
 	}
 
 	/**
@@ -188,7 +192,7 @@ public class MainActivity extends FragmentActivity {
 	 */
 	private void configureLogger() {
 		File logfile = new File(App.getApplicationDirectory(),
-				"roadrecorder.log");
+				App.getLogfileName());
 		final LogConfigurator logConfigurator = new LogConfigurator();
 		logConfigurator.setMaxBackupSize(1);
 		logConfigurator.setMaxFileSize(500 * 1024);
@@ -251,7 +255,7 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	private void preInitLayout() {
-		LOG.debug("MainActivity.preInitLayout()");
+		//LOG.debug("MainActivity.preInitLayout()");
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_main);
 		videoFrame = (FrameLayout) this.findViewById(R.id.videoview);
@@ -267,7 +271,7 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	private void postInitLayout() {
-		LOG.debug("MainActivity.postInitLayout()");
+		//LOG.debug("MainActivity.postInitLayout()");
 
 		configureBtnStartStop();
 
@@ -343,7 +347,7 @@ public class MainActivity extends FragmentActivity {
 
 	// States
 	public void setGpsState(ActivityState state) {
-		LOG.debug("MainActivity.setGpsState()");
+		//LOG.debug("MainActivity.setGpsState()");
 		this.gpsState = state;
 		this.gpsState.doAction();
 	}
@@ -442,13 +446,13 @@ public class MainActivity extends FragmentActivity {
 		boolean blink;
 
 		public LabelInfoBlinker() {
-			LOG.info("LabelInfoBlinker()");
+			//LOG.info("LabelInfoBlinker()");
 			setBlink(true);
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			LOG.info("LabelInfoBlinker().doInBackground()");
+			//LOG.info("LabelInfoBlinker().doInBackground()");
 			while (blink) {
 				try {
 					Thread.sleep(1000);
@@ -473,8 +477,8 @@ public class MainActivity extends FragmentActivity {
 		}
 
 		synchronized public void setBlink(boolean blink) {
-			LOG.info("LabelInfoBlinker.setBlink() : "
-					+ Boolean.valueOf(blink).toString());
+			//LOG.info("LabelInfoBlinker.setBlink() : "
+			//		+ Boolean.valueOf(blink).toString());
 			this.blink = blink;
 		}
 	}
@@ -488,7 +492,7 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	public void startLabelInfoBlinker(String message) {
-		LOG.debug("MainActivity.startLabelInfoBlinker()");
+		//LOG.debug("MainActivity.startLabelInfoBlinker()");
 		// if (labelInfoBlinker != null) {
 		// this.stopLabelInfoBlinker("");
 		// }
@@ -498,7 +502,7 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	public void stopLabelInfoBlinker(String message) {
-		LOG.debug("MainActivity.stopLabelInfoBlinker()");
+		//LOG.debug("MainActivity.stopLabelInfoBlinker()");
 		this.lblInfo.setText(message);
 		if (labelInfoBlinker != null) {
 			labelInfoBlinker.setBlink(false);
@@ -605,13 +609,13 @@ public class MainActivity extends FragmentActivity {
 		private boolean blink;
 
 		public GpsIconBlinker() {
-			LOG.info("GpsIconBlinker()");
+			//LOG.info("GpsIconBlinker()");
 			setBlink(true);
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			LOG.info("GpsIconBlinker.doInBackground()");
+			//LOG.info("GpsIconBlinker.doInBackground()");
 			while (blink) {
 				try {
 					Thread.sleep(1000);
@@ -641,7 +645,7 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	public void startGpsIconBlinker() {
-		LOG.info("startGpsIconBlinker");
+		//LOG.info("startGpsIconBlinker");
 		// if (gpsIconBlinker != null) {
 		// this.stopGpsIconBlinker();
 		// }
@@ -650,7 +654,7 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	public void stopGpsIconBlinker() {
-		LOG.info("stopGpsIconBlinker");
+		//LOG.info("stopGpsIconBlinker");
 		if (gpsIconBlinker != null) {
 			gpsIconBlinker.setBlink(false);
 		}
