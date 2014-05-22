@@ -23,9 +23,14 @@
     <string name="menuitem_back">Volver atrás</string>
     
     <string name="about_title">RoadRecorder</string>
-    <string name="about_content">Software desarrollado por Mercatorlab S.L.</string>
-    <string name="about_link">http://mercatorlab.com</string>
-
+    <string name="about_content"><b><em>RoadRecorder</em></b> forma parte de las herramientas desarrolladas
+        por <b><em>Mercatorlab</em></b> para la realización de inventarios de carreteras.\n
+        Los vídeos georreferenciados grabados con <b><em>RoadRecorder</em></b> se pueden reproducir 
+        con el programa <b><em>RoadPlayer</em></b> que permite su visualización y análisis.<br/>
+        Puede encontrar más información acerca de ambos programas en:</string>        
+    <string name="about_link_mercatorlab">http://mercatorlab.com</string>
+    <string name="about_link_roadplayer">http://softwaredeingenieria.es/roadplayer</string>
+    
     <string name="help_title">Ayuda de RoadRecorder</string>
     <string name="help_content1"> La utilización de este programa origina un alto consumo
         de batería, por lo que se recomienda su utilización conectado a la toma de corriente

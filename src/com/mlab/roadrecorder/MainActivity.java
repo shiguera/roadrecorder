@@ -31,9 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mlab.android.utils.AndroidUtils;
-import com.mlab.roadrecorder.activities.AboutActivity;
-import com.mlab.roadrecorder.activities.HelpActivity;
 import com.mlab.roadrecorder.alvac.R;
+import com.mlab.roadrecorder.helpabout.AboutActivity;
+import com.mlab.roadrecorder.helpabout.HelpActivity;
 import com.mlab.roadrecorder.settings.SettingsActivity;
 import com.mlab.roadrecorder.state.ActivityState;
 import com.mlab.roadrecorder.state.ButtonState;
