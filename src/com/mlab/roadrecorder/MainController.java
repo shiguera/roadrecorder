@@ -38,9 +38,7 @@ import com.mlab.roadrecorder.video.VideoController;
 public class MainController extends Activity  implements Controller, GpsListener, GpsStatus.Listener {
 
 	private static Logger LOG = Logger.getLogger(MainController.class);
-	
-	
-	private final int DEFAULT_MIN_DISK_SPACE = 250; // 250 Mb mínimo para empezar a grabar
+		
 	MainActivity activity;
 	FrameLayout videoFrame;
 
@@ -131,6 +129,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 	}
 	public void startRecording() {
 		activity.setButtonState(new BtnDisabledState(activity));
+		
 		boolean result = checkDiskSpace();
 		if(!result) {
 			activity.showNotification("MainController.startRecording(): Error, disk full", 
@@ -153,13 +152,14 @@ public class MainController extends Activity  implements Controller, GpsListener
 				"Switching mode video-only", 
 				NotificationLevel.ERROR, true);
 		}
+		
 		activity.setButtonState(new BtnRecordingState(activity));
 		return;
 	}
 	private boolean checkDiskSpace() {
 		int maxVideoFileSize = (int) AvailableSpaceHandler.getAvailableSpaceInMB(model.getOutputDirectory().getPath());
 		// LOG.info("Available space: "+maxVideoFileSize);
-		if(maxVideoFileSize < this.DEFAULT_MIN_DISK_SPACE) {
+		if(maxVideoFileSize < App.getMinDiskSpaceToSave()) {
 			return false;
 		}
 		maxVideoFileSize = (int) 0.8 * maxVideoFileSize;
@@ -168,6 +168,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 	}
 	public void stopRecording() {
 		activity.setButtonState(new BtnDisabledState(activity));
+		
 		if(videoController.isRecording()) {
 			boolean result = videoController.stopRecording();		
 			if(!result) {
@@ -175,6 +176,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 						NotificationLevel.ERROR, true);
 			}
 		}
+		
 		if(gpsModel.isRecording()) {
 			gpsModel.stopRecording();
 			if(gpsModel.getPointsCount()>0) {
@@ -184,6 +186,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 						NotificationLevel.ERROR, true);
 			}
 		}
+		
 		activity.setButtonState(new BtnStoppedState(activity));
 		return;
 	}

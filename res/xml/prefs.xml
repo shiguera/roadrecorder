@@ -18,5 +18,12 @@
         android:switchTextOn="@string/pref_saveascsv_switch_text_on"
         android:switchTextOff="@string/pref_saveascsv_switch_text_off">
     </SwitchPreference>
+    <!-- <PreferenceCategory android:title="@string/pref_mindiskspace_category_title" >  --> 
+        <EditTextPreference
+                android:title="@string/pref_mindiskspace_title"
+                android:summary="@string/pref_mindiskspace_summary"
+                android:key="mindiskspace"
+                android:defaultValue="250"/>
+    <!-- </PreferenceCategory>  -->
     
 </PreferenceScreen>

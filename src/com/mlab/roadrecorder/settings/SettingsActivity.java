@@ -80,5 +80,18 @@ public class SettingsActivity extends Activity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		App.setHighResolutionVideoRecording(prefs.getBoolean("highres", false));
 		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
+		App.setMinDiskSpaceToSave(parseMinDiskSpace(prefs));
+		
 	}
+	private int parseMinDiskSpace(SharedPreferences prefs) {
+		String diskspaceCad = prefs.getString("mindiskspace", "");
+		int result = App.getMinDiskSpaceToSave();
+		try {
+			result = Integer.parseInt(diskspaceCad);
+		} catch (Exception e) {
+			LOG.error("parseMinDiskSpace() ERROR: Can't parse mindikspace");
+		}
+		return result;
+	}
+
 }

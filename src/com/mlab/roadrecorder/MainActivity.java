@@ -177,14 +177,30 @@ public class MainActivity extends FragmentActivity {
 
 	// Private methods
 	private void loadPreferences() {
-		LOG.debug("MainActivity.loadPreferences()");
+		PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
+		//LOG.debug("MainActivity.loadPreferences()");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		boolean highres = prefs.getBoolean("highres", false);
-		LOG.debug("highres=" + highres );
+		//LOG.debug("highres=" + highres );
 		App.setHighResolutionVideoRecording(highres);
 		boolean saveascsv = prefs.getBoolean("saveascsv", false);
-		LOG.debug("saveascsv=" + saveascsv );
+		//LOG.debug("saveascsv=" + saveascsv );
 		App.setSaveAsCsv(saveascsv);
+		// Se guarda como una cadena de texto
+		int mindiskspace = parseMinDiskSpace(prefs);
+		//LOG.debug("mindiskspace=" + mindiskspace );
+		App.setMinDiskSpaceToSave(mindiskspace);
+		
+	}
+	private int parseMinDiskSpace(SharedPreferences prefs) {
+		String diskspaceCad = prefs.getString("mindiskspace", "");
+		int result = App.getMinDiskSpaceToSave();
+		try {
+			result = Integer.parseInt(diskspaceCad);
+		} catch (Exception e) {
+			LOG.error("parseMinDiskSpace() ERROR: Can't parse mindikspace");
+		}
+		return result;
 	}
 
 	/**

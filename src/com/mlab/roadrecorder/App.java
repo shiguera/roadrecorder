@@ -30,6 +30,10 @@ public class App extends Application {
 	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
 	private static File applicationDirectory;
 
+	// Mínimo espacio que se exige al disco para empezar a grabar.
+	private static final int DEFAULT_MIN_DISK_SPACE_TO_SAVE = 250;
+	private static int minDiskSpaceToSave = DEFAULT_MIN_DISK_SPACE_TO_SAVE;
+	
 	private static MainModel mainModel;
 	private static MainController mainController;
 	
@@ -63,7 +67,7 @@ public class App extends Application {
 	}
 
 	public static void setSaveAsCsv(boolean saveascsv) {
-		LOG.debug("App.setSaveAsCsv()");
+		LOG.debug("App.setSaveAsCsv() "+saveascsv);
 		App.saveAsCsv = saveascsv;
 	}
 
@@ -91,7 +95,7 @@ public class App extends Application {
 	}
 
 	public static void setApplicationDirectory(File applicationDirectory) {
-		LOG.debug("App.setApplicationDirectory()");
+		LOG.debug("App.setApplicationDirectory() "+applicationDirectory);
 		App.applicationDirectory = applicationDirectory;
 	}
 
@@ -101,7 +105,7 @@ public class App extends Application {
 
 	public static void setHighResolutionVideoRecording(
 			boolean highResolutionVideoRecording) {
-		LOG.debug("App.setHighResolutionVideoRecording()");
+		LOG.debug("App.setHighResolutionVideoRecording() "+highResolutionVideoRecording);
 		App.highResolutionVideoRecording = highResolutionVideoRecording;
 	}
 
@@ -111,5 +115,14 @@ public class App extends Application {
 
 	public static String getPrefsfileName() {
 		return PREFSFILE_NAME;
+	}
+
+	public static int getMinDiskSpaceToSave() {
+		return minDiskSpaceToSave;
+	}
+
+	public static void setMinDiskSpaceToSave(int minDiskSpaceToSave) {
+		LOG.debug("App.setMinDiskSpaceToSave(): "+minDiskSpaceToSave);
+		App.minDiskSpaceToSave = minDiskSpaceToSave;
 	}
 }
