@@ -30,9 +30,6 @@ public class App extends Application {
 	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
 	private static File applicationDirectory;
 
-	// Mínimo espacio que se exige al disco para empezar a grabar.
-	private static final int DEFAULT_MIN_DISK_SPACE_TO_SAVE = 250;
-	private static int minDiskSpaceToSave = DEFAULT_MIN_DISK_SPACE_TO_SAVE;
 	
 	private static MainModel mainModel;
 	private static MainController mainController;
@@ -40,6 +37,10 @@ public class App extends Application {
 	// Variables configurables en SharedPreferences a través de SettingsActivity
 	private static boolean highResolutionVideoRecording = true;
 	private static boolean saveAsCsv = true;
+	private static boolean useVoiceSyntetizer = true;
+	// Mínimo espacio en Mb que se exige al disco para empezar a grabar.
+	private static int minDiskSpaceToSave = 250;
+		
 	
 	//
 	
@@ -124,5 +125,13 @@ public class App extends Application {
 	public static void setMinDiskSpaceToSave(int minDiskSpaceToSave) {
 		LOG.debug("App.setMinDiskSpaceToSave(): "+minDiskSpaceToSave);
 		App.minDiskSpaceToSave = minDiskSpaceToSave;
+	}
+
+	public static boolean isUseVoiceSyntetizer() {
+		return useVoiceSyntetizer;
+	}
+
+	public static void setUseVoiceSyntetizer(boolean useVoiceSyntetizer) {
+		App.useVoiceSyntetizer = useVoiceSyntetizer;
 	}
 }

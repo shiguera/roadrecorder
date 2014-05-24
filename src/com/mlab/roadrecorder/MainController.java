@@ -134,6 +134,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 		if(!result) {
 			activity.showNotification("MainController.startRecording(): Error, disk full", 
 					NotificationLevel.ERROR, true);
+			activity.speak("Error, no se puede grabar, el disco está lleno");
 			activity.setButtonState(new BtnStoppedState(activity));
 			return;
 		}
@@ -142,6 +143,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 		if(!result) {
 			activity.showNotification("MainController.startRecording(): Error,  can't start recording", 
 					NotificationLevel.ERROR, true);
+			activity.speak("Error, no se puede empezar a grabar");
 			activity.setButtonState(new BtnStoppedState(activity));
 			return;
 		}
@@ -151,7 +153,9 @@ public class MainController extends Activity  implements Controller, GpsListener
 			activity.showNotification("MainController.startRecording(): Error gps is not receiving."+
 				"Switching mode video-only", 
 				NotificationLevel.ERROR, true);
+			activity.speak("Error, el GPS no esta habilitado, se grabará solo el vídeo");
 		}
+		
 		
 		activity.setButtonState(new BtnRecordingState(activity));
 		return;
@@ -170,10 +174,14 @@ public class MainController extends Activity  implements Controller, GpsListener
 		activity.setButtonState(new BtnDisabledState(activity));
 		
 		if(videoController.isRecording()) {
-			boolean result = videoController.stopRecording();		
-			if(!result) {
+			boolean result = videoController.stopRecording();
+			if(result) {
+				//activity.speak("Se grabó el archivo de vídeo");
+				LOG.debug("stopRecording(): videoController.stopRecording()="+result);
+			} else {
 				activity.showNotification("stopRecording(): Errors saving video recording", 
 						NotificationLevel.ERROR, true);
+				activity.speak("Error, no se pudo grabar el archivo de vídeo");
 			}
 		}
 		
@@ -181,9 +189,11 @@ public class MainController extends Activity  implements Controller, GpsListener
 			gpsModel.stopRecording();
 			if(gpsModel.getPointsCount()>0) {
 				saveTrack();
+				//activity.speak("Se grabó el track");
 			} else {
 				activity.showNotification("MainController.stopRecording(): Can't save track, points=0", 
 						NotificationLevel.ERROR, true);
+				activity.speak("Error, no se pudo grabar el track, no hay puntos");
 			}
 		}
 		
@@ -255,6 +265,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 	public void firstFixEvent() {
 		LOG.debug("MainController.firstFixEvent()");
 		activity.setGpsState(new GpsFixedState(activity));
+		activity.speak("El GPS ha fijado la posición");
 	}
 	@Override
 	public void updateLocation(Location loc) {

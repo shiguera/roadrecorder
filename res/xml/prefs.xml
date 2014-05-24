@@ -18,6 +18,16 @@
         android:switchTextOn="@string/pref_saveascsv_switch_text_on"
         android:switchTextOff="@string/pref_saveascsv_switch_text_off">
     </SwitchPreference>
+    <!--  VoiceMessages -->
+    <SwitchPreference
+        android:key="voicemessages"
+        android:title="@string/pref_voicemessages_title"
+        android:summaryOff="@string/pref_voicemessages_summary_off"
+        android:summaryOn="@string/pref_voicemessages_summary_on"
+        android:switchTextOn="@string/pref_voicemessages_switch_text_on"
+        android:switchTextOff="@string/pref_voicemessages_switch_text_off">
+    </SwitchPreference>
+    
     <!-- <PreferenceCategory android:title="@string/pref_mindiskspace_category_title" >  --> 
         <EditTextPreference
                 android:title="@string/pref_mindiskspace_title"

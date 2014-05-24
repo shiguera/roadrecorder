@@ -81,6 +81,7 @@ public class SettingsActivity extends Activity {
 		App.setHighResolutionVideoRecording(prefs.getBoolean("highres", false));
 		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
 		App.setMinDiskSpaceToSave(parseMinDiskSpace(prefs));
+		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));
 		
 	}
 	private int parseMinDiskSpace(SharedPreferences prefs) {

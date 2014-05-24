@@ -2,10 +2,9 @@ package com.mlab.roadrecorder;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -29,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.speech.tts.TextToSpeech;
 
 import com.mlab.android.utils.AndroidUtils;
 import com.mlab.roadrecorder.alvac.R;
@@ -49,7 +49,7 @@ import com.mlab.roadrecorder.view.command.GetSpeedCommand;
 
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements TextToSpeech.OnInitListener {
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
 
 	private enum RunModes {
@@ -73,6 +73,9 @@ public class MainActivity extends FragmentActivity {
 	SoundPool soundPool;
 	int sound;
 
+	private TextToSpeech textToSpeech;
+	private boolean isTextToSpeechEnabled = false;
+	
 	// Controller
 	MainController controller;
 
@@ -115,6 +118,8 @@ public class MainActivity extends FragmentActivity {
 
 		loadPreferences();
 
+		textToSpeech = new TextToSpeech(this, this);
+		
 		executor = Executors.newFixedThreadPool(5);
 		
 		preInitLayout();
@@ -122,6 +127,8 @@ public class MainActivity extends FragmentActivity {
 		controller = new MainController(this);
 
 		postInitLayout();
+		
+		
 
 	}
 
@@ -172,6 +179,10 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onDestroy() {
 		LOG.info("MainActivity.onDestroy()");
+		if(textToSpeech != null) {
+			textToSpeech.stop();
+			textToSpeech.shutdown();
+		}
 		super.onDestroy();
 	}
 
@@ -186,6 +197,9 @@ public class MainActivity extends FragmentActivity {
 		boolean saveascsv = prefs.getBoolean("saveascsv", false);
 		//LOG.debug("saveascsv=" + saveascsv );
 		App.setSaveAsCsv(saveascsv);
+		
+		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));
+
 		// Se guarda como una cadena de texto
 		int mindiskspace = parseMinDiskSpace(prefs);
 		//LOG.debug("mindiskspace=" + mindiskspace );
@@ -675,6 +689,29 @@ public class MainActivity extends FragmentActivity {
 			gpsIconBlinker.setBlink(false);
 		}
 		this.gpsIcon.setVisibility(View.VISIBLE);
+	}
+
+
+	public void speak(String text) {
+		if(App.isUseVoiceSyntetizer() && textToSpeech != null && isTextToSpeechEnabled) {
+			textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+		}
+	}
+	// Interface TextToSpeech.OnInitListener
+	@Override
+	public void onInit(int status) {
+		if(status != TextToSpeech.SUCCESS) {
+			LOG.error("MainActivity.onInit() ERROR: TextToSpeech init status isn't success");
+			return;
+		}
+		int result = textToSpeech.setLanguage(Locale.getDefault());
+		if(result == TextToSpeech.LANG_MISSING_DATA || 
+				result == TextToSpeech.LANG_NOT_SUPPORTED) {
+			LOG.error("MainActivity.onInit() ERROR: Can't activate language");
+			return;
+		}
+		isTextToSpeechEnabled = true;
+		
 	}
 
 }
