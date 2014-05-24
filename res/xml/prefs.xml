@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-	<!-- highResolutionVideoRecording -->
+
+    <!-- highResolutionVideoRecording -->
     <SwitchPreference
-        android:key="highres"
         android:defaultValue="true"
-        android:title="@string/pref_high_resolution_title"
+        android:key="highres"
         android:summaryOff="@string/pref_high_resolution_summary_off"
         android:summaryOn="@string/pref_high_resolution_summary_on"
+        android:switchTextOff="@string/pref_high_resolution_switch_text_off"
         android:switchTextOn="@string/pref_high_resolution_switch_text_on"
-        android:switchTextOff="@string/pref_high_resolution_switch_text_off">
+        android:title="@string/pref_high_resolution_title" >
     </SwitchPreference>
-	<!--  saveAsCsv -->
+    <!-- saveAsCsv -->
     <SwitchPreference
-        android:key="saveascsv"
         android:defaultValue="true"
-        android:title="@string/pref_saveascsv_title"
+        android:key="saveascsv"
         android:summaryOff="@string/pref_saveascsv_summary_off"
         android:summaryOn="@string/pref_saveascsv_summary_on"
+        android:switchTextOff="@string/pref_saveascsv_switch_text_off"
         android:switchTextOn="@string/pref_saveascsv_switch_text_on"
-        android:switchTextOff="@string/pref_saveascsv_switch_text_off">
+        android:title="@string/pref_saveascsv_title" >
     </SwitchPreference>
-    <!--  VoiceMessages -->
+    <!-- VoiceMessages -->
     <SwitchPreference
-        android:key="voicemessages"
         android:defaultValue="true"
-        android:title="@string/pref_voicemessages_title"
+        android:key="voicemessages"
         android:summaryOff="@string/pref_voicemessages_summary_off"
         android:summaryOn="@string/pref_voicemessages_summary_on"
+        android:switchTextOff="@string/pref_voicemessages_switch_text_off"
         android:switchTextOn="@string/pref_voicemessages_switch_text_on"
-        android:switchTextOff="@string/pref_voicemessages_switch_text_off">
+        android:title="@string/pref_voicemessages_title" >
     </SwitchPreference>
-    
-    <!-- <PreferenceCategory android:title="@string/pref_mindiskspace_category_title" >  --> 
-        <EditTextPreference
-                android:title="@string/pref_mindiskspace_title"
-                android:summary="@string/pref_mindiskspace_summary"
-                android:key="mindiskspace"
-                android:defaultValue="250"/>
-    <!-- </PreferenceCategory>  -->
-    
+
+    <!-- <PreferenceCategory android:title="@string/pref_mindiskspace_category_title" > -->
+    <EditTextPreference
+        android:key="mindiskspace"
+        android:defaultValue="250"
+        android:summary="@string/pref_mindiskspace_summary"
+        android:title="@string/pref_mindiskspace_title" />
+    <!-- </PreferenceCategory> -->
+
 </PreferenceScreen>
