@@ -3,6 +3,7 @@
 	<!-- highResolutionVideoRecording -->
     <SwitchPreference
         android:key="highres"
+        android:defaultValue="true"
         android:title="@string/pref_high_resolution_title"
         android:summaryOff="@string/pref_high_resolution_summary_off"
         android:summaryOn="@string/pref_high_resolution_summary_on"
@@ -12,6 +13,7 @@
 	<!--  saveAsCsv -->
     <SwitchPreference
         android:key="saveascsv"
+        android:defaultValue="true"
         android:title="@string/pref_saveascsv_title"
         android:summaryOff="@string/pref_saveascsv_summary_off"
         android:summaryOn="@string/pref_saveascsv_summary_on"
@@ -21,6 +23,7 @@
     <!--  VoiceMessages -->
     <SwitchPreference
         android:key="voicemessages"
+        android:defaultValue="true"
         android:title="@string/pref_voicemessages_title"
         android:summaryOff="@string/pref_voicemessages_summary_off"
         android:summaryOn="@string/pref_voicemessages_summary_on"
