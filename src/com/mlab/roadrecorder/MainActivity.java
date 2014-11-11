@@ -55,7 +55,9 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	private enum RunModes {
 		Test, Debug, Production
 	};
-
+	/**
+	 * Interviene en la configuración del Logger
+	 */
 	private final RunModes RUNMODE = RunModes.Test;
 
 	public enum GPSICON {
@@ -250,19 +252,25 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	 * normal.<br/>
 	 * Crea o utiliza un directorio llamado App.getAppDirectoryName().
 	 * 
+	 * NOTA: (Nov, 11 2014 : Cancel extended card writing, now android kitkat 
+	 * doesn't allow writing on it.
+	 * 
 	 * @return True si todo va bien, flse si no es posible asignar un directorio
 	 *         a la aplicación
 	 */
 	private boolean initApplicationDirectory() {
-		// Try secondary card
-		List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();
 		File outdir = null;
-		if (secdirs.size() > 0) {
-			LOG.info("MainController.initApplicationDirectory() appdir: "
-					+ secdirs.get(0).getPath());
-			outdir = new File(secdirs.get(0), App.getAppDirectoryName());
-			return setApplicationDirectory(outdir);
-		}
+		
+//      Canceled on 2014-11-11 
+//      Try secondary card
+//      List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();		
+//		if (secdirs.size() > 0) {
+//			LOG.info("MainController.initApplicationDirectory() appdir: "
+//					+ secdirs.get(0).getPath());
+//			outdir = new File(secdirs.get(0), App.getAppDirectoryName());
+//			return setApplicationDirectory(outdir);
+//		}
+		
 		// Try normal external storage
 		if (!AndroidUtils.isExternalStorageEnabled()) {
 			LOG.info("MainController.initApplicationDirectory() "
@@ -423,7 +431,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		menuItemHelp = menu.findItem(R.id.menuitem_help);
 		return true;
 	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -442,7 +449,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 	public void setActionBarEnabled(boolean enabled) {
 		this.menuItemAbout.setEnabled(enabled);
 		this.menuItemBack.setEnabled(enabled);
@@ -456,14 +462,12 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		Intent i = new Intent(this, SettingsActivity.class);
 		startActivity(i);
 	}
-
 	private void startActivityHelp() {
 		// this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 		// true);
 		Intent i = new Intent(this, HelpActivity.class);
 		startActivity(i);
 	}
-
 	private void startActivityAbout() {
 		// this.showNotification("Opción en desarrollo", NotificationLevel.INFO,
 		// true);
@@ -512,15 +516,12 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 			this.blink = blink;
 		}
 	}
-
 	public void setLabelInfoText(String text) {
 		this.lblInfo.setText(text);
 	}
-
 	public void setLabelInfoColor(int color) {
 		this.lblInfo.setTextColor(color);
 	}
-
 	public void startLabelInfoBlinker(String message) {
 		//LOG.debug("MainActivity.startLabelInfoBlinker()");
 		// if (labelInfoBlinker != null) {
@@ -530,7 +531,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		labelInfoBlinker = new LabelInfoBlinker();
 		labelInfoBlinker.executeOnExecutor(executor);
 	}
-
 	public void stopLabelInfoBlinker(String message) {
 		//LOG.debug("MainActivity.stopLabelInfoBlinker()");
 		this.lblInfo.setText(message);
@@ -561,7 +561,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		}
 	}
-
 	public void showDialogNotification(String message, NotificationLevel level) {
 		switch (level) {
 		case INFO:
@@ -599,27 +598,21 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	public MainController getController() {
 		return controller;
 	}
-
 	public Button getBtnStartStop() {
 		return btnStartStop;
 	}
-
 	public TextView getLblInfo() {
 		return lblInfo;
 	}
-
 	public FrameLayout getVideoFrame() {
 		return videoFrame;
 	}
-
 	public LinearLayout getRightPanel() {
 		return rightPanel;
 	}
-
 	public ImageView getGpsIcon() {
 		return gpsIcon;
 	}
-
 	public void setGpsIcon(MainActivity.GPSICON icon, String label) {
 		gpsIconLabel.setText(label);
 		switch (icon) {
@@ -682,7 +675,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		gpsIconBlinker = new GpsIconBlinker();
 		gpsIconBlinker.executeOnExecutor(executor);
 	}
-
 	public void stopGpsIconBlinker() {
 		//LOG.info("stopGpsIconBlinker");
 		if (gpsIconBlinker != null) {
@@ -690,7 +682,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		}
 		this.gpsIcon.setVisibility(View.VISIBLE);
 	}
-
 
 	public void speak(String text) {
 		if(App.isUseVoiceSyntetizer() && textToSpeech != null && isTextToSpeechEnabled) {

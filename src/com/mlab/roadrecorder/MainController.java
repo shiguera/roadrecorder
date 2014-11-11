@@ -1,26 +1,17 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.location.GpsStatus;
 import android.location.Location;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.mlab.android.gpsmanager.GpsListener;
-import com.mlab.android.utils.AndroidUtils;
 import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.App.VERSION;
