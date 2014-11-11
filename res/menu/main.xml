@@ -3,7 +3,7 @@
     <item
         android:id="@+id/menuitem_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        android:showAsAction="always"
         android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/menuitem_settings"/>
     <item
