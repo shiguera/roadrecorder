@@ -127,16 +127,15 @@ public class VideoModel extends AbstractObservable implements
 		try {
 			mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
 			mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+			
 			int profile = getCamcorderProfile();
-
 			if (profile == -1) {
 				LOG.error("VideoModel.prepare() error: profile ==-1");
 				releaseMediaRecorder();
 				return false;
-			}
+			} 
 			mediaRecorder.setProfile(CamcorderProfile.get(profile));
-			// LOG.info("VideoModel.prepare(): CamcorderProfile " +
-			// Integer.valueOf(profile).toString());
+			LOG.info("VideoModel.prepare() CamcorderProfile = " + profile);
 
 			// TODO Sincronizar bien con el método startRecording() y
 			// startRecordingTime
@@ -187,25 +186,64 @@ public class VideoModel extends AbstractObservable implements
 		return c; // returns null if camera is unavailable
 	}
 
+	/**
+	 * Lee la resolución de vídeo de App.getVideoResolution(), la parsea
+	 * comprueba que existe en la cámara y en caso de no existir
+	 * devuelve -1
+	 * @return
+	 */
 	private int getCamcorderProfile() {
-		int profile = DEFAULT_CAMCORDER_PROFILE;
-		if (App.isHighResolutionVideoRecording()) {
-			profile = CamcorderProfile.QUALITY_HIGH;
-		} else {
-			profile = CamcorderProfile.QUALITY_LOW;
-		}
-		if (!CamcorderProfile.hasProfile(profile)) {
-			if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
-				profile = CamcorderProfile.QUALITY_HIGH;
-			} else if (CamcorderProfile
-					.hasProfile(CamcorderProfile.QUALITY_LOW)) {
-				profile = CamcorderProfile.QUALITY_LOW;
-			} else {
+		//LOG.debug("getCamcorderProfile()");
+		int profile = parseVideoResolution(App.getVideoResolution());
+		if(!CamcorderProfile.hasProfile(profile)) {
+			profile = searchAvailableProfile();
+			if(!CamcorderProfile.hasProfile(profile)) {
 				return -1;
 			}
 		}
 		return profile;
 	}
+	/**
+	 * Convierte la cadena de resolución de vídeo que guarda 
+	 * App en una CamcorderProfile
+	 * @param videoresolution
+	 * @return
+	 */
+	private int parseVideoResolution(String videoresolution) {
+		int profile = -1;
+		if(videoresolution.equals("1080")) {
+			profile = CamcorderProfile.QUALITY_1080P;
+		} else if (videoresolution.equals("1080")) {
+			profile = CamcorderProfile.QUALITY_720P;
+		} else if (videoresolution.equals("480")) {
+			profile = CamcorderProfile.QUALITY_480P;
+		} else {
+			profile = CamcorderProfile.QUALITY_HIGH;
+		}
+		//LOG.debug("parseVideoResolution() profile = " +profile );
+		return profile;
+	}
+	/**
+	 * Busca una resolución de vídeo que tenga el dispositivo o 
+	 * devuelve -1
+	 * @return
+	 */
+	private int searchAvailableProfile() {
+		int profile = -1;
+		if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P)) {
+			profile = CamcorderProfile.QUALITY_1080P;
+		} else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_720P)) {
+			profile = CamcorderProfile.QUALITY_720P;
+		} else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_480P)) {
+			profile = CamcorderProfile.QUALITY_480P;
+		} else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
+			profile = CamcorderProfile.QUALITY_HIGH;
+		} else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW)) {
+			profile = CamcorderProfile.QUALITY_LOW;
+		}
+		return profile;
+	}
+	
 
 	// MediaRecorder management
 	public boolean startRecording() {

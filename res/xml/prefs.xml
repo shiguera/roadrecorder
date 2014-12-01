@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <!-- highResolutionVideoRecording -->
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="highres"
-        android:summaryOff="@string/pref_high_resolution_summary_off"
-        android:summaryOn="@string/pref_high_resolution_summary_on"
-        android:switchTextOff="@string/pref_high_resolution_switch_text_off"
-        android:switchTextOn="@string/pref_high_resolution_switch_text_on"
-        android:title="@string/pref_high_resolution_title" >
-    </SwitchPreference>
+    <!-- videoResolution -->
+    <ListPreference
+        android:key="videoresolution"
+        android:defaultValue="0"
+        android:title="@string/videoresolution_title"
+        android:entries="@array/videoresolution_items"
+        android:entryValues="@array/videoresolution_values" 
+        android:summary="@string/videoresolution_summary"
+        android:dialogTitle="@string/videoresolution_dialogtitle">
+    </ListPreference>
     <!-- saveAsCsv -->
     <SwitchPreference
         android:defaultValue="true"

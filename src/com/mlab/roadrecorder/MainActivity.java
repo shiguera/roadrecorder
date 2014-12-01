@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.CamcorderProfile;
 import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -130,7 +131,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 
 		postInitLayout();
 		
-		
+		//checkVideoResolutions();
 
 	}
 
@@ -189,22 +190,32 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	}
 
 	// Private methods
+	private void checkVideoResolutions() {
+		LOG.debug("checkVideoResolutions()");
+		LOG.debug("has 1080P" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P));
+		LOG.debug("has 720P" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_720P));
+		LOG.debug("has 480P" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_480P));
+		LOG.debug("has HIGH" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH));
+		LOG.debug("has LOW" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW));
+	}
+	
 	private void loadPreferences() {
-		PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
 		//LOG.debug("MainActivity.loadPreferences()");
+
+		PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		boolean highres = prefs.getBoolean("highres", false);
-		//LOG.debug("highres=" + highres );
-		App.setHighResolutionVideoRecording(highres);
-		boolean saveascsv = prefs.getBoolean("saveascsv", false);
-		//LOG.debug("saveascsv=" + saveascsv );
+		
+		String videores = prefs.getString("videoresolution", App.getVideoResolution());
+		App.setVideoResolution(videores);
+		
+		boolean saveascsv = prefs.getBoolean("saveascsv", App.isSaveAsCsv());
 		App.setSaveAsCsv(saveascsv);
 		
-		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));
+		boolean voiceMessages = prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer());
+		App.setUseVoiceSyntetizer(voiceMessages);
 
 		// Se guarda como una cadena de texto
 		int mindiskspace = parseMinDiskSpace(prefs);
-		//LOG.debug("mindiskspace=" + mindiskspace );
 		App.setMinDiskSpaceToSave(mindiskspace);
 		
 	}
@@ -283,8 +294,11 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	}
 
 	private boolean setApplicationDirectory(File outdir) {
+		LOG.debug("setApplicationDirectory() " + outdir.getPath());
 		if (!outdir.exists()) {
+			LOG.debug("setApplicationDirectory() outdir doesn't exist");
 			if (!outdir.mkdir()) {
+				LOG.debug("setApplicationDirectory() can't create directory");
 				return false;
 			}
 		}

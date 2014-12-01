@@ -35,15 +35,13 @@ public class App extends Application {
 	private static MainController mainController;
 	
 	// Variables configurables en SharedPreferences a través de SettingsActivity
-	private static boolean highResolutionVideoRecording = true;
+	private static String videoResolution = "720";
+	
 	private static boolean saveAsCsv = true;
 	private static boolean useVoiceSyntetizer = true;
 	// Mínimo espacio en Mb que se exige al disco para empezar a grabar.
 	private static int minDiskSpaceToSave = 250;
 		
-	
-	//
-	
 	// Getters
 	public static MainModel getMainModel() {
 		return mainModel;
@@ -100,15 +98,7 @@ public class App extends Application {
 		App.applicationDirectory = applicationDirectory;
 	}
 
-	public static boolean isHighResolutionVideoRecording() {
-		return highResolutionVideoRecording;
-	}
 
-	public static void setHighResolutionVideoRecording(
-			boolean highResolutionVideoRecording) {
-		LOG.debug("App.setHighResolutionVideoRecording() "+highResolutionVideoRecording);
-		App.highResolutionVideoRecording = highResolutionVideoRecording;
-	}
 
 	public static String getLogfileName() {
 		return LOGFILE_NAME;
@@ -132,6 +122,16 @@ public class App extends Application {
 	}
 
 	public static void setUseVoiceSyntetizer(boolean useVoiceSyntetizer) {
+		LOG.debug("App.setUseVoiceSyntetizer() " + useVoiceSyntetizer);
 		App.useVoiceSyntetizer = useVoiceSyntetizer;
+	}
+
+	public static String getVideoResolution() {
+		return videoResolution;
+	}
+
+	public static void setVideoResolution(String videoResolution) {
+		LOG.debug("App.setVideoResolution() " + videoResolution);
+		App.videoResolution = videoResolution;
 	}
 }
