@@ -113,7 +113,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 			exit("ERROR: Can't open application directory");
 			return;
 		}
-
+		
 		configureLogger();
 		LOG.info("-----------------------");
 		LOG.info("MainActivity.onCreate()");
@@ -270,38 +270,26 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	 *         a la aplicación
 	 */
 	private boolean initApplicationDirectory() {
-		File outdir = null;
+		//File outdir = AndroidUtils.getAlbumStorageDir(App.getAppDirectoryName());
+		File outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
 		
-//      Canceled on 2014-11-11 
-//      Try secondary card
-//      List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();		
-//		if (secdirs.size() > 0) {
-//			LOG.info("MainController.initApplicationDirectory() appdir: "
-//					+ secdirs.get(0).getPath());
-//			outdir = new File(secdirs.get(0), App.getAppDirectoryName());
-//			return setApplicationDirectory(outdir);
-//		}
-		
-		// Try normal external storage
-		if (!AndroidUtils.isExternalStorageEnabled()) {
-			LOG.info("MainController.initApplicationDirectory() "
-					+ "ERROR, can't init external storage");
-			return false;
-		}
-		outdir = new File(AndroidUtils.getExternalStorageDirectory(),
-				App.getAppDirectoryName());
 		return setApplicationDirectory(outdir);
 	}
 
 	private boolean setApplicationDirectory(File outdir) {
-		LOG.debug("setApplicationDirectory() " + outdir.getPath());
+		if(outdir == null) {
+			System.out.println("initApplicationDirectory() outdir=NULL" );
+			return false;
+		}
+		System.out.println("setApplicationDirectory() " + outdir.getPath());
 		if (!outdir.exists()) {
-			LOG.debug("setApplicationDirectory() outdir doesn't exist");
+			System.out.println("setApplicationDirectory() outdir doesn't exist");
 			if (!outdir.mkdir()) {
-				LOG.debug("setApplicationDirectory() can't create directory");
+				System.out.println("setApplicationDirectory() can't create directory");
 				return false;
 			}
 		}
+		System.out.println("setApplicationDirectory() outdir=" + outdir.getPath());					
 		App.setApplicationDirectory(outdir);
 		return true;
 	}

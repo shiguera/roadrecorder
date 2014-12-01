@@ -10,16 +10,17 @@ import org.apache.log4j.Logger;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnErrorListener;
 import android.media.MediaRecorder.OnInfoListener;
+import android.net.Uri;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.roadrecorder.MainActivity;
 import com.mlab.roadrecorder.api.Controller;
 
