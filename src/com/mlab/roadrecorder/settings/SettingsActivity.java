@@ -79,6 +79,7 @@ public class SettingsActivity extends Activity {
 	private void updateAppConstantsWithPreferences() {
 		LOG.debug("SettingsActivity.updateAppConstantsWithPreferences()");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		App.setUseExtendedSdcard(prefs.getBoolean("useextendedsdcard", false));
 		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
 		App.setMinDiskSpaceToSave(parseMinDiskSpace(prefs));
 		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));

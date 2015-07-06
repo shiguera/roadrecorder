@@ -37,6 +37,7 @@ public class App extends Application {
 	// Variables configurables en SharedPreferences a través de SettingsActivity
 	private static String videoResolution = "720";
 	
+	private static boolean useExtendedSdcard = false;
 	private static boolean saveAsCsv = true;
 	private static boolean useVoiceSyntetizer = true;
 	// Mínimo espacio en Mb que se exige al disco para empezar a grabar.
@@ -133,5 +134,14 @@ public class App extends Application {
 	public static void setVideoResolution(String videoResolution) {
 		LOG.debug("App.setVideoResolution() " + videoResolution);
 		App.videoResolution = videoResolution;
+	}
+
+	public static boolean isUseExtendedSdcard() {
+		return useExtendedSdcard;
+	}
+
+	public static void setUseExtendedSdcard(boolean useExtendedSdcard) {
+		LOG.debug("App.setUseExtendedSdcard(): "+useExtendedSdcard);
+		App.useExtendedSdcard = useExtendedSdcard;
 	}
 }
