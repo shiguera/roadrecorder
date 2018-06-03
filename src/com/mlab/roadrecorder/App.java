@@ -25,7 +25,7 @@ public class App extends Application {
 	private static final String PREFSFILE_NAME = "prefs";
 
 	private static VERSION VERSION_NAME = VERSION.Extended;
-	private static final String VERSION_NUMBER = "1.0";
+	private static final String VERSION_NUMBER = "2.0";
 	
 	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
 	private static File applicationDirectory;

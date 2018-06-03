@@ -21,7 +21,9 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="RoadRecorder" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f1b9486-13f2-42eb-8978-fba937bf8b9c" name="Default" comment="" />
+    <list default="true" id="7f1b9486-13f2-42eb-8978-fba937bf8b9c" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -115,11 +117,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="App.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="App.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="885">
-              <caret line="115" column="49" selection-start-line="115" selection-start-column="49" selection-end-line="115" selection-end-column="49" />
+            <state relative-caret-position="330">
+              <caret line="27" column="51" selection-start-line="27" selection-start-column="51" selection-end-line="27" selection-end-column="51" />
               <folding>
                 <element signature="e#2872#2873#0" expanded="true" />
                 <element signature="e#2904#2905#0" expanded="true" />
@@ -128,11 +130,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VideoController.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="VideoController.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/video/VideoController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="41" column="33" selection-start-line="41" selection-start-column="33" selection-end-line="41" selection-end-column="33" />
+            <state relative-caret-position="135">
+              <caret line="42" column="44" lean-forward="true" selection-start-line="42" selection-start-column="44" selection-end-line="42" selection-end-column="44" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="docComment;method#initMediaRecorder#0;class#VideoController#0" />
@@ -246,12 +248,12 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/AndroidManifest.xml" />
-        <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java" />
         <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/settings/SettingsActivity.java" />
         <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/MainActivity.java" />
         <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/video/VideoModel.java" />
         <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/MainController.java" />
         <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/video/VideoController.java" />
+        <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java" />
       </list>
     </option>
   </component>
@@ -437,12 +439,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1528023731064</updated>
-      <workItem from="1528023732652" duration="12533000" />
+      <workItem from="1528023732652" duration="12737000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="12533000" />
+    <option name="totallyTimeSpent" value="12737000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="162" y="24" width="1579" height="1056" extended-state="0" />
@@ -506,17 +508,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
           <caret line="2775" selection-start-line="2775" selection-end-line="2775" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="885">
-          <caret line="115" column="49" selection-start-line="115" selection-start-column="49" selection-end-line="115" selection-end-column="49" />
-          <folding>
-            <element signature="e#2872#2873#0" expanded="true" />
-            <element signature="e#2904#2905#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -680,8 +671,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/video/VideoController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="41" column="33" selection-start-line="41" selection-start-column="33" selection-end-line="41" selection-end-column="33" />
+        <state relative-caret-position="135">
+          <caret line="42" column="44" lean-forward="true" selection-start-line="42" selection-start-column="44" selection-end-line="42" selection-end-column="44" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="docComment;method#initMediaRecorder#0;class#VideoController#0" />
@@ -700,6 +691,17 @@
             <element signature="method#release#0;class#VideoController#0" />
             <element signature="method#onInfo#0;class#VideoController#0" />
             <element signature="method#onError#0;class#VideoController#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/App.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="27" column="51" selection-start-line="27" selection-start-column="51" selection-end-line="27" selection-end-column="51" />
+          <folding>
+            <element signature="e#2872#2873#0" expanded="true" />
+            <element signature="e#2904#2905#0" expanded="true" />
           </folding>
         </state>
       </provider>
