@@ -31,6 +31,7 @@ import com.mlab.roadrecorder.video.VideoController;
 
 public class MainController extends Activity  implements Controller, GpsListener, GpsStatus.Listener {
 
+    final String LOGTAG = "ROADRECORDER";
 	private static Logger LOG = Logger.getLogger(MainController.class);
 		
 	MainActivity activity;
@@ -56,7 +57,8 @@ public class MainController extends Activity  implements Controller, GpsListener
 		initMediaRecorder(model.getOutputDirectory());
 		
 		// Set version
-		setVersionLimits(App.getVERSION_NAME(), App.getVERSION_NUMBER());
+		// Invalidado el 3/6/2018 para entregar la versión a Claudio Rodriguez (Argentina)
+		//setVersionLimits(App.getVERSION_NAME(), App.getVERSION_NUMBER());
 		
 		// GpsModel
 		gpsModel = new GpsModel(activity);
@@ -84,7 +86,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 			
 		}		
 	}
-	
+
 	public void onRestart() {
 		LOG.debug("MainController.onRestart()");
 		videoController.postInitMediaRecorder();
@@ -157,10 +159,12 @@ public class MainController extends Activity  implements Controller, GpsListener
 	private boolean checkDiskSpace() {
 		int maxVideoFileSize = (int) AvailableSpaceHandler.getAvailableSpaceInMB(model.getOutputDirectory().getPath());
 		// LOG.info("Available space: "+maxVideoFileSize);
+        Log.d(LOGTAG, "MainController.checkDiskSpace():: " + maxVideoFileSize);
 		if(maxVideoFileSize < App.getMinDiskSpaceToSave()) {
 			return false;
 		}
 		maxVideoFileSize = (int) 0.8 * maxVideoFileSize;
+		Log.d(LOGTAG, "MainController.checkDiskSpace():: " + maxVideoFileSize);
 		videoController.setMaxVideoFileSize(maxVideoFileSize);		
 		return true;
 	}

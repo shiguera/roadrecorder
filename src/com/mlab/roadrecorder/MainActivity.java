@@ -305,7 +305,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	 *         a la aplicación
 	 */
 	private boolean initApplicationDirectory() {
-		doTests();
+		//doTests();
 		//System.out.println("isExternalStorageEnabled(): " + AndroidUtils.isExternalStorageEnabled());
 		
 		
@@ -326,12 +326,12 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 
 		boolean result = setApplicationDirectory(outdir);
 		if (result) {
-			System.out.println("App directory: " + outdir.getPath());
 			LOG.info("App directory: " + outdir.getPath());
 			Log.d(LOGTAG, "MainActivity.initApplicationDirectory():: App directory= " + outdir.toString());
 		} else {
 			System.out.println("ERROR: Can't access to application directory");
 			LOG.error("ERROR: Can't access to application directory");
+			Log.e(LOGTAG, "ERROR: Can't access to application directory");
 		}		
 		return result;
 	}

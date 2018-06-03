@@ -36,7 +36,7 @@ public class VideoModel extends AbstractObservable implements
 	// public static final int LEVEL_ERROR = 3;
 
 	public static final int DEFAULT_VIDEO_MAX_DURATION = 18000000; // 18000 sg
-	public static final int DEFAULT_VIDEO_MAX_FILE_SIZE = 1500000000; // 1500 Mb
+	public static final int DEFAULT_VIDEO_MAX_FILE_SIZE = 2000000000; // 1500 Mb
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
 	// private final int DEFAULT_CAMCORDER_PROFILE =
 	// CamcorderProfile.QUALITY_1080P;
@@ -146,8 +146,11 @@ public class VideoModel extends AbstractObservable implements
 			}
 			mediaRecorder.setOutputFile(outputFile.getPath());
 
-			mediaRecorder.setMaxDuration(maxVideoDuration);
-			mediaRecorder.setMaxFileSize(maxVideoFileSize);
+			// Anulo los límites el 3/6/2018 para entregar la versión a Claudio Rodriguez, de Argentina
+			//mediaRecorder.setMaxDuration(maxVideoDuration);
+			//mediaRecorder.setMaxFileSize(maxVideoFileSize);
+			mediaRecorder.setMaxDuration(0);
+			mediaRecorder.setMaxFileSize(0);
 
 			mediaRecorder.prepare();
 			isEnabled = true;
