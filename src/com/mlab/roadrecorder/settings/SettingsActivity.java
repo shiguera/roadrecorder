@@ -5,13 +5,12 @@ import org.apache.log4j.Logger;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mlab.roadrecorder.App;
-import com.mlab.roadrecorder.alvac.R;
+import com.mlab.roadrecorder.R;
 
 public class SettingsActivity extends Activity {
 
@@ -79,6 +78,7 @@ public class SettingsActivity extends Activity {
 	private void updateAppConstantsWithPreferences() {
 		LOG.debug("SettingsActivity.updateAppConstantsWithPreferences()");
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		App.setUseExtendedSdcard(prefs.getBoolean("useextendedsdcard", false));
 		App.setSaveAsCsv(prefs.getBoolean("saveascsv", false));
 		App.setMinDiskSpaceToSave(parseMinDiskSpace(prefs));
 		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));
