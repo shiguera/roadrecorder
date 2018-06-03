@@ -10,7 +10,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 
 import com.mlab.roadrecorder.App;
-import com.mlab.roadrecorder.alvac.R;
+import com.mlab.roadrecorder.R;
 
 public class SettingsFragment extends PreferenceFragment {
 	private final Logger LOG = Logger.getLogger(SettingsFragment.class);

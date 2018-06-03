@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.mlab.roadrecorder.MainActivity;
-import com.mlab.roadrecorder.alvac.R;
+import com.mlab.roadrecorder.R;
 
 public class SplashActivity extends Activity {
 

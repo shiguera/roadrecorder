@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,7 +19,9 @@ import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,10 +32,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.speech.tts.TextToSpeech;
 
 import com.mlab.android.utils.AndroidUtils;
-import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.helpabout.AboutActivity;
 import com.mlab.roadrecorder.helpabout.HelpActivity;
 import com.mlab.roadrecorder.settings.SettingsActivity;
@@ -114,7 +115,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		executor = Executors.newFixedThreadPool(5);
 
 		if (!initApplicationDirectory()) {
-			speak("ERROR, no se pudo establecer el directorio de la aplicación");
 			exit("ERROR: Can't open application directory");
 			return;
 		}
@@ -275,19 +275,25 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	 *         a la aplicación
 	 */
 	private boolean initApplicationDirectory() {
-		if(App.isUseExtendedSdcard()) {
-			boolean result = checkExtendedSdcard();
-			if (result) {
-				return result;
-			} else {
-				System.out.println("ERROR, no se pudo acceder a la memoria extendida del dispositivo");
-				speak("ERROR, no se pudo acceder a la memoria extendida del dispositivo");
-			}
-		}
-
-		App.setUseExtendedSdcard(false);
 		
-		File outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
+		//System.out.println("isExternalStorageEnabled(): " + AndroidUtils.isExternalStorageEnabled());
+		
+		
+//		if(App.isUseExtendedSdcard()) {
+//			boolean result = checkExtendedSdcard();
+//			if (result) {
+//				return result;
+//			} else {
+//				System.out.println("ERROR, no se pudo acceder a la memoria extendida del dispositivo");
+//				speak("ERROR, no se pudo acceder a la memoria extendida del dispositivo");
+//			}
+//		}
+//
+//		App.setUseExtendedSdcard(false);
+		
+		//File outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
+		File outdir = AndroidUtils.getMoviesStorageDir(App.getAppDirectoryName());
+		
 		boolean result = setApplicationDirectory(outdir);
 		if (result) {
 			System.out.println("App directory: " + outdir.getPath());
@@ -301,7 +307,8 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	private boolean checkExtendedSdcard() {
 		List<File> list = AndroidUtils.getSecondaryStorageDirectories();
 		if (list != null && list.size()>0) {
-			boolean result = setApplicationDirectory(list.get(0));
+			MediaFile mf = new MediaFile(this.getContentResolver(), new File(list.get(0), App.getAppDirectoryName()));
+			boolean result = setApplicationDirectory(mf.getFile());
 			if (result) {
 				System.out.println("Using extended Sdcard");
 				LOG.info("Using extended Sdcard");
@@ -318,7 +325,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	}
 	private boolean setApplicationDirectory(File outdir) {
 		if(outdir == null) {
-			System.out.println("initApplicationDirectory() outdir=NULL" );
+			System.out.println("setApplicationDirectory() outdir=NULL" );
 			return false;
 		}
 		System.out.println("setApplicationDirectory() " + outdir.getPath());

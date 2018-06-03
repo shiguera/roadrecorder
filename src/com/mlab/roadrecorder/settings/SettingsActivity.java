@@ -5,13 +5,12 @@ import org.apache.log4j.Logger;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mlab.roadrecorder.App;
-import com.mlab.roadrecorder.alvac.R;
+import com.mlab.roadrecorder.R;
 
 public class SettingsActivity extends Activity {
 
