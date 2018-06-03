@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import android.os.Environment;
+import android.util.Log;
 import org.apache.log4j.Logger;
 
 import android.annotation.SuppressLint;
@@ -20,7 +22,6 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.view.SurfaceHolder;
 
-import com.mlab.android.utils.AndroidUtils;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.App;
 import com.mlab.roadrecorder.api.AbstractObservable;
@@ -28,6 +29,7 @@ import com.mlab.roadrecorder.api.AbstractObservable;
 public class VideoModel extends AbstractObservable implements
 		SurfaceHolder.Callback {
 
+    final String LOGTAG = "ROADRECORDER";
 	private final Logger LOG = Logger.getLogger(VideoModel.class);
 
 	// public static final int LEVEL_INFO = 0;
@@ -36,7 +38,7 @@ public class VideoModel extends AbstractObservable implements
 	// public static final int LEVEL_ERROR = 3;
 
 	public static final int DEFAULT_VIDEO_MAX_DURATION = 18000000; // 18000 sg
-	public static final int DEFAULT_VIDEO_MAX_FILE_SIZE = 2000000000; // 1500 Mb
+	public static final long DEFAULT_VIDEO_MAX_FILE_SIZE = 2000000000; // 1500 Mb
 	private static final String DEFAULT_DIRECTORY_NAME = "RoadRecorder";
 	// private final int DEFAULT_CAMCORDER_PROFILE =
 	// CamcorderProfile.QUALITY_1080P;
@@ -48,7 +50,7 @@ public class VideoModel extends AbstractObservable implements
 	private File outputDirectory;
 	private File outputFile;
 	private int maxVideoDuration;
-	private int maxVideoFileSize;
+	private long maxVideoFileSize;
 
 	// private Date startDate;
 	private boolean isRecording;
@@ -84,10 +86,6 @@ public class VideoModel extends AbstractObservable implements
 	 * SurfaceHolder.Callback:<br/>
 	 * surfaceHolder.addCallback(model)<br/>
 	 * 
-	 * @param context
-	 *            Context donde se ejecuta la app.
-	 * @param frameLayout
-	 *            FrameLayout donde se insertara el SurfaceView de la cámara
 	 */
 	public VideoModel() {
 		LOG.info("VideoModel.VideoModel()");
@@ -150,7 +148,8 @@ public class VideoModel extends AbstractObservable implements
 			//mediaRecorder.setMaxDuration(maxVideoDuration);
 			//mediaRecorder.setMaxFileSize(maxVideoFileSize);
 			mediaRecorder.setMaxDuration(0);
-			mediaRecorder.setMaxFileSize(0);
+            Log.d(LOGTAG, "VideoModel.prepare():: maxFileSize= "+maxVideoFileSize);
+			mediaRecorder.setMaxFileSize(maxVideoFileSize);
 
 			mediaRecorder.prepare();
 			isEnabled = true;
@@ -254,8 +253,7 @@ public class VideoModel extends AbstractObservable implements
 		boolean result = prepare();
 		if (result) {
 			startRecordingTime = new Date().getTime();
-			LOG.info("startRecordingTime = "
-					+ Util.dateToString(startRecordingTime, true));
+			LOG.info("startRecordingTime = " + Util.dateToString(startRecordingTime, true));
 			mediaRecorder.start();
 			startVideoTimer();
 			isRecording = true;
@@ -398,12 +396,11 @@ public class VideoModel extends AbstractObservable implements
 	public boolean setDefaultDirectory() {
 		String method = "VideoModel.setDefaultDirectory() ";
 		// LOG.debug(TAG,method);
-		if (!AndroidUtils.isExternalStorageEnabled()) {
+		if (!isExternalStorageEnabled()) {
 			LOG.error(method + "Error, sdcard isn't mounted");
 			return false;
 		}
-		outputDirectory = new File(AndroidUtils.getExternalStorageDirectory(),
-				DEFAULT_DIRECTORY_NAME);
+		outputDirectory = new File(Environment.getExternalStorageDirectory(), DEFAULT_DIRECTORY_NAME);
 		// LOG.debug(TAG, method + "outputDirectory path: "+
 		// outputDirectory.getPath());
 		if (!outputDirectory.exists()) {
@@ -418,21 +415,49 @@ public class VideoModel extends AbstractObservable implements
 		// LOG.debug(method + "outputDirectory: " + outputDirectory.getPath());
 		return true;
 	}
+    public static boolean isExternalStorageEnabled() {
+        return isExternalStorageWritable() && isExternalStorageReadable();
+    }
+    /* Checks if external storage is available for read and write */
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
 
-	public File getOutputFile() {
+    /* Checks if external storage is available to at least read */
+    public static boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public File getOutputFile() {
 		return this.outputFile;
 	}
 
 	private File createOutputFile() {
 		if (outputDirectory != null) {
-			String filename = AndroidUtils.getTimeStamp(new Date(), true)
-					+ ".mp4";
+			String filename = getTimeStamp(new Date(), true) + ".mp4";
 			outputFile = new File(outputDirectory, filename);
 			return outputFile;
 		}
 		return null;
 	}
-
+    @SuppressLint("SimpleDateFormat")
+    public static String getTimeStamp(Date date, boolean gmt) {
+        DateFormat timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        if(gmt) {
+            timeStamp.setTimeZone(TimeZone.getTimeZone("GMT"));
+        }
+        return timeStamp.format(date);
+    }
 	// Utilities
 	/**
 	 * Tiempo que lleva grabando el vídeo actual
@@ -561,11 +586,11 @@ public class VideoModel extends AbstractObservable implements
 		this.maxVideoDuration = maxDuration;
 	}
 
-	public int getMaxFileSize() {
+	public long getMaxFileSize() {
 		return maxVideoFileSize;
 	}
 
-	public void setMaxFileSize(int maxFileSize) {
+	public void setMaxFileSize(long maxFileSize) {
 		this.maxVideoFileSize = maxFileSize;
 	}
 

@@ -1,7 +1,6 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,7 +9,6 @@ import android.os.Environment;
 import android.util.Log;
 import org.apache.log4j.Logger;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,7 +33,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mlab.android.utils.AndroidUtils;
 import com.mlab.roadrecorder.helpabout.AboutActivity;
 import com.mlab.roadrecorder.helpabout.HelpActivity;
 import com.mlab.roadrecorder.settings.SettingsActivity;
@@ -137,7 +134,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		postInitLayout();
 		
 		//checkVideoResolutions();
-
 	}
 
 	@Override
@@ -223,15 +219,15 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		App.setUseVoiceSyntetizer(voiceMessages);
 
 		// Se guarda como una cadena de texto
-		int mindiskspace = parseMinDiskSpace(prefs);
+		long mindiskspace = parseMinDiskSpace(prefs);
 		App.setMinDiskSpaceToSave(mindiskspace);
 		
 	}
-	private int parseMinDiskSpace(SharedPreferences prefs) {
+	private long parseMinDiskSpace(SharedPreferences prefs) {
 		String diskspaceCad = prefs.getString("mindiskspace", "");
-		int result = App.getMinDiskSpaceToSave();
+		long result = App.getMinDiskSpaceToSave();
 		try {
-			result = Integer.parseInt(diskspaceCad);
+			result = Long.parseLong(diskspaceCad);
 		} catch (Exception e) {
 			LOG.error("parseMinDiskSpace() ERROR: Can't parse mindikspace");
 		}
@@ -265,33 +261,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		logConfigurator.configure();
 	}
 
-	private void doTests() {
-	    Log.d(LOGTAG, "MainActivity.doTests()");
-        List<File> outdirs = AndroidUtils.getSecondaryStorageDirectories();
-        for (int i=0; i<outdirs.size(); i++) {
-            Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getSecondaryStorageDirectories()");
-            Log.d(LOGTAG, "outdir " + i + outdirs.toString());
-        }
-        File outdir = AndroidUtils.getExternalStorageDirectory();
-        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getExternalStorageDirectory()");
-        Log.d(LOGTAG, outdir.toString());
-        outdir = AndroidUtils.getMoviesDirectory();
-        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getMoviesDirectory()");
-        Log.d(LOGTAG, outdir.toString());
-        outdir = AndroidUtils.getMoviesStorageDir("RoadRecorder");
-        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getMoviesStorageDir('RoadRecorder')");
-        Log.d(LOGTAG, outdir.toString());
-        outdir = AndroidUtils.getAlbumStorageDir("RoadRecorder");
-        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getAlbumStorageDir('RoadRecorder')");
-        Log.d(LOGTAG, outdir.toString());
-        outdir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "RoadRecorder");
-        Log.d(LOGTAG, "MainActivity.doTests() using Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), 'RoadRecorder'");
-        Log.d(LOGTAG, outdir.toString());
-        outdir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "");
-        Log.d(LOGTAG, "MainActivity.doTests() using Environment.getExternalStoragePublicDirectory(Environment.DCIM), ''");
-        Log.d(LOGTAG, outdir.toString());
 
-    }
 	/**
 	 * Inicializa el directorio utilizado por la aplicación.<br/>
 	 * Si existe una secondary sdcard la selecciona y si no selecciona la sdcard
@@ -322,7 +292,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 //		App.setUseExtendedSdcard(false);
 		
 		//File outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
-		File outdir = AndroidUtils.getMoviesStorageDir(App.getAppDirectoryName());
+		File outdir = getMoviesStorageDir(App.getAppDirectoryName());
 
 		boolean result = setApplicationDirectory(outdir);
 		if (result) {
@@ -335,25 +305,17 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		}		
 		return result;
 	}
-	private boolean checkExtendedSdcard() {
-		List<File> list = AndroidUtils.getSecondaryStorageDirectories();
-		if (list != null && list.size()>0) {
-			MediaFile mf = new MediaFile(this.getContentResolver(), new File(list.get(0), App.getAppDirectoryName()));
-			boolean result = setApplicationDirectory(mf.getFile());
-			if (result) {
-				System.out.println("Using extended Sdcard");
-				LOG.info("Using extended Sdcard");
-			} else {
-				System.out.println("ERROR: Cant' use extended sdcard");
-				LOG.info("ERROR: Cant' use extended sdcard");
-			}
-			return result;
-		} else {
-			LOG.warn("WARNING Can't access to Extended sdcard");
-			return false;			
-		}
-		
-	}
+    public static File getMoviesStorageDir(String folderName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), folderName);
+        if (file.exists()==false && !file.mkdirs()) {
+            LOG.error("getMoviesStorageDir(): Directory not created");
+            System.out.println("getMoviesStorageDir(): Directory " + file.getPath() + " not created");
+            return null;
+        }
+        return file;
+    }
+
 	private boolean setApplicationDirectory(File outdir) {
 		if(outdir == null) {
 			System.out.println("setApplicationDirectory() outdir=NULL" );

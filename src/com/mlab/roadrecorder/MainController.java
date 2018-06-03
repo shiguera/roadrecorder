@@ -2,6 +2,8 @@ package com.mlab.roadrecorder;
 
 import java.io.File;
 
+import android.os.Environment;
+import android.os.StatFs;
 import org.apache.log4j.Logger;
 
 import android.app.Activity;
@@ -14,8 +16,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.mlab.android.gpsmanager.GpsListener;
-import com.mlab.android.utils.AndroidUtils;
-import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.App.VERSION;
 import com.mlab.roadrecorder.MainActivity.NotificationLevel;
@@ -157,18 +157,40 @@ public class MainController extends Activity  implements Controller, GpsListener
 		return;
 	}
 	private boolean checkDiskSpace() {
-		int maxVideoFileSize = (int) AvailableSpaceHandler.getAvailableSpaceInMB(model.getOutputDirectory().getPath());
+        Log.d(LOGTAG, "MainController.checkDiskSpace():: ");
+        //doIntegerOperationsTest();
+		long maxVideoFileSize =  getExternalAvailableSpaceInBytes();
 		// LOG.info("Available space: "+maxVideoFileSize);
         Log.d(LOGTAG, "MainController.checkDiskSpace():: " + maxVideoFileSize);
 		if(maxVideoFileSize < App.getMinDiskSpaceToSave()) {
 			return false;
 		}
-		maxVideoFileSize = (int) 0.8 * maxVideoFileSize;
+		maxVideoFileSize = (long) (0.8 * maxVideoFileSize);
 		Log.d(LOGTAG, "MainController.checkDiskSpace():: " + maxVideoFileSize);
 		videoController.setMaxVideoFileSize(maxVideoFileSize);		
 		return true;
 	}
-	public void stopRecording() {
+    public long getExternalAvailableSpaceInBytes() {
+        long availableSpace = -1L;
+        try {
+            StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+            availableSpace = (long)stat.getAvailableBlocksLong() * (long)stat.getBlockSizeLong();
+        } catch (Exception e) {
+            Log.d(LOGTAG, "MainController.getExternalAvailableDiskSpaceInBytes():: ERROR " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return availableSpace;
+    }
+    private void doIntegerOperationsTest() {
+        long maxVideoFileSize = getExternalAvailableSpaceInBytes();
+        Log.d(LOGTAG, "MainController.doIntegerOperattionsTest():: externalAvailableSpace= " + maxVideoFileSize);
+        maxVideoFileSize = (long) (0.8 * maxVideoFileSize);
+        Log.d(LOGTAG, "MainController.doIntegerOperattionsTest():: 0.8*externalAvailableSpace= " + maxVideoFileSize);
+    }
+
+
+    public void stopRecording() {
 		activity.setButtonState(new BtnDisabledState(activity));
 		
 		if(videoController.isRecording()) {

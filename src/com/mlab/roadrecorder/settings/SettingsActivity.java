@@ -84,11 +84,11 @@ public class SettingsActivity extends Activity {
 		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));
 		App.setVideoResolution(prefs.getString("videoresolution", App.getVideoResolution()));
 	}
-	private int parseMinDiskSpace(SharedPreferences prefs) {
+	private long parseMinDiskSpace(SharedPreferences prefs) {
 		String diskspaceCad = prefs.getString("mindiskspace", "");
-		int result = App.getMinDiskSpaceToSave();
+		long result = App.getMinDiskSpaceToSave();
 		try {
-			result = Integer.parseInt(diskspaceCad);
+			result = Long.parseLong(diskspaceCad);
 		} catch (Exception e) {
 			LOG.error("parseMinDiskSpace() ERROR: Can't parse mindikspace");
 		}

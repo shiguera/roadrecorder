@@ -27,7 +27,7 @@ import com.mlab.roadrecorder.api.Controller;
 
 public class VideoController implements Controller, OnInfoListener, OnErrorListener {
 	private final Logger LOG = Logger.getLogger(VideoController.class);
-	//private final String TAG = "ROADRECORDER";
+	private final String LOGTAG = "ROADRECORDER";
 
 	protected MainActivity activity;
 	protected VideoModel model;
@@ -44,7 +44,8 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		
 		this.model = new VideoModel();
 	}
-	private Context getContext() {
+
+    private Context getContext() {
 		return this.activity;
 	}
 	/**
@@ -141,7 +142,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	public void setMaxVideoDuration(int maxduration) {
 		model.setMaxDuration(maxduration);
 	}
-	public void setMaxVideoFileSize(int maxFileSize) {
+	public void setMaxVideoFileSize(long maxFileSize) {
 		model.setMaxFileSize(maxFileSize);
 	}
 	// Utilities

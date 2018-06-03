@@ -41,7 +41,7 @@ public class App extends Application {
 	private static boolean saveAsCsv = true;
 	private static boolean useVoiceSyntetizer = true;
 	// Mínimo espacio en Mb que se exige al disco para empezar a grabar.
-	private static int minDiskSpaceToSave = 250;
+	private static long minDiskSpaceToSave = 250;
 		
 	// Getters
 	public static MainModel getMainModel() {
@@ -109,11 +109,11 @@ public class App extends Application {
 		return PREFSFILE_NAME;
 	}
 
-	public static int getMinDiskSpaceToSave() {
+	public static long getMinDiskSpaceToSave() {
 		return minDiskSpaceToSave;
 	}
 
-	public static void setMinDiskSpaceToSave(int minDiskSpaceToSave) {
+	public static void setMinDiskSpaceToSave(long minDiskSpaceToSave) {
 		LOG.debug("App.setMinDiskSpaceToSave(): "+minDiskSpaceToSave);
 		App.minDiskSpaceToSave = minDiskSpaceToSave;
 	}
