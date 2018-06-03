@@ -6,6 +6,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.os.Environment;
+import android.util.Log;
 import org.apache.log4j.Logger;
 
 import android.annotation.SuppressLint;
@@ -52,6 +54,7 @@ import com.mlab.roadrecorder.view.command.GetSpeedCommand;
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
 public class MainActivity extends FragmentActivity implements TextToSpeech.OnInitListener {
+    final String LOGTAG = "ROADRECORDER";
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
 
 	private enum RunModes {
@@ -262,6 +265,33 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		logConfigurator.configure();
 	}
 
+	private void doTests() {
+	    Log.d(LOGTAG, "MainActivity.doTests()");
+        List<File> outdirs = AndroidUtils.getSecondaryStorageDirectories();
+        for (int i=0; i<outdirs.size(); i++) {
+            Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getSecondaryStorageDirectories()");
+            Log.d(LOGTAG, "outdir " + i + outdirs.toString());
+        }
+        File outdir = AndroidUtils.getExternalStorageDirectory();
+        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getExternalStorageDirectory()");
+        Log.d(LOGTAG, outdir.toString());
+        outdir = AndroidUtils.getMoviesDirectory();
+        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getMoviesDirectory()");
+        Log.d(LOGTAG, outdir.toString());
+        outdir = AndroidUtils.getMoviesStorageDir("RoadRecorder");
+        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getMoviesStorageDir('RoadRecorder')");
+        Log.d(LOGTAG, outdir.toString());
+        outdir = AndroidUtils.getAlbumStorageDir("RoadRecorder");
+        Log.d(LOGTAG, "MainActivity.doTests() using AndroidUtils.getAlbumStorageDir('RoadRecorder')");
+        Log.d(LOGTAG, outdir.toString());
+        outdir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "RoadRecorder");
+        Log.d(LOGTAG, "MainActivity.doTests() using Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), 'RoadRecorder'");
+        Log.d(LOGTAG, outdir.toString());
+        outdir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "");
+        Log.d(LOGTAG, "MainActivity.doTests() using Environment.getExternalStoragePublicDirectory(Environment.DCIM), ''");
+        Log.d(LOGTAG, outdir.toString());
+
+    }
 	/**
 	 * Inicializa el directorio utilizado por la aplicación.<br/>
 	 * Si existe una secondary sdcard la selecciona y si no selecciona la sdcard
@@ -275,7 +305,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	 *         a la aplicación
 	 */
 	private boolean initApplicationDirectory() {
-		
+		doTests();
 		//System.out.println("isExternalStorageEnabled(): " + AndroidUtils.isExternalStorageEnabled());
 		
 		
@@ -293,11 +323,12 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		
 		//File outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
 		File outdir = AndroidUtils.getMoviesStorageDir(App.getAppDirectoryName());
-		
+
 		boolean result = setApplicationDirectory(outdir);
 		if (result) {
 			System.out.println("App directory: " + outdir.getPath());
 			LOG.info("App directory: " + outdir.getPath());
+			Log.d(LOGTAG, "MainActivity.initApplicationDirectory():: App directory= " + outdir.toString());
 		} else {
 			System.out.println("ERROR: Can't access to application directory");
 			LOG.error("ERROR: Can't access to application directory");

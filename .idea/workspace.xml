@@ -1,12 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AndroidConfiguredLogFilters">
+    <filters>
+      <filter>
+        <option name="logLevel" value="verbose" />
+        <option name="logMessagePattern" value="" />
+        <option name="logTagPattern" value="ROADRECORDER" />
+        <option name="name" value="RoadRecorder" />
+        <option name="packageNamePattern" value="" />
+        <option name="pid" value="" />
+      </filter>
+    </filters>
+  </component>
   <component name="AndroidLayouts">
     <shared>
       <config />
     </shared>
   </component>
+  <component name="AndroidLogFilters">
+    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="RoadRecorder" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="7f1b9486-13f2-42eb-8978-fba937bf8b9c" name="Default" comment="" />
+    <list default="true" id="7f1b9486-13f2-42eb-8978-fba937bf8b9c" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/RoadRecorder.apk" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RoadRecorder/RoadRecorder.apk" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/RoadRecorder.unaligned.apk" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/RoadRecorder/RoadRecorder.unaligned.apk" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$3.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$BTNBACKGROUND.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$GPSICON.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$GpsIconBlinker.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$LabelInfoBlinker.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$NotificationLevel.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity$RunModes.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/RoadRecorder/com/mlab/roadrecorder/MainActivity.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/mlab/roadrecorder/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/mlab/roadrecorder/MainActivity.java" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,17 +51,90 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="51" column="40" selection-start-line="51" selection-start-column="40" selection-end-line="51" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="VideoModel.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/video/VideoModel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="23" column="29" selection-start-line="23" selection-start-column="29" selection-end-line="23" selection-end-column="29" />
+            <state relative-caret-position="47">
+              <caret line="289" column="98" selection-start-line="289" selection-start-column="98" selection-end-line="289" selection-end-column="98" />
+              <folding>
+                <element signature="e#2133#2185#0" />
+                <element signature="e#2188#2242#0" />
+                <element signature="e#2294#2344#0" />
+                <element signature="e#2348#2409#0" />
+                <element signature="e#2412#2476#0" />
+                <element signature="e#3964#4121#0" />
+                <element signature="e#4124#4227#0" />
+                <element signature="e#4230#4642#0" />
+                <element signature="e#4645#4739#0" />
+                <element signature="e#4742#4930#0" />
+                <element signature="e#4933#5464#0" />
+                <element signature="e#5468#6358#0" />
+                <element signature="e#6360#6691#0" />
+                <element signature="e#6694#6751#0" />
+                <element signature="e#6694#7617#0" />
+                <element signature="e#7620#8079#0" />
+                <element signature="e#8131#8226#0" />
+                <element signature="e#9129#9790#0" />
+                <element signature="e#9792#10394#0" />
+                <element signature="e#10397#11072#0" />
+                <element signature="e#11075#11208#0" />
+                <element signature="e#11211#12594#0" />
+                <element signature="e#12597#12911#0" />
+                <element signature="class#12674:12906" />
+                <element signature="method#onClick#0;class#12674:12906" />
+                <element signature="e#12914#13061#0" />
+                <element signature="e#13064#13235#0" />
+                <element signature="e#13238#13396#0" />
+                <element signature="e#13399#13551#0" />
+                <element signature="e#13554#13793#0" />
+                <element signature="e#13796#14326#0" />
+                <element signature="e#14329#14773#0" />
+                <element signature="e#14775#15194#0" />
+                <element signature="e#15196#15416#0" />
+                <element signature="e#15419#15622#0" />
+                <element signature="e#15460#15532#0" />
+                <element signature="e#15624#15819#0" />
+                <element signature="e#15661#15733#0" />
+                <element signature="e#15821#16018#0" />
+                <element signature="e#15859#15931#0" />
+                <element signature="e#16021#17105#0" />
+                <element signature="e#16116#16203#0" />
+                <element signature="e#16207#16524#0" />
+                <element signature="e#16528#16929#0" />
+                <element signature="e#16933#17102#0" />
+                <element signature="e#16987#17030#0" />
+                <element signature="e#17489#17490#0" expanded="true" />
+                <element signature="e#17522#17523#0" expanded="true" />
+                <element signature="e#17566#17567#0" expanded="true" />
+                <element signature="e#17605#17606#0" expanded="true" />
+                <element signature="e#17268#17583#0" />
+                <element signature="e#17322#17374#0" />
+                <element signature="e#17585#17844#0" />
+                <element signature="e#17847#18268#0" />
+                <element signature="e#18270#18579#0" />
+                <element signature="e#18582#18998#0" />
+                <element signature="class#18756:18935" />
+                <element signature="method#onClick#0;class#18756:18935" />
+                <element signature="e#19391#19392#0" expanded="true" />
+                <element signature="e#19415#19416#0" expanded="true" />
+                <element signature="e#19450#19451#0" expanded="true" />
+                <element signature="e#19476#19477#0" expanded="true" />
+                <element signature="e#19508#19509#0" expanded="true" />
+                <element signature="e#19529#19530#0" expanded="true" />
+                <element signature="e#19567#19568#0" expanded="true" />
+                <element signature="e#19591#19592#0" expanded="true" />
+                <element signature="e#19630#19631#0" expanded="true" />
+                <element signature="e#19654#19655#0" expanded="true" />
+                <element signature="e#19687#19688#0" expanded="true" />
+                <element signature="e#19708#19709#0" expanded="true" />
+                <element signature="e#19371#19745#0" />
+                <element signature="e#19748#20700#0" />
+                <element signature="e#19835#19918#0" />
+                <element signature="e#19922#20209#0" />
+                <element signature="e#20213#20616#0" />
+                <element signature="e#20703#20939#0" />
+                <element signature="e#20741#20775#0" />
+                <element signature="e#20941#21129#0" />
+                <element signature="e#21132#21316#0" />
+                <element signature="e#21318#21826#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -39,6 +143,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/AndroidManifest.xml" />
+        <option value="$PROJECT_DIR$/src/com/mlab/roadrecorder/MainActivity.java" />
+      </list>
+    </option>
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
@@ -84,9 +196,10 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../android-logging-log4j-1.0.3.jar!/" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.general" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -197,15 +310,16 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1528023731064</updated>
-      <workItem from="1528023732652" duration="554000" />
+      <workItem from="1528023732652" duration="4457000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="554000" />
+    <option name="totallyTimeSpent" value="4457000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="162" y="24" width="1579" height="1056" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" />
       <window_info anchor="bottom" id="Android Profiler" />
@@ -249,6 +363,13 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="36" selection-start-line="16" selection-start-column="36" selection-end-line="16" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/video/VideoModel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="182">
@@ -258,8 +379,90 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/mlab/roadrecorder/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="51" column="40" selection-start-line="51" selection-start-column="40" selection-end-line="51" selection-end-column="40" />
+        <state relative-caret-position="47">
+          <caret line="289" column="98" selection-start-line="289" selection-start-column="98" selection-end-line="289" selection-end-column="98" />
+          <folding>
+            <element signature="e#2133#2185#0" />
+            <element signature="e#2188#2242#0" />
+            <element signature="e#2294#2344#0" />
+            <element signature="e#2348#2409#0" />
+            <element signature="e#2412#2476#0" />
+            <element signature="e#3964#4121#0" />
+            <element signature="e#4124#4227#0" />
+            <element signature="e#4230#4642#0" />
+            <element signature="e#4645#4739#0" />
+            <element signature="e#4742#4930#0" />
+            <element signature="e#4933#5464#0" />
+            <element signature="e#5468#6358#0" />
+            <element signature="e#6360#6691#0" />
+            <element signature="e#6694#6751#0" />
+            <element signature="e#6694#7617#0" />
+            <element signature="e#7620#8079#0" />
+            <element signature="e#8131#8226#0" />
+            <element signature="e#9129#9790#0" />
+            <element signature="e#9792#10394#0" />
+            <element signature="e#10397#11072#0" />
+            <element signature="e#11075#11208#0" />
+            <element signature="e#11211#12594#0" />
+            <element signature="e#12597#12911#0" />
+            <element signature="class#12674:12906" />
+            <element signature="method#onClick#0;class#12674:12906" />
+            <element signature="e#12914#13061#0" />
+            <element signature="e#13064#13235#0" />
+            <element signature="e#13238#13396#0" />
+            <element signature="e#13399#13551#0" />
+            <element signature="e#13554#13793#0" />
+            <element signature="e#13796#14326#0" />
+            <element signature="e#14329#14773#0" />
+            <element signature="e#14775#15194#0" />
+            <element signature="e#15196#15416#0" />
+            <element signature="e#15419#15622#0" />
+            <element signature="e#15460#15532#0" />
+            <element signature="e#15624#15819#0" />
+            <element signature="e#15661#15733#0" />
+            <element signature="e#15821#16018#0" />
+            <element signature="e#15859#15931#0" />
+            <element signature="e#16021#17105#0" />
+            <element signature="e#16116#16203#0" />
+            <element signature="e#16207#16524#0" />
+            <element signature="e#16528#16929#0" />
+            <element signature="e#16933#17102#0" />
+            <element signature="e#16987#17030#0" />
+            <element signature="e#17489#17490#0" expanded="true" />
+            <element signature="e#17522#17523#0" expanded="true" />
+            <element signature="e#17566#17567#0" expanded="true" />
+            <element signature="e#17605#17606#0" expanded="true" />
+            <element signature="e#17268#17583#0" />
+            <element signature="e#17322#17374#0" />
+            <element signature="e#17585#17844#0" />
+            <element signature="e#17847#18268#0" />
+            <element signature="e#18270#18579#0" />
+            <element signature="e#18582#18998#0" />
+            <element signature="class#18756:18935" />
+            <element signature="method#onClick#0;class#18756:18935" />
+            <element signature="e#19391#19392#0" expanded="true" />
+            <element signature="e#19415#19416#0" expanded="true" />
+            <element signature="e#19450#19451#0" expanded="true" />
+            <element signature="e#19476#19477#0" expanded="true" />
+            <element signature="e#19508#19509#0" expanded="true" />
+            <element signature="e#19529#19530#0" expanded="true" />
+            <element signature="e#19567#19568#0" expanded="true" />
+            <element signature="e#19591#19592#0" expanded="true" />
+            <element signature="e#19630#19631#0" expanded="true" />
+            <element signature="e#19654#19655#0" expanded="true" />
+            <element signature="e#19687#19688#0" expanded="true" />
+            <element signature="e#19708#19709#0" expanded="true" />
+            <element signature="e#19371#19745#0" />
+            <element signature="e#19748#20700#0" />
+            <element signature="e#19835#19918#0" />
+            <element signature="e#19922#20209#0" />
+            <element signature="e#20213#20616#0" />
+            <element signature="e#20703#20939#0" />
+            <element signature="e#20741#20775#0" />
+            <element signature="e#20941#21129#0" />
+            <element signature="e#21132#21316#0" />
+            <element signature="e#21318#21826#0" />
+          </folding>
         </state>
       </provider>
     </entry>
