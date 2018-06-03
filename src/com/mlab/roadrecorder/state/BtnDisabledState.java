@@ -1,7 +1,6 @@
 package com.mlab.roadrecorder.state;
 
 import com.mlab.roadrecorder.MainActivity;
-import com.mlab.roadrecorder.alvac.R;
 
 public class BtnDisabledState extends ButtonState {
 

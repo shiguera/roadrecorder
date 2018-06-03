@@ -6,26 +6,28 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import android.util.Log;
 import org.apache.log4j.Logger;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnErrorListener;
 import android.media.MediaRecorder.OnInfoListener;
+import android.net.Uri;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.roadrecorder.MainActivity;
 import com.mlab.roadrecorder.api.Controller;
 
 public class VideoController implements Controller, OnInfoListener, OnErrorListener {
 	private final Logger LOG = Logger.getLogger(VideoController.class);
-	//private final String TAG = "ROADRECORDER";
+	private final String LOGTAG = "ROADRECORDER";
 
 	protected MainActivity activity;
 	protected VideoModel model;
@@ -42,7 +44,8 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 		
 		this.model = new VideoModel();
 	}
-	private Context getContext() {
+
+    private Context getContext() {
 		return this.activity;
 	}
 	/**
@@ -139,7 +142,7 @@ public class VideoController implements Controller, OnInfoListener, OnErrorListe
 	public void setMaxVideoDuration(int maxduration) {
 		model.setMaxDuration(maxduration);
 	}
-	public void setMaxVideoFileSize(int maxFileSize) {
+	public void setMaxVideoFileSize(long maxFileSize) {
 		model.setMaxFileSize(maxFileSize);
 	}
 	// Utilities

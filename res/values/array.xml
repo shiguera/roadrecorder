@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<resources>
+    
+    <string-array name="videoresolution_items">
+        <item>1920x1080 px</item>
+        <item>1280x720 px</item>
+        <item>720x480 px</item>
+    </string-array>
+    <string-array name="videoresolution_values">
+        <item>1080</item>
+        <item>720</item>
+        <item>480</item>
+    </string-array>
+</resources>
+    
+    
+    

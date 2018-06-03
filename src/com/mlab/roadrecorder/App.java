@@ -19,12 +19,12 @@ public class App extends Application {
 	
 	public static enum VERSION {Basic, Extended};
 	private static final int BASIC_VERSION_MAX_VIDEO_DURATION = 600000;
-	private static final int EXTENDED_VERSION_MAX_VIDEO_DURATION = 6000000;
+	private static final int EXTENDED_VERSION_MAX_VIDEO_DURATION = 18000000;
 
 	private static final String LOGFILE_NAME = "roadrecorder.log";
 	private static final String PREFSFILE_NAME = "prefs";
 
-	private static VERSION VERSION_NAME = VERSION.Basic;
+	private static VERSION VERSION_NAME = VERSION.Extended;
 	private static final String VERSION_NUMBER = "1.0";
 	
 	private static final String APP_DIRECTORY_NAME = "RoadRecorder";
@@ -35,15 +35,14 @@ public class App extends Application {
 	private static MainController mainController;
 	
 	// Variables configurables en SharedPreferences a través de SettingsActivity
-	private static boolean highResolutionVideoRecording = true;
+	private static String videoResolution = "720";
+	
+	private static boolean useExtendedSdcard = false;
 	private static boolean saveAsCsv = true;
 	private static boolean useVoiceSyntetizer = true;
 	// Mínimo espacio en Mb que se exige al disco para empezar a grabar.
-	private static int minDiskSpaceToSave = 250;
+	private static long minDiskSpaceToSave = 250;
 		
-	
-	//
-	
 	// Getters
 	public static MainModel getMainModel() {
 		return mainModel;
@@ -100,15 +99,7 @@ public class App extends Application {
 		App.applicationDirectory = applicationDirectory;
 	}
 
-	public static boolean isHighResolutionVideoRecording() {
-		return highResolutionVideoRecording;
-	}
 
-	public static void setHighResolutionVideoRecording(
-			boolean highResolutionVideoRecording) {
-		LOG.debug("App.setHighResolutionVideoRecording() "+highResolutionVideoRecording);
-		App.highResolutionVideoRecording = highResolutionVideoRecording;
-	}
 
 	public static String getLogfileName() {
 		return LOGFILE_NAME;
@@ -118,11 +109,11 @@ public class App extends Application {
 		return PREFSFILE_NAME;
 	}
 
-	public static int getMinDiskSpaceToSave() {
+	public static long getMinDiskSpaceToSave() {
 		return minDiskSpaceToSave;
 	}
 
-	public static void setMinDiskSpaceToSave(int minDiskSpaceToSave) {
+	public static void setMinDiskSpaceToSave(long minDiskSpaceToSave) {
 		LOG.debug("App.setMinDiskSpaceToSave(): "+minDiskSpaceToSave);
 		App.minDiskSpaceToSave = minDiskSpaceToSave;
 	}
@@ -132,6 +123,25 @@ public class App extends Application {
 	}
 
 	public static void setUseVoiceSyntetizer(boolean useVoiceSyntetizer) {
+		LOG.debug("App.setUseVoiceSyntetizer() " + useVoiceSyntetizer);
 		App.useVoiceSyntetizer = useVoiceSyntetizer;
+	}
+
+	public static String getVideoResolution() {
+		return videoResolution;
+	}
+
+	public static void setVideoResolution(String videoResolution) {
+		LOG.debug("App.setVideoResolution() " + videoResolution);
+		App.videoResolution = videoResolution;
+	}
+
+	public static boolean isUseExtendedSdcard() {
+		return useExtendedSdcard;
+	}
+
+	public static void setUseExtendedSdcard(boolean useExtendedSdcard) {
+		LOG.debug("App.setUseExtendedSdcard(): "+useExtendedSdcard);
+		App.useExtendedSdcard = useExtendedSdcard;
 	}
 }

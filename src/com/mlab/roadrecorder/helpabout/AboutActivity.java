@@ -1,10 +1,11 @@
 package com.mlab.roadrecorder.helpabout;
 
-import com.mlab.roadrecorder.alvac.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.mlab.roadrecorder.R;
 
 public class AboutActivity extends Activity {
 

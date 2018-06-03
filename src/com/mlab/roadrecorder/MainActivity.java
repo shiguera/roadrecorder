@@ -1,11 +1,12 @@
 package com.mlab.roadrecorder;
 
 import java.io.File;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import android.os.Environment;
+import android.util.Log;
 import org.apache.log4j.Logger;
 
 import android.app.AlertDialog;
@@ -13,11 +14,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.CamcorderProfile;
 import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,10 +32,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.speech.tts.TextToSpeech;
 
-import com.mlab.android.utils.AndroidUtils;
-import com.mlab.roadrecorder.alvac.R;
 import com.mlab.roadrecorder.helpabout.AboutActivity;
 import com.mlab.roadrecorder.helpabout.HelpActivity;
 import com.mlab.roadrecorder.settings.SettingsActivity;
@@ -50,6 +51,7 @@ import com.mlab.roadrecorder.view.command.GetSpeedCommand;
 import de.mindpipe.android.logging.log4j.LogConfigurator;
 
 public class MainActivity extends FragmentActivity implements TextToSpeech.OnInitListener {
+    final String LOGTAG = "ROADRECORDER";
 	private final static Logger LOG = Logger.getLogger(MainActivity.class);
 
 	private enum RunModes {
@@ -108,11 +110,15 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		textToSpeech = new TextToSpeech(this, this);
+		
+		executor = Executors.newFixedThreadPool(5);
+
 		if (!initApplicationDirectory()) {
 			exit("ERROR: Can't open application directory");
 			return;
 		}
-
+		
 		configureLogger();
 		LOG.info("-----------------------");
 		LOG.info("MainActivity.onCreate()");
@@ -120,9 +126,6 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 
 		loadPreferences();
 
-		textToSpeech = new TextToSpeech(this, this);
-		
-		executor = Executors.newFixedThreadPool(5);
 		
 		preInitLayout();
 
@@ -130,8 +133,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 
 		postInitLayout();
 		
-		
-
+		//checkVideoResolutions();
 	}
 
 	@Override
@@ -189,30 +191,43 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	}
 
 	// Private methods
+	private void checkVideoResolutions() {
+		LOG.debug("checkVideoResolutions()");
+		LOG.debug("has 1080P" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P));
+		LOG.debug("has 720P" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_720P));
+		LOG.debug("has 480P" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_480P));
+		LOG.debug("has HIGH" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH));
+		LOG.debug("has LOW" + CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW));
+	}
+	
 	private void loadPreferences() {
-		PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
 		//LOG.debug("MainActivity.loadPreferences()");
+
+		PreferenceManager.setDefaultValues(this, R.xml.prefs, false);
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		boolean highres = prefs.getBoolean("highres", false);
-		//LOG.debug("highres=" + highres );
-		App.setHighResolutionVideoRecording(highres);
-		boolean saveascsv = prefs.getBoolean("saveascsv", false);
-		//LOG.debug("saveascsv=" + saveascsv );
+		
+		String videores = prefs.getString("videoresolution", App.getVideoResolution());
+		App.setVideoResolution(videores);
+		
+		boolean useextendedsdcard = prefs.getBoolean("useextendedsdcard", App.isUseExtendedSdcard());
+		App.setUseExtendedSdcard(useextendedsdcard);
+
+		boolean saveascsv = prefs.getBoolean("saveascsv", App.isSaveAsCsv());
 		App.setSaveAsCsv(saveascsv);
 		
-		App.setUseVoiceSyntetizer(prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer()));
+		boolean voiceMessages = prefs.getBoolean("voicemessages", App.isUseVoiceSyntetizer());
+		App.setUseVoiceSyntetizer(voiceMessages);
 
 		// Se guarda como una cadena de texto
-		int mindiskspace = parseMinDiskSpace(prefs);
-		//LOG.debug("mindiskspace=" + mindiskspace );
+		long mindiskspace = parseMinDiskSpace(prefs);
 		App.setMinDiskSpaceToSave(mindiskspace);
 		
 	}
-	private int parseMinDiskSpace(SharedPreferences prefs) {
+	private long parseMinDiskSpace(SharedPreferences prefs) {
 		String diskspaceCad = prefs.getString("mindiskspace", "");
-		int result = App.getMinDiskSpaceToSave();
+		long result = App.getMinDiskSpaceToSave();
 		try {
-			result = Integer.parseInt(diskspaceCad);
+			result = Long.parseLong(diskspaceCad);
 		} catch (Exception e) {
 			LOG.error("parseMinDiskSpace() ERROR: Can't parse mindikspace");
 		}
@@ -246,6 +261,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		logConfigurator.configure();
 	}
 
+
 	/**
 	 * Inicializa el directorio utilizado por la aplicación.<br/>
 	 * Si existe una secondary sdcard la selecciona y si no selecciona la sdcard
@@ -259,35 +275,61 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 	 *         a la aplicación
 	 */
 	private boolean initApplicationDirectory() {
-		File outdir = null;
+		//doTests();
+		//System.out.println("isExternalStorageEnabled(): " + AndroidUtils.isExternalStorageEnabled());
 		
-//      Canceled on 2014-11-11 
-//      Try secondary card
-//      List<File> secdirs = AndroidUtils.getSecondaryStorageDirectories();		
-//		if (secdirs.size() > 0) {
-//			LOG.info("MainController.initApplicationDirectory() appdir: "
-//					+ secdirs.get(0).getPath());
-//			outdir = new File(secdirs.get(0), App.getAppDirectoryName());
-//			return setApplicationDirectory(outdir);
+		
+//		if(App.isUseExtendedSdcard()) {
+//			boolean result = checkExtendedSdcard();
+//			if (result) {
+//				return result;
+//			} else {
+//				System.out.println("ERROR, no se pudo acceder a la memoria extendida del dispositivo");
+//				speak("ERROR, no se pudo acceder a la memoria extendida del dispositivo");
+//			}
 //		}
+//
+//		App.setUseExtendedSdcard(false);
 		
-		// Try normal external storage
-		if (!AndroidUtils.isExternalStorageEnabled()) {
-			LOG.info("MainController.initApplicationDirectory() "
-					+ "ERROR, can't init external storage");
-			return false;
-		}
-		outdir = new File(AndroidUtils.getExternalStorageDirectory(),
-				App.getAppDirectoryName());
-		return setApplicationDirectory(outdir);
+		//File outdir = new File(AndroidUtils.getExternalStorageDirectory(), App.getAppDirectoryName());
+		File outdir = getMoviesStorageDir(App.getAppDirectoryName());
+
+		boolean result = setApplicationDirectory(outdir);
+		if (result) {
+			LOG.info("App directory: " + outdir.getPath());
+			Log.d(LOGTAG, "MainActivity.initApplicationDirectory():: App directory= " + outdir.toString());
+		} else {
+			System.out.println("ERROR: Can't access to application directory");
+			LOG.error("ERROR: Can't access to application directory");
+			Log.e(LOGTAG, "ERROR: Can't access to application directory");
+		}		
+		return result;
 	}
+    public static File getMoviesStorageDir(String folderName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), folderName);
+        if (file.exists()==false && !file.mkdirs()) {
+            LOG.error("getMoviesStorageDir(): Directory not created");
+            System.out.println("getMoviesStorageDir(): Directory " + file.getPath() + " not created");
+            return null;
+        }
+        return file;
+    }
 
 	private boolean setApplicationDirectory(File outdir) {
+		if(outdir == null) {
+			System.out.println("setApplicationDirectory() outdir=NULL" );
+			return false;
+		}
+		System.out.println("setApplicationDirectory() " + outdir.getPath());
 		if (!outdir.exists()) {
+			System.out.println("setApplicationDirectory() outdir doesn't exist");
 			if (!outdir.mkdir()) {
+				System.out.println("setApplicationDirectory() can't create directory");
 				return false;
 			}
 		}
+		System.out.println("setApplicationDirectory() outdir=" + outdir.getPath());					
 		App.setApplicationDirectory(outdir);
 		return true;
 	}
@@ -436,6 +478,7 @@ public class MainActivity extends FragmentActivity implements TextToSpeech.OnIni
 		switch (item.getItemId()) {
 		case R.id.menuitem_settings:
 			startActivitySettings();
+			initApplicationDirectory();
 			break;
 		case R.id.menuitem_help:
 			startActivityHelp();

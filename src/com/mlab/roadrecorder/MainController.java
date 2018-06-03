@@ -2,17 +2,20 @@ package com.mlab.roadrecorder;
 
 import java.io.File;
 
+import android.os.Environment;
+import android.os.StatFs;
 import org.apache.log4j.Logger;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.location.GpsStatus;
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.mlab.android.gpsmanager.GpsListener;
-import com.mlab.android.utils.AvailableSpaceHandler;
 import com.mlab.gpx.impl.util.Util;
 import com.mlab.roadrecorder.App.VERSION;
 import com.mlab.roadrecorder.MainActivity.NotificationLevel;
@@ -28,6 +31,7 @@ import com.mlab.roadrecorder.video.VideoController;
 
 public class MainController extends Activity  implements Controller, GpsListener, GpsStatus.Listener {
 
+    final String LOGTAG = "ROADRECORDER";
 	private static Logger LOG = Logger.getLogger(MainController.class);
 		
 	MainActivity activity;
@@ -53,7 +57,8 @@ public class MainController extends Activity  implements Controller, GpsListener
 		initMediaRecorder(model.getOutputDirectory());
 		
 		// Set version
-		setVersionLimits(App.getVERSION_NAME(), App.getVERSION_NUMBER());
+		// Invalidado el 3/6/2018 para entregar la versión a Claudio Rodriguez (Argentina)
+		//setVersionLimits(App.getVERSION_NAME(), App.getVERSION_NUMBER());
 		
 		// GpsModel
 		gpsModel = new GpsModel(activity);
@@ -81,7 +86,7 @@ public class MainController extends Activity  implements Controller, GpsListener
 			
 		}		
 	}
-	
+
 	public void onRestart() {
 		LOG.debug("MainController.onRestart()");
 		videoController.postInitMediaRecorder();
@@ -152,16 +157,40 @@ public class MainController extends Activity  implements Controller, GpsListener
 		return;
 	}
 	private boolean checkDiskSpace() {
-		int maxVideoFileSize = (int) AvailableSpaceHandler.getAvailableSpaceInMB(model.getOutputDirectory().getPath());
+        Log.d(LOGTAG, "MainController.checkDiskSpace():: ");
+        //doIntegerOperationsTest();
+		long maxVideoFileSize =  getExternalAvailableSpaceInBytes();
 		// LOG.info("Available space: "+maxVideoFileSize);
+        Log.d(LOGTAG, "MainController.checkDiskSpace():: " + maxVideoFileSize);
 		if(maxVideoFileSize < App.getMinDiskSpaceToSave()) {
 			return false;
 		}
-		maxVideoFileSize = (int) 0.8 * maxVideoFileSize;
+		maxVideoFileSize = (long) (0.8 * maxVideoFileSize);
+		Log.d(LOGTAG, "MainController.checkDiskSpace():: " + maxVideoFileSize);
 		videoController.setMaxVideoFileSize(maxVideoFileSize);		
 		return true;
 	}
-	public void stopRecording() {
+    public long getExternalAvailableSpaceInBytes() {
+        long availableSpace = -1L;
+        try {
+            StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+            availableSpace = (long)stat.getAvailableBlocksLong() * (long)stat.getBlockSizeLong();
+        } catch (Exception e) {
+            Log.d(LOGTAG, "MainController.getExternalAvailableDiskSpaceInBytes():: ERROR " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return availableSpace;
+    }
+    private void doIntegerOperationsTest() {
+        long maxVideoFileSize = getExternalAvailableSpaceInBytes();
+        Log.d(LOGTAG, "MainController.doIntegerOperattionsTest():: externalAvailableSpace= " + maxVideoFileSize);
+        maxVideoFileSize = (long) (0.8 * maxVideoFileSize);
+        Log.d(LOGTAG, "MainController.doIntegerOperattionsTest():: 0.8*externalAvailableSpace= " + maxVideoFileSize);
+    }
+
+
+    public void stopRecording() {
 		activity.setButtonState(new BtnDisabledState(activity));
 		
 		if(videoController.isRecording()) {
@@ -174,6 +203,8 @@ public class MainController extends Activity  implements Controller, GpsListener
 						NotificationLevel.ERROR, true);
 				activity.speak("Error, no se pudo grabar el archivo de vídeo");
 			}
+			activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, 
+					Uri.fromFile(videoController.getModel().getOutputFile())));
 		}
 		
 		if(gpsModel.isRecording()) {
@@ -187,7 +218,6 @@ public class MainController extends Activity  implements Controller, GpsListener
 				activity.speak("Error, no se pudo grabar el track, no hay puntos");
 			}
 		}
-		
 		activity.setButtonState(new BtnStoppedState(activity));
 		return;
 	}
@@ -195,9 +225,9 @@ public class MainController extends Activity  implements Controller, GpsListener
 		LOG.debug("MainController.saveTrack()");
 		File outputVideoFile = videoController.getModel().getOutputFile();
 		String namewithoutext = Util.fileNameWithoutExtension(outputVideoFile);
-		this.saveGpxFile(namewithoutext);				
+		saveGpxFile(namewithoutext);				
 		if(App.isSaveAsCsv()) {
-			this.saveCsvFile(namewithoutext);	
+			saveCsvFile(namewithoutext);	
 		} else {
 			LOG.debug("Doesn't save as CSV");
 		}
@@ -205,26 +235,31 @@ public class MainController extends Activity  implements Controller, GpsListener
 	private void saveCsvFile(String namewithoutext) {
 		LOG.debug("MainController.saveCsvFile()");
 		String csvfilename = namewithoutext + ".csv";
+		File file = new File(model.getOutputDirectory(), csvfilename);
 		boolean result = gpsModel.saveTrackAsCsv(
-				new File(model.getOutputDirectory(), csvfilename), true);
+				file, true);
 		if(!result) {
 			activity.showNotification("Error saving CSV file", 
 				NotificationLevel.ERROR, true);
 		} else {
 			LOG.debug("MainController.saveCsvFile(): file" + csvfilename + " saved");
 		}
-		
+		activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, 
+				Uri.fromFile(file)));
 	}
 	private void saveGpxFile(String namewithoutext) {
 		LOG.debug("MainController.saveGpxFile()");
 		String gpxfilename = namewithoutext+".gpx";
-		boolean result = gpsModel.saveTrackAsGpx(new File(model.getOutputDirectory(), gpxfilename));
+		File file = new File(model.getOutputDirectory(), gpxfilename);
+		boolean result = gpsModel.saveTrackAsGpx(file);
 		if(!result) {
 			activity.showNotification("Error saving GPX file", 
 				NotificationLevel.ERROR, true);
 		} else {
 			LOG.debug("MainController.saveGpxFile(): file" + gpxfilename + " saved");
 		}
+		activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, 
+				Uri.fromFile(file)));
 	}
 
 	//
